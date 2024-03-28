@@ -31,6 +31,8 @@ Route::prefix('/v1')->group(function () {
 
     //Route::middleware(['auth', 'verified'])->group(function () {
 
+        /* ADMINISTRADOR*/
+
         /** Routes For User Management  */
         Route::get('users', [UsersController::class, 'getUsersList']);
         Route::post('users/store', [AuthenticationController::class, 'register']);
@@ -48,6 +50,14 @@ Route::prefix('/v1')->group(function () {
         Route::post('roles/store', [RolesController::class, 'saveRole']);
         Route::put('roles/edit/{id}', [RolesController::class, 'modifyRoleById']);
         Route::delete('roles/delete/{id?}', [RolesController::class, 'inactivateRoleById']);
+
+        /*--------------------------------------------------------------------------------*/
+
+
+
+        /* TABLA MAESTRAS ESTADO  */
+
+
 
     //});
 
