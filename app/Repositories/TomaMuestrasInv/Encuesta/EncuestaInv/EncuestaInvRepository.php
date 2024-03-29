@@ -297,7 +297,7 @@ class EncuestaInvRepository implements EncuestaInvRepositoryInterface
 
             DB::commit();
 
-            return $this->success($log, 1, 'Muestras recibidas en el centro de custodio', 201);
+            //return $this->success($log, 1, 'Muestras recibidas en el centro de custodio', 201);
 
 
         } catch (\Throwable $th) {
