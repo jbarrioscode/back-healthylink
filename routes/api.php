@@ -73,6 +73,8 @@ Route::prefix('/v1')->group(function () {
     Route::post('/encuesta/post/registrarencuesta', [EncuestaController::class, 'crearEncuesta']);
     Route::post('/encuesta/post/asignarmuestrasalote', [EncuestaController::class, 'crearAsignacionAutomaticaAlote']);
     Route::post('/encuesta/post/lotesentrasporte', [EncuestaController::class, 'lotesEntrasporte']);
+    Route::post('/encuesta/post/lotemuestrasrecibidasbiobanco', [EncuestaController::class, 'muestrasEntregadasBioBanco']);
+
 
 
 

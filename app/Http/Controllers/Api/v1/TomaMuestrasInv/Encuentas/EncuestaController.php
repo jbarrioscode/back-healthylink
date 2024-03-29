@@ -45,4 +45,14 @@ class EncuestaController extends Controller
             throw $th;
         }
     }
+    public function muestrasEntregadasBioBanco(Request $request)
+    {
+        try {
+
+            return $this->encuestaRepository->muestrasEntregadasBioBanco($request);
+
+        } catch (\Throwable $th) {
+            throw $th;
+        }
+    }
 }

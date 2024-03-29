@@ -219,6 +219,96 @@ class EncuestaInvRepository implements EncuestaInvRepositoryInterface
         }
     }
 
+    public function muestrasEntregadasBioBanco(Request $request)
+    {
+
+        DB::beginTransaction();
+
+        try {
+
+            $rules = [
+                'code_lote' => 'required|string',
+                'user_id_executed' => 'required',
+            ];
+
+            $messages = [
+                'code_lote.required' => 'code_lote está vacio.',
+                'user_id_executed.required' => 'ID usuario está vacio.',
+            ];
+
+            $validator = Validator::make($request->all(), $rules, $messages);
+            if ($validator->fails()) {
+                return $this->error($validator->errors(), 422, []);
+            }
+
+
+            $muestras = LoteMuestras::select('lote_muestras.minv_formulario_muestras_id')
+                ->join('lotes', 'lotes.id', '=', 'lote_muestras.lote_id')
+                ->where('lotes.code_lote', $request->code_lote)
+                ->get();
+
+            $log=[];
+            foreach ($muestras as $mu) {
+
+                $log[]=LogMuestras::create([
+                    'minv_formulario_id' => $mu->minv_formulario_muestras_id,
+                    'user_id_executed' => $request->user_id_executed,
+                    'minv_estados_muestras_id' => 4,
+                ]);
+
+            }
+
+            DB::commit();
+
+            return $this->success($log, 1, 'Muestras recibidas en el centro de custodio', 201);
+
+
+        } catch (\Throwable $th) {
+            DB::rollBack();
+            return $this->error('Hay un error' . $th, 204, []);
+            throw $th;
+        }
+
+    }
+
+    public function muestrasAsignadasAnevera(Request $request)
+    {
+
+        try {
+
+            $rules = [
+                'code_paciente' => 'required|string',
+                'user_id_executed' => 'required',
+                'ubicacion_estante_id' => 'required',
+            ];
+
+            $messages = [
+                'code_paciente.required' => 'Codigo de paciente está vacio.',
+                'user_id_executed.required' => 'ID usuario está vacio.',
+                'ubicacion_estante_id.required' => 'ID de la nevera o estante se encuentra vacia.',
+            ];
+
+            $validator = Validator::make($request->all(), $rules, $messages);
+            if ($validator->fails()) {
+                return $this->error($validator->errors(), 422, []);
+            }
+
+
+
+            DB::commit();
+
+            return $this->success($log, 1, 'Muestras recibidas en el centro de custodio', 201);
+
+
+        } catch (\Throwable $th) {
+            DB::rollBack();
+            return $this->error('Hay un error' . $th, 204, []);
+            throw $th;
+        }
+
+    }
+
+
 }
 
 

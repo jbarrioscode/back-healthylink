@@ -14,4 +14,8 @@ public function crearAsignacionAutomaticaAlote(Request $reques);
 
 public function lotesEnTrasporte(Request $request);
 
+public function muestrasEntregadasBioBanco(Request $request);
+
+public function muestrasAsignadasAnevera(Request $request);
+
 }
