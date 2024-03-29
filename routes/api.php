@@ -70,7 +70,8 @@ Route::prefix('/v1')->group(function () {
     /*--------------------------------------------------------------------------------*/
     /* ENCUESTA */
 
-    Route::post('/encuesta/post/crearEncuesta', [EncuestaController::class, 'crearEncuesta']);
+    Route::post('/encuesta/post/registrarencuesta', [EncuestaController::class, 'crearEncuesta']);
+    Route::post('/encuesta/post/asignarmuestrasalote', [EncuestaController::class, 'crearAsignacionAutomaticaAlote']);
 
 
     //});

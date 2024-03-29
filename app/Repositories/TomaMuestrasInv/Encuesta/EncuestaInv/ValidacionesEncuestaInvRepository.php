@@ -3,6 +3,8 @@
 namespace App\Repositories\TomaMuestrasInv\Encuesta\EncuestaInv;
 
 use App\Models\TomaMuestrasInv\Muestras\FormularioMuestra;
+use App\Models\TomaMuestrasInv\Muestras\LoteMuestras;
+use Illuminate\Support\Facades\DB;
 
 class ValidacionesEncuestaInvRepository
 {
@@ -172,6 +174,25 @@ class ValidacionesEncuestaInvRepository
         if (!empty($campos_vacios)) {
             return "Los siguientes campos están vacíos: " . implode(', ', $campos_vacios);
         }
+        return '';
+    }
+
+    public static function validarAsignarMuestraALote($muestras){
+
+        $muestrasIds = array_column($muestras, 'muestra_id');
+
+        $muestrasEnLote = LoteMuestras::whereIn('minv_formulario_muestras_id', $muestrasIds)
+            ->select('minv_formulario_muestras_id')
+            ->get()
+            ->pluck('minv_formulario_muestras_id')
+            ->toArray();
+
+        foreach ($muestras as $mue) {
+            if (in_array($mue['muestra_id'], $muestrasEnLote)) {
+                return 'El id ' . $mue['muestra_id'] . ' ya se encuentra registrado en un lote';
+            }
+        }
+
         return '';
     }
 

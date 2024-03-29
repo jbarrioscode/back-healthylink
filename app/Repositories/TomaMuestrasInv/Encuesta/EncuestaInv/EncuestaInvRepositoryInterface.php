@@ -8,4 +8,9 @@ interface EncuestaInvRepositoryInterface
 {
 public function crearEncuesta(Request $request);
 
+//ASIGNACION DE MUESTRAS A LOTE
+
+public function crearAsignacionAutomaticaAlote(Request $reques);
+
+
 }

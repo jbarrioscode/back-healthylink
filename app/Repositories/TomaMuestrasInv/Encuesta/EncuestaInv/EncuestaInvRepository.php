@@ -5,9 +5,12 @@ namespace App\Repositories\TomaMuestrasInv\Encuesta\EncuestaInv;
 use App\Models\TomaMuestrasInv\Muestras\DetalleEncuesta;
 use App\Models\TomaMuestrasInv\Muestras\FormularioMuestra;
 use App\Models\TomaMuestrasInv\Muestras\LogMuestras;
+use App\Models\TomaMuestrasInv\Muestras\Lote;
+use App\Models\TomaMuestrasInv\Muestras\LoteMuestras;
 use App\Traits\AuthenticationTrait;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Str;
 
 
@@ -103,7 +106,7 @@ class EncuestaInvRepository implements EncuestaInvRepositoryInterface
             DB::commit();
             $formulario->detalle = $detalle;
 
-            return $formulario;
+            return $this->success($formulario,1,'Formulario registrado',201);
 
         } catch (\Throwable $th) {
             DB::rollBack();
@@ -112,4 +115,61 @@ class EncuestaInvRepository implements EncuestaInvRepositoryInterface
         }
     }
 
+    public function crearAsignacionAutomaticaAlote(Request $request)
+    {
+        DB::beginTransaction();
+
+        try {
+
+            $validacion = ValidacionesEncuestaInvRepository::validarAsignarMuestraALote($request->muestras);
+
+            if ($validacion != "") {
+                return $this->error($validacion, 204, []);
+            }
+
+            $ultimoID = null;
+
+            $ultimoRegistro = Lote::latest()->first();
+
+            if ($ultimoRegistro) {
+                $ultimoID = $ultimoRegistro->id;
+            } else {
+                $ultimoID = 0;
+            }
+
+            $lote = Lote::create([
+                'code_lote' => 'LOT-'.($ultimoID+1),
+            ]);
+            $idErrorMuestra=0;
+            foreach ($request->muestras as $mu){
+                $idErrorMuestra=$mu['muestra_id'];
+                $detalleLote[] = LoteMuestras::create([
+                    'minv_formulario_muestras_id' => $mu['muestra_id'],
+                    'lote_id' => $lote->id,
+                ]);
+
+                LogMuestras::create([
+                    'minv_formulario_id' => $mu['muestra_id'],
+                    'user_id_executed' => $request->user_id,
+                    'minv_estados_muestras_id' => 2,
+                ]);
+            }
+
+            $lote->detalleLote = $detalleLote;
+
+            DB::commit();
+
+            return $this->success($lote,1,'Lote registrado correctamente',201);
+
+
+
+        } catch (\Throwable $th) {
+            DB::rollBack();
+            return $this->error('Hay un error con el ID de la muestra: '.$idErrorMuestra, 204, []);
+            throw $th;
+        }
+    }
+
 }
+
+

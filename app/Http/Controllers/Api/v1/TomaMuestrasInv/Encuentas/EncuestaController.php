@@ -25,4 +25,14 @@ class EncuestaController extends Controller
             throw $th;
         }
     }
+    public function crearAsignacionAutomaticaAlote(Request $request)
+    {
+        try {
+
+            return $this->encuestaRepository->crearAsignacionAutomaticaAlote($request);
+
+        } catch (\Throwable $th) {
+            throw $th;
+        }
+    }
 }
