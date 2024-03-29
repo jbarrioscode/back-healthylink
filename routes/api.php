@@ -70,8 +70,7 @@ Route::prefix('/v1')->group(function () {
     /*--------------------------------------------------------------------------------*/
     /* ENCUESTA */
 
-    Route::get('/encuesta/post/crearEncuesta', [EncuestaController::class, '']);
-
+    Route::post('/encuesta/post/crearEncuesta', [EncuestaController::class, 'crearEncuesta']);
 
 
     //});
