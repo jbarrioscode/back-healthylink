@@ -106,7 +106,7 @@ class EncuestaInvRepository implements EncuestaInvRepositoryInterface
             DB::commit();
             $formulario->detalle = $detalle;
 
-            return $this->success($formulario,1,'Formulario registrado',201);
+            return $this->success($formulario, 1, 'Formulario registrado', 201);
 
         } catch (\Throwable $th) {
             DB::rollBack();
@@ -138,11 +138,11 @@ class EncuestaInvRepository implements EncuestaInvRepositoryInterface
             }
 
             $lote = Lote::create([
-                'code_lote' => 'LOT-'.($ultimoID+1),
+                'code_lote' => 'LOT-' . ($ultimoID + 1),
             ]);
-            $idErrorMuestra=0;
-            foreach ($request->muestras as $mu){
-                $idErrorMuestra=$mu['muestra_id'];
+            $idErrorMuestra = 0;
+            foreach ($request->muestras as $mu) {
+                $idErrorMuestra = $mu['muestra_id'];
                 $detalleLote[] = LoteMuestras::create([
                     'minv_formulario_muestras_id' => $mu['muestra_id'],
                     'lote_id' => $lote->id,
@@ -159,13 +159,62 @@ class EncuestaInvRepository implements EncuestaInvRepositoryInterface
 
             DB::commit();
 
-            return $this->success($lote,1,'Lote registrado correctamente',201);
-
+            return $this->success($lote, 1, 'Lote registrado correctamente', 201);
 
 
         } catch (\Throwable $th) {
             DB::rollBack();
-            return $this->error('Hay un error con el ID de la muestra: '.$idErrorMuestra, 204, []);
+            return $this->error('Hay un error con el ID de la muestra: ' . $idErrorMuestra, 204, []);
+            throw $th;
+        }
+    }
+
+    public function lotesEnTrasporte(Request $request)
+    {
+        DB::beginTransaction();
+
+        try {
+
+            $rules = [
+                'code_lote' => 'required|string',
+                'user_id_executed' => 'required',
+            ];
+
+            $messages = [
+                'code_lote.required' => 'code_lote está vacio.',
+                'user_id_executed.required' => 'ID usuario está vacio.',
+            ];
+
+            $validator = Validator::make($request->all(), $rules, $messages);
+            if ($validator->fails()) {
+                return $this->error($validator->errors(), 422, []);
+            }
+
+
+            $muestras = LoteMuestras::select('lote_muestras.minv_formulario_muestras_id')
+                ->join('lotes', 'lotes.id', '=', 'lote_muestras.lote_id')
+                ->where('lotes.code_lote', $request->code_lote)
+                ->get();
+
+            $log=[];
+            foreach ($muestras as $mu) {
+
+                $log[]=LogMuestras::create([
+                    'minv_formulario_id' => $mu->minv_formulario_muestras_id,
+                    'user_id_executed' => $request->user_id_executed,
+                    'minv_estados_muestras_id' => 3,
+                ]);
+
+            }
+
+            DB::commit();
+
+            return $this->success($log, 1, 'Muestras en trasporte', 201);
+
+
+        } catch (\Throwable $th) {
+            DB::rollBack();
+            return $this->error('Hay un error' . $th, 204, []);
             throw $th;
         }
     }

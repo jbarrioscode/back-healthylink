@@ -12,5 +12,6 @@ public function crearEncuesta(Request $request);
 
 public function crearAsignacionAutomaticaAlote(Request $reques);
 
+public function lotesEnTrasporte(Request $request);
 
 }

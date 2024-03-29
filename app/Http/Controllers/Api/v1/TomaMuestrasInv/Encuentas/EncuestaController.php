@@ -35,4 +35,14 @@ class EncuestaController extends Controller
             throw $th;
         }
     }
+    public function lotesEntrasporte(Request $request)
+    {
+        try {
+
+            return $this->encuestaRepository->lotesEntrasporte($request);
+
+        } catch (\Throwable $th) {
+            throw $th;
+        }
+    }
 }
