@@ -11,7 +11,7 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('consentimiento_informado_pacientes', function (Blueprint $table) {
+        Schema::create('revocacion_consentimiento_informado_pacientes', function (Blueprint $table) {
             $table->id();
             $table->timestamps();
             $table->softDeletes();
@@ -30,6 +30,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('consentimiento_informado_pacientes');
+        Schema::dropIfExists('revocacion_consentimiento_informado_pacientes');
     }
 };

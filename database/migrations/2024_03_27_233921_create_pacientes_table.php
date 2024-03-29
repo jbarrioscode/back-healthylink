@@ -24,8 +24,10 @@ return new class extends Migration
             $table->string('segundo_apellido');
             $table->date('fecha_nacimiento');
             $table->date('fecha_expedicion')->nullable();
-            $table->unsignedBigInteger('ciudad_municipio_id');
-            $table->foreign('ciudad_municipio_id')->references('id')->on('ciudades_municipios');
+            $table->string('telefono_celular');
+            $table->string('pais_residencia')->nullable();
+            $table->string('departamento_residencia')->nullable();
+            $table->string('ciudad_residencia')->nullable();
 
         });
     }

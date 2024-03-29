@@ -11,7 +11,7 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('minv_asignacion_muestra_ubicacions', function (Blueprint $table) {
+        Schema::create('minv_asignacion_muestra_ubicacion', function (Blueprint $table) {
             $table->id();
             $table->timestamps();
             $table->softDeletes();
@@ -21,6 +21,7 @@ return new class extends Migration
             $table->foreign('user_id_located')->references('id')->on('users');
             $table->unsignedBigInteger('minv_formulario_muestras_id');
             $table->foreign('minv_formulario_muestras_id')->references('id' )->on('minv_formulario_muestras');
+
         });
     }
 
@@ -29,6 +30,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('minv_sasignacion_muestra_ubicacions');
+        Schema::dropIfExists('minv_asignacion_muestra_ubicacion');
     }
 };

@@ -22,6 +22,8 @@ return new class extends Migration
             $table->string('code_paciente');
             $table->unsignedBigInteger('tipo_estudio_id');
             $table->foreign('tipo_estudio_id')->references('id')->on('minv_tipo_estudios');
+            $table->unsignedBigInteger('sedes_toma_muestras_id');
+            $table->foreign('sedes_toma_muestras_id')->references('id')->on('sedes_toma_muestras');
         });
     }
 
