@@ -55,4 +55,14 @@ class EncuestaController extends Controller
             throw $th;
         }
     }
+    public function muestrasAsignadasAnevera(Request $request)
+    {
+        try {
+
+            return $this->encuestaRepository->muestrasAsignadasAnevera($request);
+
+        } catch (\Throwable $th) {
+            throw $th;
+        }
+    }
 }

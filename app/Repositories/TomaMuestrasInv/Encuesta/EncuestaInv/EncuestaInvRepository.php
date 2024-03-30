@@ -2,6 +2,7 @@
 
 namespace App\Repositories\TomaMuestrasInv\Encuesta\EncuestaInv;
 
+use App\Models\TomaMuestrasInv\Muestras\AsignacionMuestraUbicacion;
 use App\Models\TomaMuestrasInv\Muestras\DetalleEncuesta;
 use App\Models\TomaMuestrasInv\Muestras\FormularioMuestra;
 use App\Models\TomaMuestrasInv\Muestras\LogMuestras;
@@ -278,14 +279,14 @@ class EncuestaInvRepository implements EncuestaInvRepositoryInterface
 
             $rules = [
                 'code_paciente' => 'required|string',
-                'user_id_executed' => 'required',
-                'ubicacion_estante_id' => 'required',
+                'user_id' => 'required',
+                'ubicacion_estantes_id' => 'required',
             ];
 
             $messages = [
                 'code_paciente.required' => 'Codigo de paciente está vacio.',
-                'user_id_executed.required' => 'ID usuario está vacio.',
-                'ubicacion_estante_id.required' => 'ID de la nevera o estante se encuentra vacia.',
+                'user_id.required' => 'ID usuario está vacio.',
+                'ubicacion_estantes_id.required' => 'ID de la nevera o estante se encuentra vacia.',
             ];
 
             $validator = Validator::make($request->all(), $rules, $messages);
@@ -293,11 +294,32 @@ class EncuestaInvRepository implements EncuestaInvRepositoryInterface
                 return $this->error($validator->errors(), 422, []);
             }
 
+            $formulario=FormularioMuestra::where('code_paciente',$request->code_paciente)->get();
 
+            $encuesta_id=0;
+
+            foreach ($formulario as $form){
+                $encuesta_id=$form->id;
+            }
+
+            if($encuesta_id===0) return $this->error('No existe estudio con ese codigo de paciente', 422, []);
+
+
+            $asignacion=AsignacionMuestraUbicacion::create([
+                'minv_formulario_muestras_id' => $encuesta_id,
+                'user_id_located' => $request->user_id,
+                'ubicacion_estantes_id' => $request->ubicacion_estantes_id,
+            ]);
+
+           LogMuestras::create([
+                'minv_formulario_id' => $encuesta_id,
+                'user_id_executed' => $request->user_id,
+                'minv_estados_muestras_id' => 5,
+            ]);
 
             DB::commit();
 
-            //return $this->success($log, 1, 'Muestras recibidas en el centro de custodio', 201);
+            return $this->success($asignacion, 1, 'Asignacion realizada correctamente', 201);
 
 
         } catch (\Throwable $th) {
