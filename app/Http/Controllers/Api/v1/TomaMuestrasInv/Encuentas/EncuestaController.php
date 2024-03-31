@@ -25,6 +25,16 @@ class EncuestaController extends Controller
             throw $th;
         }
     }
+    public function AgregarInformacionComplementaria(Request $request)
+    {
+        try {
+
+            return $this->encuestaRepository->AgregarInformacionComplementaria($request);
+
+        } catch (\Throwable $th) {
+            throw $th;
+        }
+    }
     public function crearAsignacionAutomaticaAlote(Request $request)
     {
         try {

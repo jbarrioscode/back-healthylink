@@ -3,6 +3,7 @@
 namespace App\Repositories\TomaMuestrasInv\Encuesta\EncuestaInv;
 
 use App\Models\TomaMuestrasInv\Muestras\FormularioMuestra;
+use App\Models\TomaMuestrasInv\Muestras\LogMuestras;
 use App\Models\TomaMuestrasInv\Muestras\LoteMuestras;
 use Illuminate\Support\Facades\DB;
 
@@ -173,6 +174,56 @@ class ValidacionesEncuestaInvRepository
 
         if (!empty($campos_vacios)) {
             return "Los siguientes campos están vacíos: " . implode(', ', $campos_vacios);
+        }
+        return '';
+    }
+
+    public static function validarInformacionHistoriaClinica($data,$encuesta_id)
+    {
+        if(FormularioMuestra::where('id',$encuesta_id)->count()==0){
+            return 'No existe encuesta con este ID';
+        }
+
+        if(LogMuestras::where('minv_formulario_id',$encuesta_id)
+            ->where('minv_estados_muestras_id',2)
+            ->count()==1){
+            return 'Ya existe información de la historia clinica registrada';
+        }
+
+        //------------------------------------------
+        $preguntaIds = range(1, 7);
+        $preguntasPresentes = array_column($data, 'pregunta_id');
+
+        foreach ($preguntaIds as $preguntaId) {
+            if (!in_array($preguntaId, $preguntasPresentes)) {
+                return "Falta al menos un registro para la pregunta_id: ". $preguntaId;
+            }
+
+        }
+
+        foreach ($data as $inf) {
+
+            if (!isset($inf['fecha'])) {
+               return 'Pregunta '.$inf['pregunta_id'].' debe contener fecha';
+            }
+
+            if (!isset($inf['respuesta'])) {
+                return 'Pregunta '.$inf['pregunta_id'].' debe contener respuesta';
+            }
+
+            switch ($inf['pregunta_id']) {
+                case 5:
+                    if (!isset($inf['unidad'])) {
+                       return "Se requiere 'unidad' para la pregunta_id 5";
+                    }
+                    break;
+                case 7:
+                    if (!isset($inf['tipo_imagen'])) {
+                        return "Se requiere 'tipo imagen' para la pregunta_id 7";
+                    }
+                    break;
+            }
+
         }
         return '';
     }

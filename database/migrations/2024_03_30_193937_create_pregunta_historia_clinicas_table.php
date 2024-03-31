@@ -11,14 +11,12 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('informacion_complementaria_historia_clinicas', function (Blueprint $table) {
+        Schema::create('minv_pregunta_historia_clinicas', function (Blueprint $table) {
             $table->id();
             $table->timestamps();
             $table->softDeletes();
-            $table->text('antecedentes_patologicoss_cie10');
-            $table->text('antecedentes_farmacologicos');
-            $table->text('otros_antecedentes');
-
+            $table->string('pregunta');
+            $table->string('descripcion')->nullable();
         });
     }
 
@@ -27,6 +25,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('informacion_complementaria_historia_clinicas');
+        Schema::dropIfExists('minv_pregunta_historia_clinicas');
     }
 };

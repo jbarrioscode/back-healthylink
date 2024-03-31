@@ -5,6 +5,8 @@ namespace App\Repositories\TomaMuestrasInv\Encuesta\EncuestaInv;
 use App\Models\TomaMuestrasInv\Muestras\AsignacionMuestraUbicacion;
 use App\Models\TomaMuestrasInv\Muestras\DetalleEncuesta;
 use App\Models\TomaMuestrasInv\Muestras\FormularioMuestra;
+use App\Models\TomaMuestrasInv\Muestras\InformacionComplementaria\PreguntaHistoriaClinica;
+use App\Models\TomaMuestrasInv\Muestras\InformacionComplementaria\RespuestaInformacionHistoriaClinica;
 use App\Models\TomaMuestrasInv\Muestras\LogMuestras;
 use App\Models\TomaMuestrasInv\Muestras\Lote;
 use App\Models\TomaMuestrasInv\Muestras\LoteMuestras;
@@ -116,6 +118,71 @@ class EncuestaInvRepository implements EncuestaInvRepositoryInterface
         }
     }
 
+    public function AgregarInformacionComplementaria(Request $request)
+    {
+        DB::beginTransaction();
+
+        try {
+            $rules = [
+                'encuesta_id' => 'required',
+                'user_id' => 'required',
+            ];
+
+            $messages = [
+                'encuesta_id.required' => 'code_lote está vacio.',
+                'user_id.required' => 'user id está vacio.',
+            ];
+
+            $validator = Validator::make($request->all(), $rules, $messages);
+            if ($validator->fails()) {
+                return $this->error($validator->errors(), 422, []);
+            }
+
+            $validacion = ValidacionesEncuestaInvRepository::validarInformacionHistoriaClinica($request->datos,$request->encuesta_id);
+
+            if ($validacion != "") {
+                return $this->error($validacion, 204, []);
+            }
+
+            $respuestas = [];
+
+            foreach ($request->datos as $inf) {
+                $data = [
+                    'fecha' => $inf['fecha'],
+                    'respuesta' => $inf['respuesta'],
+                    'pregunta_id' => $inf['pregunta_id'],
+                    'minv_formulario_id' => $request->encuesta_id,
+                ];
+
+                switch ($inf['pregunta_id']) {
+                    case 5:
+                        $data['unidad'] = $inf['unidad'];
+                        break;
+                    case 7:
+                        $data['tipo_imagen'] = $inf['tipo_imagen'];
+                        break;
+                }
+
+                $respuestas[] = RespuestaInformacionHistoriaClinica::create($data);
+            }
+
+            LogMuestras::create([
+                'minv_formulario_id' => $request->encuesta_id,
+                'user_id_executed' => $request->user_id,
+                'minv_estados_muestras_id' => 2,
+            ]);
+
+            DB::commit();
+
+            return $this->success($respuestas, 1, 'Respuestas registradas correctamente', 201);
+
+        } catch (\Throwable $th) {
+            DB::rollBack();
+            //return $this->error('Hay un error con el ID de la muestra: ' . $idErrorMuestra, 204, []);
+            throw $th;
+        }
+    }
+
     public function crearAsignacionAutomaticaAlote(Request $request)
     {
         DB::beginTransaction();
@@ -152,7 +219,7 @@ class EncuestaInvRepository implements EncuestaInvRepositoryInterface
                 LogMuestras::create([
                     'minv_formulario_id' => $mu['muestra_id'],
                     'user_id_executed' => $request->user_id,
-                    'minv_estados_muestras_id' => 2,
+                    'minv_estados_muestras_id' => 3,
                 ]);
             }
 
@@ -203,7 +270,7 @@ class EncuestaInvRepository implements EncuestaInvRepositoryInterface
                 $log[]=LogMuestras::create([
                     'minv_formulario_id' => $mu->minv_formulario_muestras_id,
                     'user_id_executed' => $request->user_id_executed,
-                    'minv_estados_muestras_id' => 3,
+                    'minv_estados_muestras_id' => 4,
                 ]);
 
             }
@@ -254,7 +321,7 @@ class EncuestaInvRepository implements EncuestaInvRepositoryInterface
                 $log[]=LogMuestras::create([
                     'minv_formulario_id' => $mu->minv_formulario_muestras_id,
                     'user_id_executed' => $request->user_id_executed,
-                    'minv_estados_muestras_id' => 4,
+                    'minv_estados_muestras_id' => 5,
                 ]);
 
             }
@@ -314,7 +381,7 @@ class EncuestaInvRepository implements EncuestaInvRepositoryInterface
            LogMuestras::create([
                 'minv_formulario_id' => $encuesta_id,
                 'user_id_executed' => $request->user_id,
-                'minv_estados_muestras_id' => 5,
+                'minv_estados_muestras_id' => 6,
             ]);
 
             DB::commit();
@@ -329,6 +396,9 @@ class EncuestaInvRepository implements EncuestaInvRepositoryInterface
         }
 
     }
+
+    //------------------------------------------------------------------------------------------------------------------
+
 
 
 }
