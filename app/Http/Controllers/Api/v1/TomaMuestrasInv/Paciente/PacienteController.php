@@ -35,4 +35,14 @@ class PacienteController extends Controller
             throw $th;
         }
     }
+    public function revokeInformedConsent(Request $request)
+    {
+        try {
+
+            return $this->pacienteRepository->revokeInformedConsent($request);
+
+        } catch (\Throwable $th) {
+            throw $th;
+        }
+    }
 }

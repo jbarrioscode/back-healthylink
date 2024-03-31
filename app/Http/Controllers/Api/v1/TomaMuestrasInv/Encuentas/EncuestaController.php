@@ -75,4 +75,46 @@ class EncuestaController extends Controller
             throw $th;
         }
     }
+    //------------------------------------------------------------------------------------------------------------------
+    public function trazabilidadEncuestas(Request $request,$estado_id=0)
+    {
+        try {
+
+            return $this->encuestaRepository->trazabilidadEncuestas($request,$estado_id);
+
+        } catch (\Throwable $th) {
+            throw $th;
+        }
+    }
+    public function trazabilidadFlujoEstadosEncuesta(Request $request,$encuesta_id)
+    {
+        try {
+
+            return $this->encuestaRepository->trazabilidadFlujoEstadosEncuesta($request,$encuesta_id);
+
+        } catch (\Throwable $th) {
+            throw $th;
+        }
+    }
+
+    public function respuestasEncuesta(Request $request,$encuesta_id)
+    {
+        try {
+
+            return $this->encuestaRepository->respuestasEncuesta($request,$encuesta_id);
+
+        } catch (\Throwable $th) {
+            throw $th;
+        }
+    }
+    public function respuestasInformacionHistoriaClinica(Request $request,$encuesta_id)
+    {
+        try {
+
+            return $this->encuestaRepository->respuestasInformacionHistoriaClinica($request,$encuesta_id);
+
+        } catch (\Throwable $th) {
+            throw $th;
+        }
+    }
 }

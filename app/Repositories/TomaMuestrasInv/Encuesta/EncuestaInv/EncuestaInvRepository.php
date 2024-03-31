@@ -138,7 +138,7 @@ class EncuestaInvRepository implements EncuestaInvRepositoryInterface
                 return $this->error($validator->errors(), 422, []);
             }
 
-            $validacion = ValidacionesEncuestaInvRepository::validarInformacionHistoriaClinica($request->datos,$request->encuesta_id);
+            $validacion = ValidacionesEncuestaInvRepository::validarInformacionHistoriaClinica($request->datos, $request->encuesta_id);
 
             if ($validacion != "") {
                 return $this->error($validacion, 204, []);
@@ -264,10 +264,10 @@ class EncuestaInvRepository implements EncuestaInvRepositoryInterface
                 ->where('lotes.code_lote', $request->code_lote)
                 ->get();
 
-            $log=[];
+            $log = [];
             foreach ($muestras as $mu) {
 
-                $log[]=LogMuestras::create([
+                $log[] = LogMuestras::create([
                     'minv_formulario_id' => $mu->minv_formulario_muestras_id,
                     'user_id_executed' => $request->user_id_executed,
                     'minv_estados_muestras_id' => 4,
@@ -315,10 +315,10 @@ class EncuestaInvRepository implements EncuestaInvRepositoryInterface
                 ->where('lotes.code_lote', $request->code_lote)
                 ->get();
 
-            $log=[];
+            $log = [];
             foreach ($muestras as $mu) {
 
-                $log[]=LogMuestras::create([
+                $log[] = LogMuestras::create([
                     'minv_formulario_id' => $mu->minv_formulario_muestras_id,
                     'user_id_executed' => $request->user_id_executed,
                     'minv_estados_muestras_id' => 5,
@@ -361,24 +361,24 @@ class EncuestaInvRepository implements EncuestaInvRepositoryInterface
                 return $this->error($validator->errors(), 422, []);
             }
 
-            $formulario=FormularioMuestra::where('code_paciente',$request->code_paciente)->get();
+            $formulario = FormularioMuestra::where('code_paciente', $request->code_paciente)->get();
 
-            $encuesta_id=0;
+            $encuesta_id = 0;
 
-            foreach ($formulario as $form){
-                $encuesta_id=$form->id;
+            foreach ($formulario as $form) {
+                $encuesta_id = $form->id;
             }
 
-            if($encuesta_id===0) return $this->error('No existe estudio con ese codigo de paciente', 422, []);
+            if ($encuesta_id === 0) return $this->error('No existe estudio con ese codigo de paciente', 422, []);
 
 
-            $asignacion=AsignacionMuestraUbicacion::create([
+            $asignacion = AsignacionMuestraUbicacion::create([
                 'minv_formulario_muestras_id' => $encuesta_id,
                 'user_id_located' => $request->user_id,
                 'ubicacion_estantes_id' => $request->ubicacion_estantes_id,
             ]);
 
-           LogMuestras::create([
+            LogMuestras::create([
                 'minv_formulario_id' => $encuesta_id,
                 'user_id_executed' => $request->user_id,
                 'minv_estados_muestras_id' => 6,
@@ -399,7 +399,109 @@ class EncuestaInvRepository implements EncuestaInvRepositoryInterface
 
     //------------------------------------------------------------------------------------------------------------------
 
+    public function trazabilidadEncuestas(Request $request, $estado_id)
+    {
 
+        try {
+
+            if ($estado_id === 0) {
+
+                $formularios = FormularioMuestra::select('*')
+                    ->addSelect(DB::raw('(SELECT est.nombre
+                        FROM minv_log_muestras
+                        LEFT JOIN minv_estados_muestras est ON est.id = minv_log_muestras.minv_estados_muestras_id
+                        WHERE minv_formulario_muestras.id = minv_log_muestras.minv_formulario_id
+                        ORDER BY minv_log_muestras.minv_estados_muestras_id DESC
+                        LIMIT 1) AS ultimo_estado'))
+                    ->get();
+            } else {
+                $formularios = FormularioMuestra::select('*')
+                    ->addSelect(DB::raw('(SELECT est.nombre
+                            FROM minv_log_muestras
+                            LEFT JOIN minv_estados_muestras est ON est.id = minv_log_muestras.minv_estados_muestras_id
+                            WHERE minv_formulario_muestras.id = minv_log_muestras.minv_formulario_id
+                            ORDER BY minv_log_muestras.minv_estados_muestras_id DESC
+                            LIMIT 1) AS ultimo_estado'))
+                        ->where(function ($query) use ($estado_id) {
+                        $query->where(DB::raw('(SELECT minv_log_muestras.minv_estados_muestras_id
+                            FROM minv_log_muestras
+                            WHERE minv_formulario_muestras.id = minv_log_muestras.minv_formulario_id
+                            ORDER BY minv_log_muestras.minv_estados_muestras_id DESC
+                            LIMIT 1)'), $estado_id);
+                    })
+                    ->get();
+            }
+
+            if(count($formularios)==0) return $this->error('No hay encuestas registradas' , 204, []);
+
+            return $this->success($formularios, count($formularios), 'Encuestas retornadas correctamente', 200);
+
+
+        } catch (\Throwable $th) {
+
+            throw $th;
+        }
+
+    }
+
+    public function trazabilidadFlujoEstadosEncuesta(Request $request,$encuesta_id)
+    {
+        try {
+
+            $log=LogMuestras::select('minv_log_muestras.created_at','minv_estados_muestras.nombre','users.firstName','users.lastName')
+            ->join('minv_estados_muestras', 'minv_estados_muestras.id', '=', 'minv_log_muestras.minv_estados_muestras_id')
+             ->join('users', 'users.id', '=', 'minv_log_muestras.user_id_executed')
+            ->where('minv_log_muestras.minv_formulario_id',$encuesta_id)->get();
+
+            if(count($log)==0) return $this->error('No hay estados registrados de la encuesta' , 204, []);
+
+            return $this->success($log, count($log), 'Estados de encuesta retornado correctamente', 200);
+
+
+        } catch (\Throwable $th) {
+
+            throw $th;
+        }
+    }
+
+    public function respuestasEncuesta(Request $request,$encuesta_id)
+    {
+        try {
+
+            $respuestas = DetalleEncuesta::where('minv_formulario_id',$encuesta_id)->get();
+
+            if(count($respuestas)==0) return $this->error('No hay datos registrados de esta encuesta' , 204, []);
+
+            return $this->success($respuestas, count($respuestas), 'Detalle de encuesta retornado correctamente', 200);
+
+
+        } catch (\Throwable $th) {
+
+            throw $th;
+        }
+    }
+
+    public function respuestasInformacionHistoriaClinica(Request $request,$encuesta_id)
+    {
+        try {
+
+            $respuestas = RespuestaInformacionHistoriaClinica::select('minv_respuesta_informacion_historia_clinicas.fecha','minv_respuesta_informacion_historia_clinicas.respuesta',
+            'minv_respuesta_informacion_historia_clinicas.unidad','minv_respuesta_informacion_historia_clinicas.tipo_imagen','minv_respuesta_informacion_historia_clinicas.observacion',
+            'minv_pregunta_historia_clinicas.pregunta')
+                ->join('minv_pregunta_historia_clinicas', 'minv_pregunta_historia_clinicas.id', '=', 'minv_respuesta_informacion_historia_clinicas.pregunta_id')
+                ->where('minv_respuesta_informacion_historia_clinicas.minv_formulario_id',$encuesta_id)
+                ->get();
+
+            if(count($respuestas)==0) return $this->error('No hay datos registrados de esta encuesta' , 204, []);
+
+            return $this->success($respuestas, count($respuestas), 'Detalle de encuesta retornado correctamente', 200);
+
+
+        } catch (\Throwable $th) {
+
+            throw $th;
+        }
+    }
 
 }
 

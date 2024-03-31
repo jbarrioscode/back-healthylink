@@ -10,6 +10,8 @@ use App\Repositories\Role\Interfaces\RoleRepositoryInterface;
 use App\Repositories\Role\RoleRepository;
 use App\Repositories\TomaMuestrasInv\Encuesta\EncuestaInv\EncuestaInvRepository;
 use App\Repositories\TomaMuestrasInv\Encuesta\EncuestaInv\EncuestaInvRepositoryInterface;
+use App\Repositories\TomaMuestrasInv\Encuesta\EstadosMuestrasInv\EstadosMuestrasRepository;
+use App\Repositories\TomaMuestrasInv\Encuesta\EstadosMuestrasInv\EstadosMuestrasRepositoryInterface;
 use App\Repositories\TomaMuestrasInv\Encuesta\SedesTomaMuestra\SedesTomaMuestraRepository;
 use App\Repositories\TomaMuestrasInv\Encuesta\SedesTomaMuestra\SedesTomaMuestraRepositoryInterface;
 use App\Repositories\User\Interfaces\UserRepositoryInterface;
@@ -51,6 +53,10 @@ class RepositoryServiceProvider extends ServiceProvider
         $this->app->bind(
             SedesTomaMuestraRepositoryInterface::class,
             SedesTomaMuestraRepository::class
+        );
+        $this->app->bind(
+            EstadosMuestrasRepositoryInterface::class,
+            EstadosMuestrasRepository::class
         );
     }
 }

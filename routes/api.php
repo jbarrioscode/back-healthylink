@@ -7,6 +7,7 @@ use App\Http\Controllers\Api\v1\Admin\Users\UsersController;
 use App\Http\Controllers\Api\v1\TomaMuestrasInv\Paciente\PacienteController;
 use App\Http\Controllers\Api\v1\TomaMuestrasInv\Encuentas\SedesTomaMuestraController;
 use App\Http\Controllers\Api\v1\TomaMuestrasInv\Encuentas\EncuestaController;
+use App\Http\Controllers\Api\v1\TomaMuestrasInv\Encuentas\EstadosController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 use Illuminate\Support\Facades\Artisan;
@@ -60,12 +61,18 @@ Route::prefix('/v1')->group(function () {
 
     Route::post('/patient/post/createpatient', [PacienteController::class, 'createPatient']);
     Route::post('/patient/post/patientinformedconsent', [PacienteController::class, 'patientInformedConsent']);
+    Route::post('/patient/post/revokeinformedconsent', [PacienteController::class, 'revokeInformedConsent']);
 
 
     /*--------------------------------------------------------------------------------*/
     /* SEDES DE TOMA DE MUESTRAS */
 
     Route::get('/sedesmuestras/get/sedestomademuestras', [SedesTomaMuestraController::class, 'getSedesTomaMuestra']);
+
+    /*--------------------------------------------------------------------------------*/
+    /* ESTADOS */
+
+    Route::get('/estadosmuestras/get/estadosmuestras', [EstadosController::class, 'getEstadosMuestras']);
 
     /*--------------------------------------------------------------------------------*/
     /* ENCUESTA */
@@ -76,6 +83,14 @@ Route::prefix('/v1')->group(function () {
     Route::post('/encuesta/post/lotesentrasporte', [EncuestaController::class, 'lotesEntrasporte']);
     Route::post('/encuesta/post/lotemuestrasrecibidasbiobanco', [EncuestaController::class, 'muestrasEntregadasBioBanco']);
     Route::post('/encuesta/post/asignacionbiobanco', [EncuestaController::class, 'muestrasAsignadasAnevera']);
+
+
+    Route::get('/encuesta/get/encuestasporestado/{estado?}', [EncuestaController::class, 'trazabilidadEncuestas']);
+    Route::get('/encuesta/get/estadosencuesta/{encuesta_id}', [EncuestaController::class, 'trazabilidadFlujoEstadosEncuesta']);
+    Route::get('/encuesta/get/respuestasencuestas/{encuesta_id}', [EncuestaController::class, 'respuestasEncuesta']);
+    Route::get('/encuesta/get/informacionhistoriaclinica/{encuesta_id}', [EncuestaController::class, 'respuestasInformacionHistoriaClinica']);
+
+
 
 
 
