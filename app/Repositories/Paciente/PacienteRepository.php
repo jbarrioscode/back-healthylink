@@ -72,36 +72,36 @@ class PacienteRepository implements PacienteRepositoryInterface
         }
     }
 
-   public function getPatient(Request $request, $id)
-   {
+    public function getPatient(Request $request, $id)
+    {
 
-       try {
-            if($id==0){
-                $pacientes=Pacientes::all();
+        try {
+            if ($id == 0) {
+                $pacientes = Pacientes::all();
 
-            }else{
-                $pacientes=Pacientes::where('id',$id)->get();
-           }
+            } else {
+                $pacientes = Pacientes::where('id', $id)->get();
+            }
 
-            foreach ($pacientes as $pac){
+            foreach ($pacientes as $pac) {
 
 
-                $pac->primer_nombre=EncryptEncuestaInvController::decrypt($pac->primer_nombre);
-                $pac->segundo_nombre=EncryptEncuestaInvController::decrypt($pac->segundo_nombre);
-                $pac->primer_apellido=EncryptEncuestaInvController::decrypt($pac->primer_apellido);
-                $pac->segundo_apellido=EncryptEncuestaInvController::decrypt($pac->segundo_apellido);
+                $pac->primer_nombre = EncryptEncuestaInvController::decrypt($pac->primer_nombre);
+                $pac->segundo_nombre = EncryptEncuestaInvController::decrypt($pac->segundo_nombre);
+                $pac->primer_apellido = EncryptEncuestaInvController::decrypt($pac->primer_apellido);
+                $pac->segundo_apellido = EncryptEncuestaInvController::decrypt($pac->segundo_apellido);
 
             }
 
-           if (count($pacientes) == 0) return $this->error("No se encontró pacientes", 204, []);
+            if (count($pacientes) == 0) return $this->error("No se encontró pacientes", 204, []);
 
-           return $this->success($pacientes, count($pacientes), 'ok', 200);
+            return $this->success($pacientes, count($pacientes), 'ok', 200);
 
-       } catch (\Throwable $th) {
-           throw $th;
-       }
+        } catch (\Throwable $th) {
+            throw $th;
+        }
 
-   }
+    }
 
     public function patientInformedConsent(Request $request)
     {
@@ -137,6 +137,24 @@ class PacienteRepository implements PacienteRepositoryInterface
             throw $th;
         }
     }
+
+    public function getpatientInformedConsent(Request $request,$paciente_id)
+    {
+
+        try {
+
+            $consentimiento = ConsentimientoInformadoPaciente::where('paciente_id', $paciente_id)->get();
+
+            if (count($consentimiento) == 0) return $this->error("No se encontró ningun consentimiento", 204, []);
+
+            return $this->success($consentimiento, count($consentimiento), 'ok', 200);
+
+        } catch (\Throwable $th) {
+            throw $th;
+        }
+
+    }
+
 
     public function revokeInformedConsent(Request $request)
     {
