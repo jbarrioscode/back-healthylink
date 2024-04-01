@@ -6,6 +6,9 @@ use Illuminate\Http\Request;
 
 interface SedesTomaMuestraRepositoryInterface
 {
-public function getSedesTomaMuestra(Request $request);
+    public function getSedesTomaMuestra(Request $request);
+
+    public function AddSedesTomaMuestra(Request $request);
+
 
 }

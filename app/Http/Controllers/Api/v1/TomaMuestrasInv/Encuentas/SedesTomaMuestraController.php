@@ -25,4 +25,15 @@ class SedesTomaMuestraController extends Controller
             throw $th;
         }
     }
+
+    public function AddSedesTomaMuestra(Request $request)
+    {
+        try {
+
+            return $this->sedesTomaMuestraRepository->AddSedesTomaMuestra($request);
+
+        } catch (\Throwable $th) {
+            throw $th;
+        }
+    }
 }

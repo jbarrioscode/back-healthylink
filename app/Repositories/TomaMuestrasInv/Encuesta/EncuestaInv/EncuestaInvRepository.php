@@ -406,23 +406,31 @@ class EncuestaInvRepository implements EncuestaInvRepositoryInterface
 
             if ($estado_id === 0) {
 
-                $formularios = FormularioMuestra::select('*')
+                $formularios = FormularioMuestra::select('minv_formulario_muestras.id',
+                    'minv_formulario_muestras.created_at', 'minv_formulario_muestras.updated_at',
+                    'minv_formulario_muestras.deleted_at', 'minv_formulario_muestras.code_paciente',
+                    'sedes_toma_muestras.nombre as sede_toma_muestra')
                     ->addSelect(DB::raw('(SELECT est.nombre
                         FROM minv_log_muestras
                         LEFT JOIN minv_estados_muestras est ON est.id = minv_log_muestras.minv_estados_muestras_id
                         WHERE minv_formulario_muestras.id = minv_log_muestras.minv_formulario_id
                         ORDER BY minv_log_muestras.minv_estados_muestras_id DESC
                         LIMIT 1) AS ultimo_estado'))
+                    ->leftJoin('sedes_toma_muestras', 'sedes_toma_muestras.id', '=', 'minv_formulario_muestras.sedes_toma_muestras_id')
                     ->get();
             } else {
-                $formularios = FormularioMuestra::select('*')
+                $formularios = FormularioMuestra::select('minv_formulario_muestras.id',
+                    'minv_formulario_muestras.created_at', 'minv_formulario_muestras.updated_at',
+                    'minv_formulario_muestras.deleted_at', 'minv_formulario_muestras.code_paciente',
+                    'sedes_toma_muestras.nombre as sede_toma_muestra')
                     ->addSelect(DB::raw('(SELECT est.nombre
                             FROM minv_log_muestras
                             LEFT JOIN minv_estados_muestras est ON est.id = minv_log_muestras.minv_estados_muestras_id
                             WHERE minv_formulario_muestras.id = minv_log_muestras.minv_formulario_id
                             ORDER BY minv_log_muestras.minv_estados_muestras_id DESC
                             LIMIT 1) AS ultimo_estado'))
-                        ->where(function ($query) use ($estado_id) {
+                    ->leftJoin('sedes_toma_muestras', 'sedes_toma_muestras.id', '=', 'minv_formulario_muestras.sedes_toma_muestras_id')
+                    ->where(function ($query) use ($estado_id) {
                         $query->where(DB::raw('(SELECT minv_log_muestras.minv_estados_muestras_id
                             FROM minv_log_muestras
                             WHERE minv_formulario_muestras.id = minv_log_muestras.minv_formulario_id

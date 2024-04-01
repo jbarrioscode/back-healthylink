@@ -68,6 +68,8 @@ Route::prefix('/v1')->group(function () {
     /* SEDES DE TOMA DE MUESTRAS */
 
     Route::get('/sedesmuestras/get/sedestomademuestras', [SedesTomaMuestraController::class, 'getSedesTomaMuestra']);
+    Route::post('/sedesmuestras/post/sedestomademuestras', [SedesTomaMuestraController::class, 'AddSedesTomaMuestra']);
+
 
     /*--------------------------------------------------------------------------------*/
     /* ESTADOS */
