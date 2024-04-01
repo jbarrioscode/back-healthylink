@@ -26,9 +26,10 @@ use Illuminate\Support\Facades\Artisan;
 | is assigned the "api" middleware group. Enjoy building your API!
 |
 */
-Route::middleware(['auth:sanctum', 'verified'])->get('/user', function (Request $request) {
-    return $request->user();
-});
+Route::middleware(['auth:sanctum', 'verified'])
+    ->get('/user', function (Request $request) {
+        return $request->user();
+    });
 
 /** App Routes */
 Route::prefix('/v1')->group(function () {
@@ -92,8 +93,6 @@ Route::prefix('/v1')->group(function () {
     Route::get('/encuesta/get/estadosencuesta/{encuesta_id}', [EncuestaController::class, 'trazabilidadFlujoEstadosEncuesta']);
     Route::get('/encuesta/get/respuestasencuestas/{encuesta_id}', [EncuestaController::class, 'respuestasEncuesta']);
     Route::get('/encuesta/get/informacionhistoriaclinica/{encuesta_id}', [EncuestaController::class, 'respuestasInformacionHistoriaClinica']);
-
-
 
 
 
