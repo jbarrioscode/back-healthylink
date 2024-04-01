@@ -72,6 +72,37 @@ class PacienteRepository implements PacienteRepositoryInterface
         }
     }
 
+   public function getPatient(Request $request, $id)
+   {
+
+       try {
+            if($id==0){
+                $pacientes=Pacientes::all();
+
+            }else{
+                $pacientes=Pacientes::where('id',$id)->get();
+           }
+
+            foreach ($pacientes as $pac){
+
+
+                $pac->primer_nombre=EncryptEncuestaInvController::decrypt($pac->primer_nombre);
+                $pac->segundo_nombre=EncryptEncuestaInvController::decrypt($pac->segundo_nombre);
+                $pac->primer_apellido=EncryptEncuestaInvController::decrypt($pac->primer_apellido);
+                $pac->segundo_apellido=EncryptEncuestaInvController::decrypt($pac->segundo_apellido);
+
+            }
+
+           if (count($pacientes) == 0) return $this->error("No se encontró pacientes", 204, []);
+
+           return $this->success($pacientes, count($pacientes), 'ok', 200);
+
+       } catch (\Throwable $th) {
+           throw $th;
+       }
+
+   }
+
     public function patientInformedConsent(Request $request)
     {
         try {

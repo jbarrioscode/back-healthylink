@@ -60,6 +60,7 @@ Route::prefix('/v1')->group(function () {
     /* PACIENTE  */
 
     Route::post('/patient/post/createpatient', [PacienteController::class, 'createPatient']);
+    Route::get('/patient/get/patient/{id?}', [PacienteController::class, 'getPatient']);
     Route::post('/patient/post/patientinformedconsent', [PacienteController::class, 'patientInformedConsent']);
     Route::post('/patient/post/revokeinformedconsent', [PacienteController::class, 'revokeInformedConsent']);
 
