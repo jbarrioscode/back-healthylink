@@ -25,6 +25,8 @@ return new class extends Migration
             $table->date('fecha_nacimiento');
             $table->date('fecha_expedicion')->nullable();
             $table->string('telefono_celular');
+            $table->string('sexo');
+            $table->string('grupo_sanguineo');
             $table->string('pais_residencia')->nullable();
             $table->string('departamento_residencia')->nullable();
             $table->string('ciudad_residencia')->nullable();

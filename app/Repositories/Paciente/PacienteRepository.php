@@ -28,7 +28,8 @@ class PacienteRepository implements PacienteRepositoryInterface
                 'segundo_apellido' => 'required|string',
                 'telefono_celular' => 'required|string',
                 'fecha_nacimiento' => 'required|string',
-                'fecha_expedicion' => 'required|string',
+                'sexo' => 'required|string',
+                'grupo_sanguineo' => 'required|string',
             ];
 
             $messages = [
@@ -40,7 +41,8 @@ class PacienteRepository implements PacienteRepositoryInterface
                 'primer_apellido.required' => 'Primer apellido está vacio.',
                 'segundo_apellido.required' => 'Segundo apellido está vacio.',
                 'fecha_nacimiento.required' => 'fecha de nacimiento está vacio.',
-                'fecha_expedicion.required' => 'fecha de expedición está vacio.',
+                'sexo.required' => 'sexo está vacio.',
+                'grupo_sanguineo.required' => 'grupo sanguineo está vacio.',
             ];
 
             $validator = Validator::make($request->all(), $rules, $messages);
@@ -58,10 +60,11 @@ class PacienteRepository implements PacienteRepositoryInterface
                 'primer_apellido' => EncryptEncuestaInvController::encryptar($request->primer_apellido),
                 'segundo_apellido' => EncryptEncuestaInvController::encryptar($request->segundo_apellido),
                 'fecha_nacimiento' => $request->fecha_nacimiento,
-                'fecha_expedicion' => $request->fecha_expedicion,
                 'pais_residencia' => $request->pais_residencia,
                 'departamento_residencia' => $request->departamento_residencia,
-                'ciudad_residencia' => $request->ciudad_residencia
+                'ciudad_residencia' => $request->ciudad_residencia,
+                'sexo' => $request->sexo,
+                'grupo_sanguineo' => $request->grupo_sanguineo
             ]);
 
             if (!$paciente) return $this->error("Error al registrar paciente", 500, "");

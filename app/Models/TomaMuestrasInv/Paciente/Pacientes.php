@@ -25,7 +25,9 @@ class Pacientes extends Model
         'pais_residencia',
         'departamento_residencia',
         'ciudad_residencia',
-        'telefono_celular'
+        'telefono_celular',
+        'sexo',
+        'grupo_sanguineo'
     ];
 
 }
