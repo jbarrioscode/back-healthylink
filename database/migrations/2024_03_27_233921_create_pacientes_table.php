@@ -30,6 +30,7 @@ return new class extends Migration
             $table->string('pais_residencia')->nullable();
             $table->string('departamento_residencia')->nullable();
             $table->string('ciudad_residencia')->nullable();
+            $table->string('correo_electronico')->nullable();
 
         });
     }
