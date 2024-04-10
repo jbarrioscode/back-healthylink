@@ -8,6 +8,7 @@ use App\Http\Controllers\Api\v1\TomaMuestrasInv\Paciente\PacienteController;
 use App\Http\Controllers\Api\v1\TomaMuestrasInv\Encuentas\SedesTomaMuestraController;
 use App\Http\Controllers\Api\v1\TomaMuestrasInv\Encuentas\EncuestaController;
 use App\Http\Controllers\Api\v1\TomaMuestrasInv\Encuentas\EstadosController;
+use App\Http\Controllers\Api\v1\TomaMuestrasInv\Ubicaciones\UbicacionController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 use Illuminate\Support\Facades\Artisan;
@@ -57,6 +58,12 @@ Route::prefix('/v1')->group(function () {
     Route::delete('roles/delete/{id?}', [RolesController::class, 'inactivateRoleById']);
 
     /*--------------------------------------------------------------------------------*/
+
+    /* PAISES - DEPARTAMENTOS - CIUDADES/MUNICIPIOS  */
+
+    Route::get('geografia/getpais', [UbicacionController::class, 'getPais']);
+    Route::get('geografia/getdepartamento/{pais_id}', [UbicacionController::class, 'getDepartamento']);
+    Route::get('geografia/getciudad/{departamento_id}', [UbicacionController::class, 'getCiudad']);
 
     /* PACIENTE  */
 

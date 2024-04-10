@@ -14,6 +14,8 @@ use App\Repositories\TomaMuestrasInv\Encuesta\EstadosMuestrasInv\EstadosMuestras
 use App\Repositories\TomaMuestrasInv\Encuesta\EstadosMuestrasInv\EstadosMuestrasRepositoryInterface;
 use App\Repositories\TomaMuestrasInv\Encuesta\SedesTomaMuestra\SedesTomaMuestraRepository;
 use App\Repositories\TomaMuestrasInv\Encuesta\SedesTomaMuestra\SedesTomaMuestraRepositoryInterface;
+use App\Repositories\TomaMuestrasInv\Encuesta\Ubicacion\UbicacionRepository;
+use App\Repositories\TomaMuestrasInv\Encuesta\Ubicacion\UbicacionRepositoryInterface;
 use App\Repositories\User\Interfaces\UserRepositoryInterface;
 use App\Repositories\User\UserRepository;
 use Illuminate\Foundation\Support\Providers\EventServiceProvider as ServiceProvider;
@@ -57,6 +59,10 @@ class RepositoryServiceProvider extends ServiceProvider
         $this->app->bind(
             EstadosMuestrasRepositoryInterface::class,
             EstadosMuestrasRepository::class
+        );
+        $this->app->bind(
+            UbicacionRepositoryInterface::class,
+            UbicacionRepository::class
         );
     }
 }
