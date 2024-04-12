@@ -64,6 +64,8 @@ Route::prefix('/v1')->group(function () {
     Route::get('geografia/getpais', [UbicacionController::class, 'getPais']);
     Route::get('geografia/getdepartamento/{pais_id}', [UbicacionController::class, 'getDepartamento']);
     Route::get('geografia/getciudad/{departamento_id}', [UbicacionController::class, 'getCiudad']);
+    Route::get('geografia/getciudadforpaisid/{pais_id}', [UbicacionController::class, 'getCiudadesForPaisId']);
+
 
     /* PACIENTE  */
 

@@ -57,5 +57,22 @@ public function getCiudad(Request $request, $departamento_id)
         throw $th;
     }
 }
+    public function getCiudadesForPaisId(Request $request, $pais_id)
+    {
+        try {
 
+            $city = DepartamentosRegiones::select('ciudades_municipios.name')
+            ->leftJoin('ciudades_municipios', 'departamentos_regiones.id', '=', 'ciudades_municipios.departamentos_regiones_id')
+            ->where('departamentos_regiones.pais_id',$pais_id)
+                ->orderBy('ciudades_municipios.name','asc')
+            ->get();
+
+            if (count($city) == 0) return $this->error("No se encontró ninguna ciudad de este pais.", 204, []);
+
+            return $this->success($city, count($city), 'ok', 200);
+
+        } catch (\Throwable $th) {
+            throw $th;
+        }
+    }
 }

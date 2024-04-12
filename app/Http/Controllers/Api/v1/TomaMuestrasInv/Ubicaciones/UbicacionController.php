@@ -45,4 +45,14 @@ class UbicacionController extends Controller
             throw $th;
         }
     }
+    public function getCiudadesForPaisId(Request $request,$pais_id)
+    {
+        try {
+
+            return $this->ubicacionRepository->getCiudadesForPaisId($request,$pais_id);
+
+        } catch (\Throwable $th) {
+            throw $th;
+        }
+    }
 }
