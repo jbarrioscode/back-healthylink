@@ -55,4 +55,24 @@ class UbicacionController extends Controller
             throw $th;
         }
     }
+    public function getAllDepartamento(Request $request)
+    {
+        try {
+
+            return $this->ubicacionRepository->getAllDepartamento($request);
+
+        } catch (\Throwable $th) {
+            throw $th;
+        }
+    }
+    public function getAllCiudad(Request $request)
+    {
+        try {
+
+            return $this->ubicacionRepository->getAllCiudad($request);
+
+        } catch (\Throwable $th) {
+            throw $th;
+        }
+    }
 }
