@@ -4,6 +4,7 @@ namespace App\Repositories\TomaMuestrasInv\Encuesta\EncuestaInv;
 
 use App\Models\TomaMuestrasInv\Muestras\AsignacionMuestraUbicacion;
 use App\Models\TomaMuestrasInv\Muestras\DetalleEncuesta;
+use App\Models\TomaMuestrasInv\Muestras\enfermedadesci10;
 use App\Models\TomaMuestrasInv\Muestras\FormularioMuestra;
 use App\Models\TomaMuestrasInv\Muestras\InformacionComplementaria\PreguntaHistoriaClinica;
 use App\Models\TomaMuestrasInv\Muestras\InformacionComplementaria\RespuestaInformacionHistoriaClinica;
@@ -504,6 +505,26 @@ class EncuestaInvRepository implements EncuestaInvRepositoryInterface
 
             return $this->success($respuestas, count($respuestas), 'Detalle de encuesta retornado correctamente', 200);
 
+
+        } catch (\Throwable $th) {
+
+            throw $th;
+        }
+    }
+
+    public function getEnfermedadesci10(Request $request,$code)
+    {
+        try {
+
+            if($code==0){
+                $enfermedes=enfermedadesci10::all();
+            }else{
+                $enfermedes=enfermedadesci10::where('codigo',$code)->get();
+            }
+
+            if(count($enfermedes)==0) return $this->error('No hay enfermedades registradas' , 204, []);
+
+            return $this->success($enfermedes, count($enfermedes), 'Ok', 200);
 
         } catch (\Throwable $th) {
 

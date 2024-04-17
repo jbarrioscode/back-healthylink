@@ -117,4 +117,14 @@ class EncuestaController extends Controller
             throw $th;
         }
     }
+    public function getEnfermedadesci10(Request $request,$code=0)
+    {
+        try {
+
+            return $this->encuestaRepository->getEnfermedadesci10($request,$code);
+
+        } catch (\Throwable $th) {
+            throw $th;
+        }
+    }
 }

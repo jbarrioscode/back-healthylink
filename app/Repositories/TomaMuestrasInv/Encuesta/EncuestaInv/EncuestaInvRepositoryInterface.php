@@ -30,4 +30,6 @@ interface EncuestaInvRepositoryInterface
     public function respuestasEncuesta(Request $request, $encuesta_id);
 
     public function respuestasInformacionHistoriaClinica(Request $request, $encuesta_id);
+
+    public function getEnfermedadesci10(Request $request,$code);
 }
