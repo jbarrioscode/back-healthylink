@@ -441,7 +441,7 @@ class EncuestaInvRepository implements EncuestaInvRepositoryInterface
                     ->get();
             }
 
-            if(count($formularios)==0) return $this->error('No hay encuestas registradas' , 204, []);
+            if (count($formularios) == 0) return $this->error('No hay encuestas registradas', 204, []);
 
             return $this->success($formularios, count($formularios), 'Encuestas retornadas correctamente', 200);
 
@@ -453,16 +453,16 @@ class EncuestaInvRepository implements EncuestaInvRepositoryInterface
 
     }
 
-    public function trazabilidadFlujoEstadosEncuesta(Request $request,$encuesta_id)
+    public function trazabilidadFlujoEstadosEncuesta(Request $request, $encuesta_id)
     {
         try {
 
-            $log=LogMuestras::select('minv_log_muestras.created_at','minv_estados_muestras.nombre','users.firstName','users.lastName')
-            ->join('minv_estados_muestras', 'minv_estados_muestras.id', '=', 'minv_log_muestras.minv_estados_muestras_id')
-             ->join('users', 'users.id', '=', 'minv_log_muestras.user_id_executed')
-            ->where('minv_log_muestras.minv_formulario_id',$encuesta_id)->get();
+            $log = LogMuestras::select('minv_log_muestras.created_at', 'minv_estados_muestras.nombre', 'users.firstName', 'users.lastName')
+                ->join('minv_estados_muestras', 'minv_estados_muestras.id', '=', 'minv_log_muestras.minv_estados_muestras_id')
+                ->join('users', 'users.id', '=', 'minv_log_muestras.user_id_executed')
+                ->where('minv_log_muestras.minv_formulario_id', $encuesta_id)->get();
 
-            if(count($log)==0) return $this->error('No hay estados registrados de la encuesta' , 204, []);
+            if (count($log) == 0) return $this->error('No hay estados registrados de la encuesta', 204, []);
 
             return $this->success($log, count($log), 'Estados de encuesta retornado correctamente', 200);
 
@@ -473,13 +473,13 @@ class EncuestaInvRepository implements EncuestaInvRepositoryInterface
         }
     }
 
-    public function respuestasEncuesta(Request $request,$encuesta_id)
+    public function respuestasEncuesta(Request $request, $encuesta_id)
     {
         try {
 
-            $respuestas = DetalleEncuesta::where('minv_formulario_id',$encuesta_id)->get();
+            $respuestas = DetalleEncuesta::where('minv_formulario_id', $encuesta_id)->get();
 
-            if(count($respuestas)==0) return $this->error('No hay datos registrados de esta encuesta' , 204, []);
+            if (count($respuestas) == 0) return $this->error('No hay datos registrados de esta encuesta', 204, []);
 
             return $this->success($respuestas, count($respuestas), 'Detalle de encuesta retornado correctamente', 200);
 
@@ -490,18 +490,18 @@ class EncuestaInvRepository implements EncuestaInvRepositoryInterface
         }
     }
 
-    public function respuestasInformacionHistoriaClinica(Request $request,$encuesta_id)
+    public function respuestasInformacionHistoriaClinica(Request $request, $encuesta_id)
     {
         try {
 
-            $respuestas = RespuestaInformacionHistoriaClinica::select('minv_respuesta_informacion_historia_clinicas.fecha','minv_respuesta_informacion_historia_clinicas.respuesta',
-            'minv_respuesta_informacion_historia_clinicas.unidad','minv_respuesta_informacion_historia_clinicas.tipo_imagen','minv_respuesta_informacion_historia_clinicas.observacion',
-            'minv_pregunta_historia_clinicas.pregunta')
+            $respuestas = RespuestaInformacionHistoriaClinica::select('minv_respuesta_informacion_historia_clinicas.fecha', 'minv_respuesta_informacion_historia_clinicas.respuesta',
+                'minv_respuesta_informacion_historia_clinicas.unidad', 'minv_respuesta_informacion_historia_clinicas.tipo_imagen', 'minv_respuesta_informacion_historia_clinicas.observacion',
+                'minv_pregunta_historia_clinicas.pregunta')
                 ->join('minv_pregunta_historia_clinicas', 'minv_pregunta_historia_clinicas.id', '=', 'minv_respuesta_informacion_historia_clinicas.pregunta_id')
-                ->where('minv_respuesta_informacion_historia_clinicas.minv_formulario_id',$encuesta_id)
+                ->where('minv_respuesta_informacion_historia_clinicas.minv_formulario_id', $encuesta_id)
                 ->get();
 
-            if(count($respuestas)==0) return $this->error('No hay datos registrados de esta encuesta' , 204, []);
+            if (count($respuestas) == 0) return $this->error('No hay datos registrados de esta encuesta', 204, []);
 
             return $this->success($respuestas, count($respuestas), 'Detalle de encuesta retornado correctamente', 200);
 
@@ -512,17 +512,33 @@ class EncuestaInvRepository implements EncuestaInvRepositoryInterface
         }
     }
 
-    public function getEnfermedadesci10(Request $request,$code)
+    public function getEnfermedadesci10(Request $request, $code)
     {
         try {
 
-            if($code==0){
-                $enfermedes=enfermedadesci10::all();
-            }else{
-                $enfermedes=enfermedadesci10::where('codigo',$code)->get();
+            if ($code == 0) {
+                $enfermedes = enfermedadesci10::all();
+            } else {
+                $enfermedes = enfermedadesci10::where('codigo', $code)->get();
             }
 
-            if(count($enfermedes)==0) return $this->error('No hay enfermedades registradas' , 204, []);
+            if (count($enfermedes) == 0) return $this->error('No hay enfermedades registradas', 204, []);
+
+            return $this->success($enfermedes, count($enfermedes), 'Ok', 200);
+
+        } catch (\Throwable $th) {
+
+            throw $th;
+        }
+    }
+
+    public function getEnfermedadesci10Onco(Request $request)
+    {
+        try {
+
+            $enfermedes = enfermedadesci10::where('tipo_codigo', 'ONCO')->get();
+
+            if (count($enfermedes) == 0) return $this->error('No hay enfermedades registradas oncologicas', 204, []);
 
             return $this->success($enfermedes, count($enfermedes), 'Ok', 200);
 

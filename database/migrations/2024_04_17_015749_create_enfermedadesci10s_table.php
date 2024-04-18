@@ -17,6 +17,7 @@ return new class extends Migration
             $table->softDeletes();
             $table->string('codigo');
             $table->string('descripcion');
+            $table->string('tipo_codigo');
         });
     }
 
