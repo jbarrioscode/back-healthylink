@@ -111,16 +111,18 @@ class PacienteRepository implements PacienteRepositoryInterface
     {
         try {
             $rules = [
-                'tipo_consentimiento_id' => 'required|string',
-                'tipo_estudio_id' => 'required|string',
-                'paciente_id' => 'required|string',
+                //'tipo_consentimiento_id' => 'required|string',
+                'tipo_consentimiento_id' => 'required',
+                //'tipo_estudio_id' => 'required|string',
+                'tipo_estudio_id' => 'required',
+                /*'paciente_id' => 'required|string',*/
                 'firma' => 'required|string',
             ];
 
             $messages = [
                 'tipo_consentimiento_id.required' => 'El tipo de consentimiento es obligatorio.',
                 'tipo_estudio_id.required' => 'El ID del tipo de estudio está vacio.',
-                'paciente_id.required' => 'El ID del paciente está vacio.',
+                /*'paciente_id.required' => 'El ID del paciente está vacio.',*/
                 'firma.required' => 'Firma está vacio.',
             ];
 
@@ -129,10 +131,15 @@ class PacienteRepository implements PacienteRepositoryInterface
                 return $this->error($validator->errors(), 422, []);
             }
 
+            $patient = Pacientes::all()
+                ->where('tipo_doc', '=', $request->tipo_doc)
+                ->where('numero_documento', '=', $request->numero_documento)
+                ->first();
+
             $consentimiento = ConsentimientoInformadoPaciente::create([
                 'tipo_consentimiento_id' => $request->tipo_consentimiento_id,
                 'tipo_estudio_id' => $request->tipo_estudio_id,
-                'paciente_id' => $request->paciente_id,
+                'paciente_id' => $patient->id,
                 'firma' => $request->firma,
             ]);
 
