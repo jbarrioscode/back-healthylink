@@ -10,10 +10,10 @@ use Illuminate\Support\Facades\DB;
 class ValidacionesEncuestaInvRepository
 {
 
-    public static function validarCrearEncuesta($request)
+    public static function validarCrearEncuesta($request,$paciente_id)
     {
 
-        if(count(FormularioMuestra::where('paciente_id','=', $request->paciente_id)->get())>0){
+        if(count(FormularioMuestra::where('paciente_id','=', $paciente_id)->get())>0){
             return 'Paciente ya se encuentra participando de la encuesta';
         }
 

@@ -89,7 +89,6 @@ Route::prefix('/v1')->group(function () {
     /* ESTADOS */
 
     Route::get('/enfermedades/get/enfermedades/{code?}', [EncuestaController::class, 'getEnfermedadesci10']);
-
     Route::get('/enfermedades/get/oncologicas', [EncuestaController::class, 'getEnfermedadesci10Onco']);
 
 

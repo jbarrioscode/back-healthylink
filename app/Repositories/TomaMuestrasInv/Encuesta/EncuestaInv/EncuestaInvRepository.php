@@ -32,7 +32,12 @@ class EncuestaInvRepository implements EncuestaInvRepositoryInterface
 
             //SE CREA EL FORMULARIO Y LUEGO SE GUARDA LOS DETALLES
 
-            $validacion = ValidacionesEncuestaInvRepository::validarCrearEncuesta($request);
+            $patient = Pacientes::all()
+                ->where('tipo_doc', '=', $request->tipo_doc)
+                ->where('numero_documento', '=', $request->numero_documento)
+                ->first();
+
+            $validacion = ValidacionesEncuestaInvRepository::validarCrearEncuesta($request,$patient->id);
 
             if ($validacion != "") {
                 return $this->error($validacion, 204, []);
@@ -44,7 +49,7 @@ class EncuestaInvRepository implements EncuestaInvRepositoryInterface
 
 
             $formulario = FormularioMuestra::create([
-                'paciente_id' => $request->paciente_id,
+                'paciente_id' => $patient->id,
                 'user_created_id' => $request->user_created_id,
                 'code_paciente' => $code_paciente,
                 'tipo_estudio_id' => $request->tipo_estudio_id,
