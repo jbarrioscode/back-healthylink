@@ -9,6 +9,7 @@ use App\Http\Controllers\Api\v1\TomaMuestrasInv\Encuentas\SedesTomaMuestraContro
 use App\Http\Controllers\Api\v1\TomaMuestrasInv\Encuentas\EncuestaController;
 use App\Http\Controllers\Api\v1\TomaMuestrasInv\Encuentas\EstadosController;
 use App\Http\Controllers\Api\v1\TomaMuestrasInv\Ubicaciones\UbicacionController;
+use App\Http\Controllers\Api\v1\TomaMuestrasInv\Encuentas\TempLoteController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 use Illuminate\Support\Facades\Artisan;
@@ -27,6 +28,7 @@ use Illuminate\Support\Facades\Artisan;
 | is assigned the "api" middleware group. Enjoy building your API!
 |
 */
+/*
 Route::middleware(['auth:sanctum', 'verified'])
     ->get('/user', function (Request $request) {
         return $request->user();
@@ -35,7 +37,7 @@ Route::middleware(['auth:sanctum', 'verified'])
 /** App Routes */
 Route::prefix('/v1')->group(function () {
 
-    //Route::middleware(['auth', 'verified'])->group(function () {
+   // Route::middleware(['auth', 'verified'])->group(function () {
 
     /* ADMINISTRADOR*/
 
@@ -111,13 +113,18 @@ Route::prefix('/v1')->group(function () {
 
     Route::get('/encuesta/get/encuestasporestado/{estado?}', [EncuestaController::class, 'trazabilidadEncuestas']);
     Route::get('/encuesta/get/estadosencuesta/{encuesta_id}', [EncuestaController::class, 'trazabilidadFlujoEstadosEncuesta']);
+    Route::get('/encuesta/get/encuestassincrf', [EncuestaController::class, 'getEncuestasForCRF']);
     Route::get('/encuesta/get/respuestasencuestas/{encuesta_id}', [EncuestaController::class, 'respuestasEncuesta']);
     Route::get('/encuesta/get/informacionhistoriaclinica/{encuesta_id}', [EncuestaController::class, 'respuestasInformacionHistoriaClinica']);
 
+    /*--------------------------------------------------------------------------------*/
+    /* TEMP */
+
+    Route::post('/encuesta/post/temp', [TempLoteController::class, 'guardarLoteTemp']);
+    Route::get('/encuesta/get/tempmuestras/{user_id}/{sede_id}', [TempLoteController::class, 'getLoteTemp']);
 
 
-
-    //});
+    });
 
     /* ------------------------------------------------------------------------------------
     /** Clean Cache Route */
@@ -128,4 +135,4 @@ Route::prefix('/v1')->group(function () {
         Artisan::call('view:clear');
     });
 
-});
+//});

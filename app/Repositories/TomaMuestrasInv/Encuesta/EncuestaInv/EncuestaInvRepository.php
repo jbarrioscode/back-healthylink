@@ -481,6 +481,35 @@ class EncuestaInvRepository implements EncuestaInvRepositoryInterface
         }
     }
 
+    public function getEncuestasForCRF(Request $request){
+        try {
+
+                $formularios = FormularioMuestra::select('minv_formulario_muestras.id',
+                    'minv_formulario_muestras.created_at', 'minv_formulario_muestras.updated_at',
+                    'minv_formulario_muestras.deleted_at', 'minv_formulario_muestras.code_paciente',
+                    'sedes_toma_muestras.nombre as sede_toma_muestra')
+                    ->addSelect(DB::raw('(SELECT est.nombre
+                        FROM minv_log_muestras
+                        LEFT JOIN minv_estados_muestras est ON est.id = minv_log_muestras.minv_estados_muestras_id
+                        WHERE minv_formulario_muestras.id = minv_log_muestras.minv_formulario_id
+                        ORDER BY minv_log_muestras.minv_estados_muestras_id DESC
+                        LIMIT 1) AS ultimo_estado'))
+                    ->leftJoin('sedes_toma_muestras', 'sedes_toma_muestras.id', '=', 'minv_formulario_muestras.sedes_toma_muestras_id')
+                    ->leftJoin('minv_respuesta_informacion_historia_clinicas', 'minv_respuesta_informacion_historia_clinicas.minv_formulario_id', '=', 'minv_formulario_muestras.id')
+                    ->whereNull('minv_respuesta_informacion_historia_clinicas.id')
+                    ->get();
+
+            if (count($formularios) == 0) return $this->error('No hay encuestas registradas', 204, []);
+
+            return $this->success($formularios, count($formularios), 'Encuestas retornadas correctamente', 200);
+
+
+        } catch (\Throwable $th) {
+
+            throw $th;
+        }
+    }
+
     public function respuestasEncuesta(Request $request, $encuesta_id)
     {
         try {
