@@ -24,11 +24,22 @@ class TempLoteController extends Controller
             throw $th;
         }
     }
+
     public function getLoteTemp(Request $request,$user_id,$sede_id)
     {
         try {
 
             return $this->TempLoteRepository->getLoteTemp($request,$user_id,$sede_id);
+
+        } catch (\Throwable $th) {
+            throw $th;
+        }
+    }
+    public function deleteTemp(Request $request)
+    {
+        try {
+
+            return $this->TempLoteRepository->deleteTemp($request);
 
         } catch (\Throwable $th) {
             throw $th;

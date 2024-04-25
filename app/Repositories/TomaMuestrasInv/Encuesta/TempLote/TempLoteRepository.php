@@ -71,7 +71,7 @@ class TempLoteRepository implements TempRepositoryInterface
             $tempContramuestras=TempLote::where('sede_id',$sede_id)
                     ->where('user_id',$user_id)
                     ->where('lote_cerrado','false')
-                    ->where('tipo_muestra','MUESTRA')->get();
+                    ->where('tipo_muestra','CONTRAMUESTRA')->get();
 
             $temp=['temp_Muestras'=>$tempMuestras,'tempContraMuestras'=>$tempContramuestras];
 
@@ -83,5 +83,38 @@ class TempLoteRepository implements TempRepositoryInterface
             throw $th;
         }
 
+    }
+
+    public function deleteTemp(Request $request)
+    {
+        try {
+
+            $rules = [
+                'minv_formulario_id' => 'required',
+                'tipo_muestra' => 'required',
+            ];
+
+            $messages = [
+                'minv_formulario_id.required' => 'Muestra está vacio.',
+                'tipo_muestra.required' => 'Tipo Muestra está vacio.',
+            ];
+
+            $validator = Validator::make($request->all(), $rules, $messages);
+            if ($validator->fails()) {
+                return $this->error($validator->errors(), 422, []);
+            }
+
+
+            $temp=TempLote::where('minv_formulario_id',$request->minv_formulario_id)
+                ->where('tipo_muestra',$request->tipo_muestra)
+                ->where('lote_cerrado',false)->delete();
+
+            return $this->success($temp, 1, 'Eliminado correctamente', 200);
+
+
+        } catch (\Throwable $th) {
+            return $this->error('Hay un error' . $th, 204, []);
+            throw $th;
+        }
     }
 }

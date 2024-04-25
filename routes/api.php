@@ -119,11 +119,13 @@ Route::prefix('/v1')->group(function () {
     /*--------------------------------------------------------------------------------*/
     /* TEMP */
 
-    Route::post('/encuesta/post/temp', [TempLoteController::class, 'guardarLoteTemp']);
+    Route::post('/encuesta/post/tempmuestras', [TempLoteController::class, 'guardarLoteTemp']);
     Route::get('/encuesta/get/tempmuestras/{user_id}/{sede_id}', [TempLoteController::class, 'getLoteTemp']);
+    Route::post('/encuesta/delete/tempmuestras', [TempLoteController::class, 'deleteTemp']);
 
 
-    });
+
+   });
 
     /* ------------------------------------------------------------------------------------
     /** Clean Cache Route */
