@@ -466,12 +466,28 @@ class EncuestaInvRepository implements EncuestaInvRepositoryInterface
     {
         try {
 
-            $log = LogMuestras::select('minv_log_muestras.created_at', 'minv_estados_muestras.nombre', 'users.firstName', 'users.lastName')
+            $log = LogMuestras::select('minv_log_muestras.minv_formulario_id as encuesta_id', 'minv_log_muestras.created_at', 'minv_estados_muestras.nombre', 'users.firstName', 'users.lastName', 'minv_estados_muestras.id as id_estado')
                 ->join('minv_estados_muestras', 'minv_estados_muestras.id', '=', 'minv_log_muestras.minv_estados_muestras_id')
                 ->join('users', 'users.id', '=', 'minv_log_muestras.user_id_executed')
                 ->where('minv_log_muestras.minv_formulario_id', $encuesta_id)->get();
 
             if (count($log) == 0) return $this->error('No hay estados registrados de la encuesta', 204, []);
+
+            foreach ($log as $lo) {
+                $lo->info = '';
+
+                if ($lo->id_estado == 3) {
+                    $lotes = LoteMuestras::select('lotes.code_lote')
+                        ->join('lotes', 'lotes.id', '=', 'lote_muestras.lote_id')
+                        ->where('minv_formulario_muestras_id', $lo->encuesta_id)
+                        ->get();
+                    foreach ($lotes as $lote) {
+                        $lo->info = 'EMPACADO EN LOTE: '.$lote->code_lote;
+                    }
+                }
+            }
+
+            $log->info = '';
 
             return $this->success($log, count($log), 'Estados de encuesta retornado correctamente', 200);
 
@@ -482,23 +498,25 @@ class EncuestaInvRepository implements EncuestaInvRepositoryInterface
         }
     }
 
-    public function getEncuestasForCRF(Request $request){
+    public function getEncuestasForCRF(Request $request)
+    {
         try {
 
-                $formularios = FormularioMuestra::select('minv_formulario_muestras.id',
-                    'minv_formulario_muestras.created_at', 'minv_formulario_muestras.updated_at',
-                    'minv_formulario_muestras.deleted_at', 'minv_formulario_muestras.code_paciente',
-                    'sedes_toma_muestras.nombre as sede_toma_muestra')
-                    ->addSelect(DB::raw('(SELECT est.nombre
+            $formularios = FormularioMuestra::select('minv_formulario_muestras.id',
+                'minv_formulario_muestras.created_at', 'minv_formulario_muestras.updated_at',
+                'minv_formulario_muestras.deleted_at', 'minv_formulario_muestras.code_paciente',
+                'sedes_toma_muestras.nombre as sede_toma_muestra', 'paciente.tipo_doc', ',paciente.numero_documento')
+                ->addSelect(DB::raw('(SELECT est.nombre
                         FROM minv_log_muestras
                         LEFT JOIN minv_estados_muestras est ON est.id = minv_log_muestras.minv_estados_muestras_id
                         WHERE minv_formulario_muestras.id = minv_log_muestras.minv_formulario_id
                         ORDER BY minv_log_muestras.minv_estados_muestras_id DESC
                         LIMIT 1) AS ultimo_estado'))
-                    ->leftJoin('sedes_toma_muestras', 'sedes_toma_muestras.id', '=', 'minv_formulario_muestras.sedes_toma_muestras_id')
-                    ->leftJoin('minv_respuesta_informacion_historia_clinicas', 'minv_respuesta_informacion_historia_clinicas.minv_formulario_id', '=', 'minv_formulario_muestras.id')
-                    ->whereNull('minv_respuesta_informacion_historia_clinicas.id')
-                    ->get();
+                ->leftJoin('sedes_toma_muestras', 'sedes_toma_muestras.id', '=', 'minv_formulario_muestras.sedes_toma_muestras_id')
+                ->leftJoin('minv_respuesta_informacion_historia_clinicas', 'minv_respuesta_informacion_historia_clinicas.minv_formulario_id', '=', 'minv_formulario_muestras.id')
+                ->leftJoin('pacientes', 'pacientes.id', '=', 'minv_formulario_muestras.paciente_id')
+                ->whereNull('minv_respuesta_informacion_historia_clinicas.id')
+                ->get();
 
             if (count($formularios) == 0) return $this->error('No hay encuestas registradas', 204, []);
 
