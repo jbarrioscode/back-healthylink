@@ -28,7 +28,6 @@ use Illuminate\Support\Facades\Artisan;
 | is assigned the "api" middleware group. Enjoy building your API!
 |
 */
-/*
 Route::middleware(['auth:sanctum', 'verified'])
     ->get('/user', function (Request $request) {
         return $request->user();
@@ -37,7 +36,7 @@ Route::middleware(['auth:sanctum', 'verified'])
 /** App Routes */
 Route::prefix('/v1')->group(function () {
 
-   // Route::middleware(['auth', 'verified'])->group(function () {
+   Route::middleware(['auth', 'verified'])->group(function () {
 
     /* ADMINISTRADOR*/
 
@@ -135,4 +134,4 @@ Route::prefix('/v1')->group(function () {
         Artisan::call('view:clear');
     });
 
-//});
+});
