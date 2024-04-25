@@ -11,6 +11,7 @@ use App\Models\TomaMuestrasInv\Muestras\InformacionComplementaria\RespuestaInfor
 use App\Models\TomaMuestrasInv\Muestras\LogMuestras;
 use App\Models\TomaMuestrasInv\Muestras\Lote;
 use App\Models\TomaMuestrasInv\Muestras\LoteMuestras;
+use App\Models\TomaMuestrasInv\Paciente\Pacientes;
 use App\Traits\AuthenticationTrait;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
@@ -37,7 +38,7 @@ class EncuestaInvRepository implements EncuestaInvRepositoryInterface
                 ->where('numero_documento', '=', $request->numero_documento)
                 ->first();
 
-            $validacion = ValidacionesEncuestaInvRepository::validarCrearEncuesta($request,$patient->id);
+            $validacion = ValidacionesEncuestaInvRepository::validarCrearEncuesta($request, $patient->id);
 
             if ($validacion != "") {
                 return $this->error($validacion, 204, []);
