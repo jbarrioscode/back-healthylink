@@ -222,7 +222,7 @@ class ValidacionesEncuestaInvRepository
                         return "Se requiere 'tipo imagen' para la pregunta_id 6";
                     }
                     break;
-            }
+            }//
 
         }
         return '';
