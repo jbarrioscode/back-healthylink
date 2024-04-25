@@ -165,10 +165,10 @@ class EncuestaInvRepository implements EncuestaInvRepositoryInterface
                 ];
 
                 switch ($inf['pregunta_id']) {
-                    case 5:
+                    case 4:
                         $data['unidad'] = $inf['unidad'];
                         break;
-                    case 7:
+                    case 6:
                         $data['tipo_imagen'] = $inf['tipo_imagen'];
                         break;
                 }
