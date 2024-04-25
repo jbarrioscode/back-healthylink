@@ -212,14 +212,14 @@ class ValidacionesEncuestaInvRepository
             }
 
             switch ($inf['pregunta_id']) {
-                case 5:
+                case 4:
                     if (!isset($inf['unidad'])) {
-                       return "Se requiere 'unidad' para la pregunta_id 5";
+                       return "Se requiere 'unidad' para la pregunta_id 4";
                     }
                     break;
-                case 7:
+                case 6:
                     if (!isset($inf['tipo_imagen'])) {
-                        return "Se requiere 'tipo imagen' para la pregunta_id 7";
+                        return "Se requiere 'tipo imagen' para la pregunta_id 6";
                     }
                     break;
             }
