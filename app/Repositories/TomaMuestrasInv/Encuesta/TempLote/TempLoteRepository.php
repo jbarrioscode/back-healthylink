@@ -22,14 +22,14 @@ class TempLoteRepository implements TempRepositoryInterface
                 'minv_formulario_id' => 'required',
                 'user_id' => 'required',
                 'sede_id' => 'required',
-                'lote_cerrado' => 'required',
+                'tipo_muestra' => 'required',
             ];
 
             $messages = [
                 'minv_formulario_id.required' => 'Muestra está vacio.',
                 'user_id.required' => 'ID usuario está vacio.',
                 'sede_id.required' => 'Sede está vacio.',
-                'user_id.lote_cerrado' => 'Lote está vacio.',
+                'tipo_muestra.required' => 'Tipo Muestra está vacio.',
             ];
 
             $validator = Validator::make($request->all(), $rules, $messages);
@@ -41,6 +41,7 @@ class TempLoteRepository implements TempRepositoryInterface
                 'minv_formulario_id' => $request->minv_formulario_id,
                 'user_id' => $request->user_id,
                 'sede_id' => $request->sede_id,
+                'tipo_muestra' => $request->tipo_muestra,
                 'lote_cerrado' => 'false',
             ]);
 

@@ -18,5 +18,6 @@ class TempLote extends Model
         'user_id',
         'sede_id',
         'lote_cerrado'
+        ,'tipo_muestra'
     ];
 }
