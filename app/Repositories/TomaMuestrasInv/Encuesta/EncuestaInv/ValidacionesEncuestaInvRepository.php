@@ -193,14 +193,14 @@ class ValidacionesEncuestaInvRepository
         //------------------------------------------
         $preguntaIds = range(1, 7);
         $preguntasPresentes = array_column($data, 'pregunta_id');
-
+/*
         foreach ($preguntaIds as $preguntaId) {
             if (!in_array($preguntaId, $preguntasPresentes)) {
                 return "Falta al menos un registro para la pregunta_id: ". $preguntaId;
             }
 
         }
-
+*/
         foreach ($data as $inf) {
 
             if (!isset($inf['fecha'])) {
