@@ -26,6 +26,7 @@ interface EncuestaInvRepositoryInterface
     public function trazabilidadEncuestas(Request $request, $estado_id);
 
     public function trazabilidadFlujoEstadosEncuesta(Request $request, $encuesta_id);
+    public function getEncuestasForCRF(Request $request);
 
     public function respuestasEncuesta(Request $request, $encuesta_id);
 
@@ -34,5 +35,7 @@ interface EncuestaInvRepositoryInterface
     public function getEnfermedadesci10(Request $request,$code);
 
     public function getEnfermedadesci10Onco(Request $request);
+
+
 
 }

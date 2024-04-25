@@ -96,6 +96,16 @@ class EncuestaController extends Controller
             throw $th;
         }
     }
+    public function getEncuestasForCRF(Request $request)
+    {
+        try {
+
+            return $this->encuestaRepository->getEncuestasForCRF($request);
+
+        } catch (\Throwable $th) {
+            throw $th;
+        }
+    }
 
     public function respuestasEncuesta(Request $request,$encuesta_id)
     {
@@ -137,4 +147,6 @@ class EncuestaController extends Controller
             throw $th;
         }
     }
+    //----------------------------------------------------------------------------
+
 }
