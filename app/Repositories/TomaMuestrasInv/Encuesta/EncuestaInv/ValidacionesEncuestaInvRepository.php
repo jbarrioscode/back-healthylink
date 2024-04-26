@@ -3,6 +3,7 @@
 namespace App\Repositories\TomaMuestrasInv\Encuesta\EncuestaInv;
 
 use App\Models\TomaMuestrasInv\Muestras\FormularioMuestra;
+use App\Models\TomaMuestrasInv\Muestras\InformacionComplementaria\RespuestaInformacionHistoriaClinica;
 use App\Models\TomaMuestrasInv\Muestras\LogMuestras;
 use App\Models\TomaMuestrasInv\Muestras\LoteMuestras;
 use Illuminate\Support\Facades\DB;
@@ -10,23 +11,24 @@ use Illuminate\Support\Facades\DB;
 class ValidacionesEncuestaInvRepository
 {
 
-    public static function validarCrearEncuesta($request,$paciente_id)
+    public static function validarCrearEncuesta($request, $paciente_id)
     {
 
-        if(count(FormularioMuestra::where('paciente_id','=', $paciente_id)->get())>0){
+        if (count(FormularioMuestra::where('paciente_id', '=', $paciente_id)->get()) > 0) {
             return 'Paciente ya se encuentra participando de la encuesta';
         }
 
-        foreach ($request->detalle as $det){
+        foreach ($request->detalle as $det) {
 
-            $validacionDetalles=self::validarCrearDetallesEncuesta($det);
+            $validacionDetalles = self::validarCrearDetallesEncuesta($det);
 
-            if($validacionDetalles!==''){
+            if ($validacionDetalles !== '') {
                 return $validacionDetalles;
             }
         }
 
     }
+
     public static function validarCrearDetallesEncuesta($det)
     {
         $campos_vacios = [];
@@ -178,43 +180,48 @@ class ValidacionesEncuestaInvRepository
         return '';
     }
 
-    public static function validarInformacionHistoriaClinica($data,$encuesta_id)
+    public static function validarInformacionHistoriaClinica($data, $encuesta_id)
     {
-        if(FormularioMuestra::where('id',$encuesta_id)->count()==0){
+        if (FormularioMuestra::where('id', $encuesta_id)->count() == 0) {
             return 'No existe encuesta con este ID';
         }
 
-        if(LogMuestras::where('minv_formulario_id',$encuesta_id)
-            ->where('minv_estados_muestras_id',2)
-            ->count()==1){
-            return 'Ya existe información de la historia clinica registrada';
+        foreach ($data as $inf) {
+
+            if (RespuestaInformacionHistoriaClinica::where('minv_formulario_id', $encuesta_id)
+                ->where('pregunta_id', $inf['pregunta_id']
+                        ->count() > 0)) {
+
+                return 'Ya existe información de la pregunta: ' . $inf['pregunta_id'] . ' de la historia clinica';
+            }
         }
+
 
         //------------------------------------------
         $preguntaIds = range(1, 7);
         $preguntasPresentes = array_column($data, 'pregunta_id');
-/*
-        foreach ($preguntaIds as $preguntaId) {
-            if (!in_array($preguntaId, $preguntasPresentes)) {
-                return "Falta al menos un registro para la pregunta_id: ". $preguntaId;
-            }
+        /*
+                foreach ($preguntaIds as $preguntaId) {
+                    if (!in_array($preguntaId, $preguntasPresentes)) {
+                        return "Falta al menos un registro para la pregunta_id: ". $preguntaId;
+                    }
 
-        }
-*/
+                }
+        */
         foreach ($data as $inf) {
 
             if (!isset($inf['fecha'])) {
-               return 'Pregunta '.$inf['pregunta_id'].' debe contener fecha';
+                return 'Pregunta ' . $inf['pregunta_id'] . ' debe contener fecha';
             }
 
             if (!isset($inf['respuesta'])) {
-                return 'Pregunta '.$inf['pregunta_id'].' debe contener respuesta';
+                return 'Pregunta ' . $inf['pregunta_id'] . ' debe contener respuesta';
             }
 
             switch ($inf['pregunta_id']) {
                 case 4:
                     if (!isset($inf['unidad'])) {
-                       return "Se requiere 'unidad' para la pregunta_id 4";
+                        return "Se requiere 'unidad' para la pregunta_id 4";
                     }
                     break;
                 case 6:
@@ -228,7 +235,8 @@ class ValidacionesEncuestaInvRepository
         return '';
     }
 
-    public static function validarAsignarMuestraALote($muestras){
+    public static function validarAsignarMuestraALote($muestras)
+    {
 
         $muestrasIds = array_column($muestras, 'muestra_id');
 
@@ -246,7 +254,6 @@ class ValidacionesEncuestaInvRepository
 
         return '';
     }
-
 
 
 }
