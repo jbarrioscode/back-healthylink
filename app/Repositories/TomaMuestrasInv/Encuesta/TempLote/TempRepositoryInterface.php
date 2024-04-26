@@ -10,3 +10,4 @@ interface TempRepositoryInterface
     public function getLoteTemp(Request $request,$user_id,$sede_id);
     public function deleteTemp(Request $request);
 }
+//

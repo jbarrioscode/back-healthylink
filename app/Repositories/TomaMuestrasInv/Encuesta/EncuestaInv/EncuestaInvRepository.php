@@ -505,7 +505,7 @@ class EncuestaInvRepository implements EncuestaInvRepositoryInterface
             $formularios = FormularioMuestra::select('minv_formulario_muestras.id',
                 'minv_formulario_muestras.created_at', 'minv_formulario_muestras.updated_at',
                 'minv_formulario_muestras.deleted_at', 'minv_formulario_muestras.code_paciente',
-                'sedes_toma_muestras.nombre as sede_toma_muestra', 'pacientes.tipo_doc', ',pacientes.numero_documento')
+                'sedes_toma_muestras.nombre as sede_toma_muestra', 'pacientes.tipo_doc', 'pacientes.numero_documento')
                 ->addSelect(DB::raw('(SELECT est.nombre
                         FROM minv_log_muestras
                         LEFT JOIN minv_estados_muestras est ON est.id = minv_log_muestras.minv_estados_muestras_id
