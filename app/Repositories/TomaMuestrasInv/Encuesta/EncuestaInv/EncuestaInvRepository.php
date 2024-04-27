@@ -11,6 +11,7 @@ use App\Models\TomaMuestrasInv\Muestras\InformacionComplementaria\RespuestaInfor
 use App\Models\TomaMuestrasInv\Muestras\LogMuestras;
 use App\Models\TomaMuestrasInv\Muestras\Lote;
 use App\Models\TomaMuestrasInv\Muestras\LoteMuestras;
+use App\Models\TomaMuestrasInv\Muestras\TempLote;
 use App\Models\TomaMuestrasInv\Paciente\Pacientes;
 use App\Traits\AuthenticationTrait;
 use Illuminate\Http\Request;
@@ -234,6 +235,10 @@ class EncuestaInvRepository implements EncuestaInvRepositoryInterface
             }
 
             $lote->detalleLote = $detalleLote;
+
+            foreach ($request->muestras as $mu) {
+                TempLote::where('minv_formulario_id', $mu['muestra_id'])->update(['lote_cerrado', true]);
+            }
 
             DB::commit();
 
@@ -482,7 +487,7 @@ class EncuestaInvRepository implements EncuestaInvRepositoryInterface
                         ->where('minv_formulario_muestras_id', $lo->encuesta_id)
                         ->get();
                     foreach ($lotes as $lote) {
-                        $lo->info = 'EMPACADO EN LOTE: '.$lote->code_lote;
+                        $lo->info = 'EMPACADO EN LOTE: ' . $lote->code_lote;
                     }
                 }
             }
