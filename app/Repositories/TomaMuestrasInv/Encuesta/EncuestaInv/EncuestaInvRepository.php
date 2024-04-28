@@ -208,7 +208,7 @@ class EncuestaInvRepository implements EncuestaInvRepositoryInterface
 
             $ultimoID = null;
 
-            $ultimoRegistro = Lote::latest()->first();
+            $ultimoRegistro = Lote::latest()->where('tipo_muestra', 'MUESTRA')->first();
 
             if ($ultimoRegistro) {
                 $ultimoID = $ultimoRegistro->id;
@@ -216,15 +216,29 @@ class EncuestaInvRepository implements EncuestaInvRepositoryInterface
                 $ultimoID = 0;
             }
 
-            $lote = Lote::create([
-                'code_lote' => 'LOT-' . ($ultimoID + 1),
+            $loteMuestra = Lote::create([
+                'code_lote' => 'MU-LOT-' . ($ultimoID + 1),
+                'tipo_muestra' => 'MUESTRA'
             ]);
+
+            $loteContraMuestra = Lote::create([
+                'code_lote' => 'CM-LOT-' . ($ultimoID + 1),
+                'tipo_muestra' => 'CONTRAMUESTRA'
+            ]);
+
+            $resultado=['LoteMuestra'=>$loteMuestra, 'LoteContra'=>$loteContraMuestra];
+
             $idErrorMuestra = 0;
             foreach ($request->muestras as $mu) {
                 $idErrorMuestra = $mu['muestra_id'];
+
                 $detalleLote[] = LoteMuestras::create([
                     'minv_formulario_muestras_id' => $mu['muestra_id'],
-                    'lote_id' => $lote->id,
+                    'lote_id' => $loteMuestra->id,
+                ]);
+                $detalleLote[] = LoteMuestras::create([
+                    'minv_formulario_muestras_id' => $mu['muestra_id'],
+                    'lote_id' => $loteContraMuestra->id,
                 ]);
 
                 LogMuestras::create([
@@ -234,20 +248,19 @@ class EncuestaInvRepository implements EncuestaInvRepositoryInterface
                 ]);
             }
 
-            $lote->detalleLote = $detalleLote;
+            //$resultado->detalleLote = $detalleLote;
 
             foreach ($request->muestras as $mu) {
-                TempLote::where('minv_formulario_id', $mu['muestra_id'])->update(['lote_cerrado', true]);
+                TempLote::where('minv_formulario_id','=', $mu['muestra_id'])->update(['lote_cerrado' => true]);
             }
 
             DB::commit();
 
-            return $this->success($lote, 1, 'Lote registrado correctamente', 201);
-
+            return $this->success($resultado, 1, 'Lote registrado correctamente', 201);
 
         } catch (\Throwable $th) {
             DB::rollBack();
-            return $this->error('Hay un error con el ID de la muestra: ' . $idErrorMuestra, 204, []);
+            return $this->error('Hay un error con el ID de la muestra: ' . $idErrorMuestra. $th, 204, []);
             throw $th;
         }
     }
@@ -280,7 +293,13 @@ class EncuestaInvRepository implements EncuestaInvRepositoryInterface
                 ->get();
 
             $log = [];
+
+
             foreach ($muestras as $mu) {
+
+                $codificacionLote = explode('-', $request->code_lote);
+
+                //if($codificacionLote[0]==)
 
                 $log[] = LogMuestras::create([
                     'minv_formulario_id' => $mu->minv_formulario_muestras_id,
