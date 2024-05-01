@@ -287,6 +287,12 @@ class EncuestaInvRepository implements EncuestaInvRepositoryInterface
             }
 
 
+            $codificacionLote = explode('-', $request->code_lote);
+
+            if(!isset($codificacionLote[0]) || !isset($codificacionLote[1]) || !isset($codificacionLote[2])){
+                return $this->error('Codigo invalido' , 204, []);
+            }
+
             $muestras = LoteMuestras::select('lote_muestras.minv_formulario_muestras_id')
                 ->join('lotes', 'lotes.id', '=', 'lote_muestras.lote_id')
                 ->where('lotes.code_lote', $request->code_lote)
@@ -294,18 +300,27 @@ class EncuestaInvRepository implements EncuestaInvRepositoryInterface
 
             $log = [];
 
-
             foreach ($muestras as $mu) {
 
-                $codificacionLote = explode('-', $request->code_lote);
+                if($codificacionLote[0]=='MU'){
+                    $log[] = LogMuestras::create([
+                        'minv_formulario_id' => $mu->minv_formulario_muestras_id,
+                        'user_id_executed' => $request->user_id_executed,
+                        'minv_estados_muestras_id' => 4,
+                    ]);
+                }else{
+                    if($codificacionLote[0]=='CM'){
+                        $log[] = LogMuestras::create([
+                            'minv_formulario_id' => $mu->minv_formulario_muestras_id,
+                            'user_id_executed' => $request->user_id_executed,
+                            'minv_estados_muestras_id' => 7,
+                        ]);
+                    }else{
+                        return $this->error('Codigo invalido' , 204, []);
+                    }
+                }
 
-                //if($codificacionLote[0]==)
 
-                $log[] = LogMuestras::create([
-                    'minv_formulario_id' => $mu->minv_formulario_muestras_id,
-                    'user_id_executed' => $request->user_id_executed,
-                    'minv_estados_muestras_id' => 4,
-                ]);
 
             }
 
@@ -316,7 +331,7 @@ class EncuestaInvRepository implements EncuestaInvRepositoryInterface
 
         } catch (\Throwable $th) {
             DB::rollBack();
-            return $this->error('Hay un error' . $th, 204, []);
+            return $this->error($validator->errors(), 422, []);
             throw $th;
         }
     }
