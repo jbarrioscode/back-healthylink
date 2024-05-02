@@ -56,7 +56,7 @@ class TempLoteRepository implements TempRepositoryInterface
                 'tipo_muestra' => $request->tipo_muestra,
                 'lote_cerrado' => 'false',
             ]);
-
+            $temp->codigo_paciente=$codificacion[1];
             DB::commit();
 
             return $this->success($temp, 1, 'Muestra guardada correctamente', 201);
