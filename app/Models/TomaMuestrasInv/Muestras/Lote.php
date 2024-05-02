@@ -14,6 +14,7 @@ class Lote extends Model
     protected $table = 'lotes';
 
     protected $fillable = [
-        'code_lote'
+        'code_lote',
+        'tipo_muestra'
     ];
 }

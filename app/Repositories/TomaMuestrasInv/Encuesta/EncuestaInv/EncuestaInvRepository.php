@@ -11,6 +11,7 @@ use App\Models\TomaMuestrasInv\Muestras\InformacionComplementaria\RespuestaInfor
 use App\Models\TomaMuestrasInv\Muestras\LogMuestras;
 use App\Models\TomaMuestrasInv\Muestras\Lote;
 use App\Models\TomaMuestrasInv\Muestras\LoteMuestras;
+use App\Models\TomaMuestrasInv\Muestras\TempLote;
 use App\Models\TomaMuestrasInv\Paciente\Pacientes;
 use App\Traits\AuthenticationTrait;
 use Illuminate\Http\Request;
@@ -207,7 +208,7 @@ class EncuestaInvRepository implements EncuestaInvRepositoryInterface
 
             $ultimoID = null;
 
-            $ultimoRegistro = Lote::latest()->first();
+            $ultimoRegistro = Lote::latest()->where('tipo_muestra', 'MUESTRA')->first();
 
             if ($ultimoRegistro) {
                 $ultimoID = $ultimoRegistro->id;
@@ -215,15 +216,29 @@ class EncuestaInvRepository implements EncuestaInvRepositoryInterface
                 $ultimoID = 0;
             }
 
-            $lote = Lote::create([
-                'code_lote' => 'LOT-' . ($ultimoID + 1),
+            $loteMuestra = Lote::create([
+                'code_lote' => 'MU-LOT-' . ($ultimoID + 1),
+                'tipo_muestra' => 'MUESTRA'
             ]);
+
+            $loteContraMuestra = Lote::create([
+                'code_lote' => 'CM-LOT-' . ($ultimoID + 1),
+                'tipo_muestra' => 'CONTRAMUESTRA'
+            ]);
+
+            $resultado=['LoteMuestra'=>$loteMuestra, 'LoteContra'=>$loteContraMuestra];
+
             $idErrorMuestra = 0;
             foreach ($request->muestras as $mu) {
                 $idErrorMuestra = $mu['muestra_id'];
+
                 $detalleLote[] = LoteMuestras::create([
                     'minv_formulario_muestras_id' => $mu['muestra_id'],
-                    'lote_id' => $lote->id,
+                    'lote_id' => $loteMuestra->id,
+                ]);
+                $detalleLote[] = LoteMuestras::create([
+                    'minv_formulario_muestras_id' => $mu['muestra_id'],
+                    'lote_id' => $loteContraMuestra->id,
                 ]);
 
                 LogMuestras::create([
@@ -233,16 +248,19 @@ class EncuestaInvRepository implements EncuestaInvRepositoryInterface
                 ]);
             }
 
-            $lote->detalleLote = $detalleLote;
+            //$resultado->detalleLote = $detalleLote;
+
+            foreach ($request->muestras as $mu) {
+                TempLote::where('minv_formulario_id','=', $mu['muestra_id'])->update(['lote_cerrado' => true]);
+            }
 
             DB::commit();
 
-            return $this->success($lote, 1, 'Lote registrado correctamente', 201);
-
+            return $this->success($resultado, 1, 'Lote registrado correctamente', 201);
 
         } catch (\Throwable $th) {
             DB::rollBack();
-            return $this->error('Hay un error con el ID de la muestra: ' . $idErrorMuestra, 204, []);
+            return $this->error('Hay un error con el ID de la muestra: ' . $idErrorMuestra. $th, 204, []);
             throw $th;
         }
     }
@@ -269,19 +287,40 @@ class EncuestaInvRepository implements EncuestaInvRepositoryInterface
             }
 
 
+            $codificacionLote = explode('-', $request->code_lote);
+
+            if(!isset($codificacionLote[0]) || !isset($codificacionLote[1]) || !isset($codificacionLote[2])){
+                return $this->error('Codigo invalido' , 204, []);
+            }
+
             $muestras = LoteMuestras::select('lote_muestras.minv_formulario_muestras_id')
                 ->join('lotes', 'lotes.id', '=', 'lote_muestras.lote_id')
                 ->where('lotes.code_lote', $request->code_lote)
                 ->get();
 
             $log = [];
+
             foreach ($muestras as $mu) {
 
-                $log[] = LogMuestras::create([
-                    'minv_formulario_id' => $mu->minv_formulario_muestras_id,
-                    'user_id_executed' => $request->user_id_executed,
-                    'minv_estados_muestras_id' => 4,
-                ]);
+                if($codificacionLote[0]=='MU'){
+                    $log[] = LogMuestras::create([
+                        'minv_formulario_id' => $mu->minv_formulario_muestras_id,
+                        'user_id_executed' => $request->user_id_executed,
+                        'minv_estados_muestras_id' => 4,
+                    ]);
+                }else{
+                    if($codificacionLote[0]=='CM'){
+                        $log[] = LogMuestras::create([
+                            'minv_formulario_id' => $mu->minv_formulario_muestras_id,
+                            'user_id_executed' => $request->user_id_executed,
+                            'minv_estados_muestras_id' => 7,
+                        ]);
+                    }else{
+                        return $this->error('Codigo invalido' , 204, []);
+                    }
+                }
+
+
 
             }
 
@@ -292,7 +331,7 @@ class EncuestaInvRepository implements EncuestaInvRepositoryInterface
 
         } catch (\Throwable $th) {
             DB::rollBack();
-            return $this->error('Hay un error' . $th, 204, []);
+            return $this->error($validator->errors(), 422, []);
             throw $th;
         }
     }
@@ -482,7 +521,7 @@ class EncuestaInvRepository implements EncuestaInvRepositoryInterface
                         ->where('minv_formulario_muestras_id', $lo->encuesta_id)
                         ->get();
                     foreach ($lotes as $lote) {
-                        $lo->info = 'EMPACADO EN LOTE: '.$lote->code_lote;
+                        $lo->info = 'EMPACADO EN LOTE: ' . $lote->code_lote;
                     }
                 }
             }
@@ -505,7 +544,7 @@ class EncuestaInvRepository implements EncuestaInvRepositoryInterface
             $formularios = FormularioMuestra::select('minv_formulario_muestras.id',
                 'minv_formulario_muestras.created_at', 'minv_formulario_muestras.updated_at',
                 'minv_formulario_muestras.deleted_at', 'minv_formulario_muestras.code_paciente',
-                'sedes_toma_muestras.nombre as sede_toma_muestra', 'paciente.tipo_doc', ',paciente.numero_documento')
+                'sedes_toma_muestras.nombre as sede_toma_muestra', 'pacientes.tipo_doc', 'pacientes.numero_documento')
                 ->addSelect(DB::raw('(SELECT est.nombre
                         FROM minv_log_muestras
                         LEFT JOIN minv_estados_muestras est ON est.id = minv_log_muestras.minv_estados_muestras_id
