@@ -303,6 +303,7 @@ class EncuestaInvRepository implements EncuestaInvRepositoryInterface
             foreach ($muestras as $mu) {
 
                 if($codificacionLote[0]=='MU'){
+
                     $log[] = LogMuestras::create([
                         'minv_formulario_id' => $mu->minv_formulario_muestras_id,
                         'user_id_executed' => $request->user_id_executed,
