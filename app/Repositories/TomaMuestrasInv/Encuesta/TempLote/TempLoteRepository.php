@@ -43,7 +43,7 @@ class TempLoteRepository implements TempRepositoryInterface
 
             $codigo_muestra = preg_split('/([0-9]+)/', $codificacion[0], -1, PREG_SPLIT_NO_EMPTY | PREG_SPLIT_DELIM_CAPTURE);
 
-            $validacion = self::validarCodificacionLote($codificacion,$codigo_muestra, $request->tipo_muestra);
+            $validacion = self::validarCodificacionLote($codificacion, $codigo_muestra, $request->tipo_muestra);
             if ($validacion != "") {
                 return $this->error($validacion, 204, []);
             }
@@ -56,7 +56,7 @@ class TempLoteRepository implements TempRepositoryInterface
                 'tipo_muestra' => $request->tipo_muestra,
                 'lote_cerrado' => 'false',
             ]);
-            $temp->codigo_paciente=$codificacion[1];
+            $temp->codigo_paciente = $codificacion[1];
             DB::commit();
 
             return $this->success($temp, 1, 'Muestra guardada correctamente', 201);
@@ -70,13 +70,13 @@ class TempLoteRepository implements TempRepositoryInterface
 
     }
 
-    public static function validarCodificacionLote($codificacion,$codigo_muestra ,$tipo_muestra)
+    public static function validarCodificacionLote($codificacion, $codigo_muestra, $tipo_muestra)
     {
         if (!isset($codificacion[0]) || !isset($codificacion[1]) || !isset($codificacion[2]) || !isset($codificacion[3])) {
-            return 'Codigo invalido';
+            return 'Codigo invalido 1';
         }
 
-        if ($codigo_muestra[0] !== 'MU' || $codigo_muestra[0] !== 'CM') return "Codigo invalido";
+        //if ($codigo_muestra[0] !== 'MU' || $codigo_muestra[0] !== 'CM') return "Codigo invalido 2";
 
         if ($codigo_muestra[0] === 'MU' && $tipo_muestra !== 'MUESTRA') return "El codigo no pertenece a 'muestra'";
 
@@ -102,7 +102,7 @@ class TempLoteRepository implements TempRepositoryInterface
         try {
 
             $tempMuestras = TempLote::select('temp_lotes.minv_formulario_id',
-                'temp_lotes.user_id','temp_lotes.sede_id','temp_lotes.lote_cerrado','temp_lotes.tipo_muestra','minv_formulario_muestras.code_paciente')
+                'temp_lotes.user_id', 'temp_lotes.sede_id', 'temp_lotes.lote_cerrado', 'temp_lotes.tipo_muestra', 'minv_formulario_muestras.code_paciente')
                 ->leftJoin('minv_formulario_muestras', 'minv_formulario_muestras.id', '=', 'temp_lotes.minv_formulario_id')
                 ->where('temp_lotes.sede_id', $sede_id)
                 ->where('temp_lotes.user_id', $user_id)
@@ -110,7 +110,7 @@ class TempLoteRepository implements TempRepositoryInterface
                 ->where('temp_lotes.tipo_muestra', 'MUESTRA')->get();
 
             $tempContramuestras = TempLote::select('temp_lotes.minv_formulario_id',
-                'temp_lotes.user_id','temp_lotes.sede_id','temp_lotes.lote_cerrado','temp_lotes.tipo_muestra','minv_formulario_muestras.code_paciente')
+                'temp_lotes.user_id', 'temp_lotes.sede_id', 'temp_lotes.lote_cerrado', 'temp_lotes.tipo_muestra', 'minv_formulario_muestras.code_paciente')
                 ->leftJoin('minv_formulario_muestras', 'minv_formulario_muestras.id', '=', 'temp_lotes.minv_formulario_id')
                 ->where('temp_lotes.sede_id', $sede_id)
                 ->where('temp_lotes.user_id', $user_id)
