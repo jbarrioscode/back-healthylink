@@ -93,6 +93,9 @@ class TempLoteRepository implements TempRepositoryInterface
 
         if (!User::where('id', $codificacion[3])->exists()) return 'El recolector no existe';
 
+        if(TempLote::where('minv_formulario_id',$codigo_muestra[1])->where('tipo_muestra',$codigo_muestra[0])->where('sede_id', $codificacion[2]
+            )->where('lote_cerrado',false)->exists()) return 'Esta muestra ya existe';
+
         return '';
     }
 
