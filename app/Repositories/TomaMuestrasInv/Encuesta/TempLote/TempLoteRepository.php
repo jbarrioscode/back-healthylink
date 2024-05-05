@@ -6,6 +6,7 @@ use App\Models\TomaMuestrasInv\Muestras\FormularioMuestra;
 use App\Models\TomaMuestrasInv\Muestras\SedesTomaMuestra;
 use App\Models\TomaMuestrasInv\Muestras\TempLote;
 use App\Models\User;
+use App\Repositories\TomaMuestrasInv\Encuesta\EncuestaInv\ValidacionesEncuestaInvRepository;
 use App\Traits\AuthenticationTrait;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
@@ -72,6 +73,9 @@ class TempLoteRepository implements TempRepositoryInterface
 
     public static function validarCodificacionLote($codificacion, $codigo_muestra, $tipo_muestra)
     {
+
+        $validacion = ValidacionesEncuestaInvRepository::validarCodificacionMuestra($codificacion,$codigo_muestra ,$tipo_muestra);
+
         if (!isset($codificacion[0]) || !isset($codificacion[1]) || !isset($codificacion[2]) || !isset($codificacion[3])) {
             return 'Codigo invalido 1';
         }
@@ -83,15 +87,13 @@ class TempLoteRepository implements TempRepositoryInterface
         if ($codigo_muestra[0] === 'CM' && $tipo_muestra !== 'CONTRAMUESTRA') return "El codigo no pertenece a 'contramuestra'";
 
 
-        if (!FormularioMuestra::where('id', $codigo_muestra[1])->exists()) return 'La muestra no existe';
+        if ($validacion != "") {
+            return $validacion;
+        }
 
-        if (!FormularioMuestra::where('code_paciente', $codificacion[1])->exists()) return 'El paciente no existe';
 
-        if (!FormularioMuestra::where('id', $codigo_muestra[1])->where('code_paciente', $codificacion[1])->exists()) return 'El paciente y la muestra no coinciden';
-
-        if (!SedesTomaMuestra::where('id', $codificacion[2])->exists()) return 'La sede no existe';
-
-        if (!User::where('id', $codificacion[3])->exists()) return 'El recolector no existe';
+        if(TempLote::where('minv_formulario_id',$codigo_muestra[1])->where('tipo_muestra',$codigo_muestra[0])->where('sede_id', $codificacion[2]
+            )->where('lote_cerrado',false)->exists()) return 'Esta muestra ya existe';
 
         return '';
     }
