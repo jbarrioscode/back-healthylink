@@ -416,6 +416,7 @@ class EncuestaInvRepository implements EncuestaInvRepositoryInterface
 
             $codigo_muestra = preg_split('/([0-9]+)/', $codificacion[0], -1, PREG_SPLIT_NO_EMPTY | PREG_SPLIT_DELIM_CAPTURE);
 
+
             $validacion = ValidacionesEncuestaInvRepository::validarCodificacionMuestra($codificacion,$codigo_muestra,'MUESTRA');
 
             if ($validacion != "") {
@@ -425,7 +426,7 @@ class EncuestaInvRepository implements EncuestaInvRepositoryInterface
             $codificacionUbicacion = explode('-', $request->codigo_ubicacion);
 
 
-            $validacion2 = ValidacionesEncuestaInvRepository::validarCodigoUbicacion($codificacionUbicacion);
+            $validacion2 = ValidacionesEncuestaInvRepository::validarCodigoUbicacion($codificacionUbicacion,$codigo_muestra[1]);
 
             if ($validacion2 != "") {
                 return $this->error($validacion2, 204, []);
@@ -434,16 +435,17 @@ class EncuestaInvRepository implements EncuestaInvRepositoryInterface
             $idUbicacion= UbicacionCaja::select('ubicacion_cajas.id')
                 ->join('ubicacion_estantes', 'ubicacion_cajas.nevera_estante_id', '=', 'ubicacion_estantes.id')
                 ->join('ubicacion_bio_bancos', 'ubicacion_bio_bancos.id', '=', 'ubicacion_estantes.ubicacion_bio_bancos_id')
-                ->where('ubicacion_cajas.num_caja')
-                ->where('ubicacion_cajas.num_fila')
+                ->where('ubicacion_cajas.num_caja',$codificacionUbicacion[2])
+                ->where('ubicacion_cajas.num_fila',$codificacionUbicacion[3])
                 ->first();
 
             if($idUbicacion == null) return $this->error('Ubicacion no creada', 204, []);
 
+
             $asignacion = AsignacionMuestraUbicacion::create([
                 'minv_formulario_muestras_id' => $codigo_muestra[1],
                 'user_id_located' => $request->user_id,
-                'ubicacion_estantes_id' => $idUbicacion,
+                'caja_nevera_id' => $idUbicacion->id,
             ]);
 
             LogMuestras::create([

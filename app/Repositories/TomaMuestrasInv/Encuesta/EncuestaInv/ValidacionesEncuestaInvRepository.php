@@ -263,10 +263,10 @@ class ValidacionesEncuestaInvRepository
     public static function validarCodificacionMuestra($codificacion,$codigo_muestra ,$tipo_muestra)
     {
         if (!isset($codificacion[0]) || !isset($codificacion[1]) || !isset($codificacion[2]) || !isset($codificacion[3])) {
-            return 'Codigo invalido';
+            return 'Codigo de muestra invalido';
         }
 
-        if ($codigo_muestra[0] !== 'MU' || $codigo_muestra[0] !== 'CM') return "Codigo invalido";
+        if ($codigo_muestra[0] !== 'MU' && $codigo_muestra[0] !== 'CM') return "Codigo Tipo de muestra invalidoo";
 
         if ($codigo_muestra[0] === 'MU' && $tipo_muestra !== 'MUESTRA') return "El codigo no pertenece a 'muestra'";
 
@@ -286,7 +286,7 @@ class ValidacionesEncuestaInvRepository
         return '';
     }
 
-    public static function validarCodigoUbicacion($codificacionUbicacion)
+    public static function validarCodigoUbicacion($codificacionUbicacion,$idMuestra)
     {
         if (!isset($codificacionUbicacion[0]) || !isset($codificacionUbicacion[1]) || !isset($codificacionUbicacion[2]) || !isset($codificacionUbicacion[3])) {
             return 'Codigo invalido';
@@ -300,12 +300,15 @@ class ValidacionesEncuestaInvRepository
 
         if (!ubicacionEstante::where('id', $codificacionUbicacion[1])->exists()) return 'La nevera no existe';
 
+
         if (!UbicacionCaja::join('ubicacion_estantes', 'ubicacion_cajas.nevera_estante_id', '=', 'ubicacion_estantes.id')
             ->join('ubicacion_bio_bancos', 'ubicacion_bio_bancos.id', '=', 'ubicacion_estantes.ubicacion_bio_bancos_id')
-            ->where('ubicacion_cajas.num_caja')
-            ->where('ubicacion_cajas.num_fila')
-            ->exists()) return 'La nevera no existe';
+            ->where('ubicacion_cajas.num_caja',$codificacionUbicacion[2])
+            ->where('ubicacion_cajas.num_fila',$codificacionUbicacion[3])
+            ->exists()) return 'La codificacion no coincide con la registrada en el sistema';
 
+        if(LogMuestras::where('minv_log_muestras.minv_formulario_id',$idMuestra)
+            ->where('minv_estados_muestras_id','6')->exists()) return 'La muestra ya fue asignada anteriormente';
 
         return '';
     }
