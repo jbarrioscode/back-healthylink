@@ -90,7 +90,7 @@ class TempLoteRepository implements TempRepositoryInterface
         if ($validacion != "") {
             return $validacion;
         }
-
+        //okk
 
         if(TempLote::where('minv_formulario_id',$codigo_muestra[1])->where('tipo_muestra',$codigo_muestra[0])->where('sede_id', $codificacion[2]
             )->where('lote_cerrado',false)->exists()) return 'Esta muestra ya existe';
