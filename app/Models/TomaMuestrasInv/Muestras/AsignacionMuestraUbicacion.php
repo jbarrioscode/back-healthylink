@@ -14,7 +14,7 @@ class AsignacionMuestraUbicacion extends Model
     protected $table = 'minv_asignacion_muestra_ubicacion';
 
     protected $fillable = [
-        'ubicacion_estantes_id',
+        'caja_nevera_id',
         'user_id_located',
         'minv_formulario_muestras_id'
     ];

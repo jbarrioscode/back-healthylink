@@ -12,6 +12,7 @@ use App\Models\TomaMuestrasInv\Muestras\LogMuestras;
 use App\Models\TomaMuestrasInv\Muestras\Lote;
 use App\Models\TomaMuestrasInv\Muestras\LoteMuestras;
 use App\Models\TomaMuestrasInv\Muestras\TempLote;
+use App\Models\TomaMuestrasInv\Muestras\UbicacionCaja;
 use App\Models\TomaMuestrasInv\Paciente\Pacientes;
 use App\Traits\AuthenticationTrait;
 use Illuminate\Http\Request;
@@ -395,15 +396,15 @@ class EncuestaInvRepository implements EncuestaInvRepositoryInterface
         try {
 
             $rules = [
-                'code_paciente' => 'required|string',
+                'codigo_muestra' => 'required|string',
                 'user_id' => 'required',
-                'ubicacion_estantes_id' => 'required',
+                'codigo_ubicacion' => 'required',
             ];
 
             $messages = [
-                'code_paciente.required' => 'Codigo de paciente está vacio.',
+                'codigo_muestra.required' => 'Codigo de la muestra está vacio.',
                 'user_id.required' => 'ID usuario está vacio.',
-                'ubicacion_estantes_id.required' => 'ID de la nevera o estante se encuentra vacia.',
+                'codigo_ubicacion.required' => 'ID de la ubicacion se encuentra vacia.',
             ];
 
             $validator = Validator::make($request->all(), $rules, $messages);
@@ -411,25 +412,42 @@ class EncuestaInvRepository implements EncuestaInvRepositoryInterface
                 return $this->error($validator->errors(), 422, []);
             }
 
-            $formulario = FormularioMuestra::where('code_paciente', $request->code_paciente)->get();
+            $codificacion = explode('-', $request->codigo_muestra);
 
-            $encuesta_id = 0;
+            $codigo_muestra = preg_split('/([0-9]+)/', $codificacion[0], -1, PREG_SPLIT_NO_EMPTY | PREG_SPLIT_DELIM_CAPTURE);
 
-            foreach ($formulario as $form) {
-                $encuesta_id = $form->id;
+            $validacion = ValidacionesEncuestaInvRepository::validarCodificacionMuestra($codificacion,$codigo_muestra,'MUESTRA');
+
+            if ($validacion != "") {
+                return $this->error($validacion, 204, []);
             }
 
-            if ($encuesta_id === 0) return $this->error('No existe estudio con ese codigo de paciente', 422, []);
+            $codificacionUbicacion = explode('-', $request->codigo_ubicacion);
 
+
+            $validacion2 = ValidacionesEncuestaInvRepository::validarCodigoUbicacion($codificacionUbicacion);
+
+            if ($validacion2 != "") {
+                return $this->error($validacion2, 204, []);
+            }
+
+            $idUbicacion= UbicacionCaja::select('ubicacion_cajas.id')
+                ->join('ubicacion_estantes', 'ubicacion_cajas.nevera_estante_id', '=', 'ubicacion_estantes.id')
+                ->join('ubicacion_bio_bancos', 'ubicacion_bio_bancos.id', '=', 'ubicacion_estantes.ubicacion_bio_bancos_id')
+                ->where('ubicacion_cajas.num_caja')
+                ->where('ubicacion_cajas.num_fila')
+                ->first();
+
+            if($idUbicacion == null) return $this->error('Ubicacion no creada', 204, []);
 
             $asignacion = AsignacionMuestraUbicacion::create([
-                'minv_formulario_muestras_id' => $encuesta_id,
+                'minv_formulario_muestras_id' => $codigo_muestra[1],
                 'user_id_located' => $request->user_id,
-                'ubicacion_estantes_id' => $request->ubicacion_estantes_id,
+                'ubicacion_estantes_id' => $idUbicacion,
             ]);
 
             LogMuestras::create([
-                'minv_formulario_id' => $encuesta_id,
+                'minv_formulario_id' => $codigo_muestra[1],
                 'user_id_executed' => $request->user_id,
                 'minv_estados_muestras_id' => 6,
             ]);

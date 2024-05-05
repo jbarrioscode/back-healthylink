@@ -6,6 +6,12 @@ use App\Models\TomaMuestrasInv\Muestras\FormularioMuestra;
 use App\Models\TomaMuestrasInv\Muestras\InformacionComplementaria\RespuestaInformacionHistoriaClinica;
 use App\Models\TomaMuestrasInv\Muestras\LogMuestras;
 use App\Models\TomaMuestrasInv\Muestras\LoteMuestras;
+use App\Models\TomaMuestrasInv\Muestras\SedesTomaMuestra;
+use App\Models\TomaMuestrasInv\Muestras\TempLote;
+use App\Models\TomaMuestrasInv\Muestras\ubicacionBioBanco;
+use App\Models\TomaMuestrasInv\Muestras\UbicacionCaja;
+use App\Models\TomaMuestrasInv\Muestras\ubicacionEstante;
+use App\Models\User;
 use Illuminate\Support\Facades\DB;
 
 class ValidacionesEncuestaInvRepository
@@ -254,6 +260,53 @@ class ValidacionesEncuestaInvRepository
 
         return '';
     }
+    public static function validarCodificacionMuestra($codificacion,$codigo_muestra ,$tipo_muestra)
+    {
+        if (!isset($codificacion[0]) || !isset($codificacion[1]) || !isset($codificacion[2]) || !isset($codificacion[3])) {
+            return 'Codigo invalido';
+        }
+
+        if ($codigo_muestra[0] !== 'MU' || $codigo_muestra[0] !== 'CM') return "Codigo invalido";
+
+        if ($codigo_muestra[0] === 'MU' && $tipo_muestra !== 'MUESTRA') return "El codigo no pertenece a 'muestra'";
+
+        if ($codigo_muestra[0] === 'CM' && $tipo_muestra !== 'CONTRAMUESTRA') return "El codigo no pertenece a 'contramuestra'";
 
 
+        if (!FormularioMuestra::where('id', $codigo_muestra[1])->exists()) return 'La muestra no existe';
+
+        if (!FormularioMuestra::where('code_paciente', $codificacion[1])->exists()) return 'El paciente no existe';
+
+        if (!FormularioMuestra::where('id', $codigo_muestra[1])->where('code_paciente', $codificacion[1])->exists()) return 'El paciente y la muestra no coinciden';
+
+        if (!SedesTomaMuestra::where('id', $codificacion[2])->exists()) return 'La sede no existe';
+
+        if (!User::where('id', $codificacion[3])->exists()) return 'El recolector no existe';
+
+        return '';
+    }
+
+    public static function validarCodigoUbicacion($codificacionUbicacion)
+    {
+        if (!isset($codificacionUbicacion[0]) || !isset($codificacionUbicacion[1]) || !isset($codificacionUbicacion[2]) || !isset($codificacionUbicacion[3])) {
+            return 'Codigo invalido';
+        }
+        // 0 => ID BIOBANCO
+        // 1 => ID NEVERA
+        // 2 => # CAJA
+        // 3 => # FILA
+
+        if (!ubicacionBioBanco::where('id', $codificacionUbicacion[0])->exists()) return 'El biobanco no existe';
+
+        if (!ubicacionEstante::where('id', $codificacionUbicacion[1])->exists()) return 'La nevera no existe';
+
+        if (!UbicacionCaja::join('ubicacion_estantes', 'ubicacion_cajas.nevera_estante_id', '=', 'ubicacion_estantes.id')
+            ->join('ubicacion_bio_bancos', 'ubicacion_bio_bancos.id', '=', 'ubicacion_estantes.ubicacion_bio_bancos_id')
+            ->where('ubicacion_cajas.num_caja')
+            ->where('ubicacion_cajas.num_fila')
+            ->exists()) return 'La nevera no existe';
+
+
+        return '';
+    }
 }
