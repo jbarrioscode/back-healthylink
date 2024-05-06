@@ -12,6 +12,7 @@ use App\Models\TomaMuestrasInv\Muestras\LogMuestras;
 use App\Models\TomaMuestrasInv\Muestras\Lote;
 use App\Models\TomaMuestrasInv\Muestras\LoteMuestras;
 use App\Models\TomaMuestrasInv\Muestras\TempLote;
+use App\Models\TomaMuestrasInv\Muestras\TempMuestrasBox;
 use App\Models\TomaMuestrasInv\Muestras\UbicacionCaja;
 use App\Models\TomaMuestrasInv\Paciente\Pacientes;
 use App\Traits\AuthenticationTrait;
@@ -417,7 +418,7 @@ class EncuestaInvRepository implements EncuestaInvRepositoryInterface
             $codigo_muestra = preg_split('/([0-9]+)/', $codificacion[0], -1, PREG_SPLIT_NO_EMPTY | PREG_SPLIT_DELIM_CAPTURE);
 
 
-            $validacion = ValidacionesEncuestaInvRepository::validarCodificacionMuestra($codificacion,$codigo_muestra,'MUESTRA');
+            $validacion = ValidacionesEncuestaInvRepository::validarCodificacionMuestra($codificacion,$codigo_muestra,'CONTRAMUESTRA');
 
             if ($validacion != "") {
                 return $this->error($validacion, 204, []);
@@ -465,6 +466,61 @@ class EncuestaInvRepository implements EncuestaInvRepositoryInterface
             throw $th;
         }
 
+    }
+
+    public function muestrasAsignadasAcajaEnvio(Request $request)
+    {
+        try {
+
+            $rules = [
+                'codigo_muestra' => 'required|string',
+                'user_id' => 'required',
+            ];
+
+            $messages = [
+                'codigo_muestra.required' => 'Codigo de la muestra está vacio.',
+                'user_id.required' => 'ID usuario está vacio.',
+            ];
+
+            $validator = Validator::make($request->all(), $rules, $messages);
+            if ($validator->fails()) {
+                return $this->error($validator->errors(), 422, []);
+            }
+
+            $codificacion = explode('-', $request->codigo_muestra);
+
+            $codigo_muestra = preg_split('/([0-9]+)/', $codificacion[0], -1, PREG_SPLIT_NO_EMPTY | PREG_SPLIT_DELIM_CAPTURE);
+
+
+            $validacion = ValidacionesEncuestaInvRepository::validarCodificacionMuestra($codificacion,$codigo_muestra,'MUESTRA');
+
+            if ($validacion != "") {
+                return $this->error($validacion, 204, []);
+            }
+
+
+            $asignacion = TempMuestrasBox::create([
+                'minv_formulario_muestras_id' => $codigo_muestra[1],
+                'user_id_located' => $request->user_id,
+                'sede_id' => $codificacion[2],
+            ]);
+
+            LogMuestras::create([
+                'minv_formulario_id' => $codigo_muestra[1],
+                'user_id_executed' => $request->user_id,
+                'minv_estados_muestras_id' => 8,
+            ]);
+
+            DB::commit();
+
+            return $this->success($asignacion, 1, 'Asignacion realizada correctamente', 201);
+
+
+        } catch (\Throwable $th) {
+            DB::rollBack();
+            return $this->error('Hay un error' . $th, 204, []);
+            throw $th;
+        }
     }
 
     //------------------------------------------------------------------------------------------------------------------

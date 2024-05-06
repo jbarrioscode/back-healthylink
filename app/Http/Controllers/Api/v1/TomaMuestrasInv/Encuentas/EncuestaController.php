@@ -75,6 +75,16 @@ class EncuestaController extends Controller
             throw $th;
         }
     }
+    public function muestrasAsignadasAcajaEnvio(Request $request)
+    {
+        try {
+
+            return $this->encuestaRepository->muestrasAsignadasAcajaEnvio($request);
+
+        } catch (\Throwable $th) {
+            throw $th;
+        }
+    }
     //------------------------------------------------------------------------------------------------------------------
     public function trazabilidadEncuestas(Request $request,$estado_id=0)
     {
