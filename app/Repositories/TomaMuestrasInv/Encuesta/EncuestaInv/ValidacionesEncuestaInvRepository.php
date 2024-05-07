@@ -196,7 +196,7 @@ class ValidacionesEncuestaInvRepository
 
             if (RespuestaInformacionHistoriaClinica::where('minv_formulario_id', $encuesta_id)
                 ->where('pregunta_id', $inf['pregunta_id']
-                        ->count() > 0)) {
+                )->count() > 0) {
 
                 return 'Ya existe información de la pregunta: ' . $inf['pregunta_id'] . ' de la historia clinica';
             }

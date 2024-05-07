@@ -7,7 +7,9 @@ use App\Models\TomaMuestrasInv\Muestras\FormularioMuestra;
 use App\Models\TomaMuestrasInv\Paciente\ConsentimientoInformadoPaciente;
 use App\Models\TomaMuestrasInv\Paciente\Pacientes;
 use App\Models\TomaMuestrasInv\Paciente\RevocacionConsentimientoInformadoPacientes;
+use App\Repositories\TomaMuestrasInv\Encuesta\Automatizacion\EnvioCorreosAutomaticosRepository;
 use App\Traits\AuthenticationTrait;
+use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
 
@@ -142,6 +144,19 @@ class PacienteRepository implements PacienteRepositoryInterface
                 'paciente_id' => $patient->id,
                 'firma' => $request->firma,
             ]);
+
+            $date = Carbon::now();
+
+            EnvioCorreosAutomaticosRepository::envioCorreoConsentimiento(
+                EncryptEncuestaInvController::decrypt($patient->primer_nombre).' '.EncryptEncuestaInvController::decrypt($patient->segundo_nombre)
+                        . ' '.EncryptEncuestaInvController::decrypt($patient->primer_apellido). ' '.EncryptEncuestaInvController::decrypt($patient->segundo_apellido). ' ',
+                $patient->numero_documento,
+                $patient->ciudad_residencia,
+                $patient->telefono_celular,
+                $patient->correo_electronico,
+                $request->firma,
+                $date->toDateTimeString()
+            );
 
             return $this->success($consentimiento, 1, 'Consentimiento registrado correctamente', 201);
         } catch (\Throwable $th) {

@@ -121,6 +121,7 @@ class EncuestaInvRepository implements EncuestaInvRepositoryInterface
 
             DB::commit();
             $formulario->detalle = $detalle;
+            $formulario->code = $formulario->id.$code_paciente.'-'.$request->sedes_toma_muestras_id.'-'.$request->user_created_id;
 
             return $this->success($formulario, 1, 'Formulario registrado', 201);
 
@@ -302,6 +303,9 @@ class EncuestaInvRepository implements EncuestaInvRepositoryInterface
 
             $log = [];
 
+
+            if(count($muestras)==0) return $this->error('Este lote no se encuentra registrado' , 204, []);
+
             foreach ($muestras as $mu) {
 
                 if($codificacionLote[0]=='MU'){
@@ -324,11 +328,9 @@ class EncuestaInvRepository implements EncuestaInvRepositoryInterface
                 }
 
 
-
             }
 
             DB::commit();
-
             return $this->success($log, 1, 'Muestras en trasporte', 201);
 
 
@@ -367,14 +369,33 @@ class EncuestaInvRepository implements EncuestaInvRepositoryInterface
                 ->where('lotes.code_lote', $request->code_lote)
                 ->get();
 
+            $codificacion = explode('-', $request->code_lote);
+
+            $codigo_muestra = preg_split('/([0-9]+)/', $codificacion[0], -1, PREG_SPLIT_NO_EMPTY | PREG_SPLIT_DELIM_CAPTURE);
+
             $log = [];
             foreach ($muestras as $mu) {
 
-                $log[] = LogMuestras::create([
-                    'minv_formulario_id' => $mu->minv_formulario_muestras_id,
-                    'user_id_executed' => $request->user_id_executed,
-                    'minv_estados_muestras_id' => 5,
-                ]);
+                if($codigo_muestra[0]=='MU'){
+                    $log[] = LogMuestras::create([
+                        'minv_formulario_id' => $mu->minv_formulario_muestras_id,
+                        'user_id_executed' => $request->user_id_executed,
+                        'minv_estados_muestras_id' => 5,
+                    ]);
+                }else{
+                    if($codigo_muestra[0]=='CM'){
+                        $log[] = LogMuestras::create([
+                            'minv_formulario_id' => $mu->minv_formulario_muestras_id,
+                            'user_id_executed' => $request->user_id_executed,
+                            'minv_estados_muestras_id' => 9,
+                        ]);
+                    }else{
+                        return $this->error('Codigo invalido', 422, []);
+
+                    }
+
+                }
+
 
             }
 
@@ -500,7 +521,7 @@ class EncuestaInvRepository implements EncuestaInvRepositoryInterface
 
 
             $asignacion = TempMuestrasBox::create([
-                'minv_formulario_muestras_id' => $codigo_muestra[1],
+                'minv_formulario_id' => $codigo_muestra[1],
                 'user_id_located' => $request->user_id,
                 'sede_id' => $codificacion[2],
             ]);

@@ -8,70 +8,10 @@ use PHPMailer\PHPMailer\PHPMailer;
 
 class EnvioCorreosAutomaticosRepository
 {
-    public static function envioCorreoConsentimiento
-    ($paciente,$numDocumento,$ciudad,$ceulular,$correoDestino,$firma ,$nombreInvestigador)
+
+    public static function getlogo()
     {
-
-        $pdf = new Dompdf();
-        $html = '<!DOCTYPE html>
-        <html lang="es">
-        <head>
-            <meta charset="UTF-8">
-            <meta name="viewport" content="width=device-width, initial-scale=1.0">
-            <title>Formulario de Consentimiento Informado</title>
-            <style>
-                body {
-                    font-family: Arial, sans-serif;
-                    line-height: 1.6;
-                }
-                h1 {
-                    text-align: center;
-                    margin-bottom: 20px;
-                }
-                .container {
-                    max-width: 800px;
-                    margin: 0 auto;
-                    padding: 20px;
-                    position: relative;
-                }
-                .logo {
-                    position: absolute;
-                    top: 40px;
-                    left: 40px;
-                    width: 140px; /* Ajusta el ancho según tus necesidades */
-                    height: auto; /* El alto se ajustará automáticamente según el ancho */
-                }
-                p {
-                    margin-bottom: 10px;
-                }
-                ul {
-                    margin-bottom: 10px;
-                }
-                .declaration {
-                    margin-top: 30px;
-                }
-                .row {
-                    display: flex; /* Utilizamos flexbox para crear una fila */
-                }
-                .column {
-                    padding: 10px; /* Espacio entre las columnas */
-                }
-
-                .column1 {
-                    flex: 1; /* Columna 1 será el doble de ancha que la columna 2 */
-                }
-
-                .column2 {
-                    flex: 4; /* Columna 2 ocupará la tercera parte del espacio */
-                }
-            </style>
-        </head>
-        <body>
-            <div class="container">
-                <div class="row">
-                    <div class="column column1">
-                        <img alt="" alt="Logo" class="logo"
-                        src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAsoAAACACAYAAAASyk9jAAAAAXNSR0IArs4c6QAAAARnQU1BAACx
+        return 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAsoAAACACAYAAAASyk9jAAAAAXNSR0IArs4c6QAAAARnQU1BAACx
                         jwv8YQUAAAAJcEhZcwAALiMAAC4jAXilP3YAALrPSURBVHhe7J0FlCTXdfflMNuxE9sxJabYiSEW
                         2o5tSRZYshh2dqcLGoaZZ5Z3lmeamZm5B5akFUtm/pzYiSlmmRmF77v3VXVvQ3UPLsiqe87/dHfV
                         q1f86le377vvoj80u2XW+1dKa+n1CmPyKsaQ3sYZs0OcMTPHmlIh1phaZI3pB1gzKnOMM6ePs6b0
@@ -911,80 +851,116 @@ class EnvioCorreosAutomaticosRepository
                         ku0sh6DDMR2YoxXpGVSV/4VE6TDxIyQ2ppmGsj1aaSxnxcbnGVV963O5qgZTUa9ma/rhhD6Jmab2
                         F6ahftrbBEEQBEEQBEH/35xbZhfkN3El+QIkaAsQL18WEaQoEpQro2VlSaQsDyNeWhwtS8mIKF0R
                         KTe/HCnXP8GKyrvpGmN6Jz3vrf4nscXqeWRAjkcrlfO9pyAIgiAIgiAIgiAIejE6duzY644ePXrh
-                        M88880Xy82XE1+gj+fMX6PPkZ/hyMQRBUN8GBv4LZK7QlUNgD6cAAAAASUVORK5CYII="
-                        >
+                        M88880Xy82XE1+gj+fMX6PPkZ/hyMQRBUN8GBv4LZK7QlUNgD6cAAAAASUVORK5CYII=';
+    }
+
+    public static function envioCorreoConsentimiento
+    ($paciente,$numDocumento,$ciudad,$ceulular,$correoDestino,$firma ,$fechaFirma)
+    {
+
+        $pdf = new Dompdf();
+        $html = '<!DOCTYPE html>
+        <html lang="es">
+        <head>
+            <meta charset="UTF-8">
+            <meta name="viewport" content="width=device-width, initial-scale=1.0">
+            <title>Formulario de Consentimiento Informado</title>
+            <style>
+                body {
+                    font-family: Arial, sans-serif;
+                    line-height: 1.6;
+                }
+                h1 {
+                    text-align: center;
+                    margin-bottom: 20px;
+                }
+                .container {
+                    max-width: 800px;
+                    margin: 0 auto;
+                    padding: 20px;
+                    position: relative;
+                }
+                .logo {
+                    position: absolute;
+                    top: 40px;
+                    left: 40px;
+                    width: 180px; /* Ajusta el ancho según tus necesidades */
+                    height: auto; /* El alto se ajustará automáticamente según el ancho */
+                }
+                p {
+                    margin-bottom: 10px;
+                }
+                ul {
+                    margin-bottom: 10px;
+                }
+                .declaration {
+                    margin-top: 30px;
+                }
+                .row {
+                    display: flex; /* Utilizamos flexbox para crear una fila */
+                }
+                .column {
+                    padding: 10px; /* Espacio entre las columnas */
+                }
+
+                .column1 {
+                    flex: 1; /* Columna 1 será el doble de ancha que la columna 2 */
+                }
+
+                .column2 {
+                    flex: 4; /* Columna 2 ocupará la tercera parte del espacio */
+                }
+            </style>
+        </head>
+        <body>
+            <div class="container">
+                <div class="row">
+                    <div class="column column1">
+                        <img alt="" alt="Logo" class="logo"
+                        src="'.self::getlogo().'">
                     </div>
                     <div class="column column2">
                         <p><strong>FORMULARIO DE CONSENTIMIENTO PARA: PLATAFORMA CLÍNICO-GENÓMICA INTEGRADA PARA LA INVETIGACIÓN BIÓMEDICA EN COLOMBIA</strong></p>
 
                     </div>
                 </div>
-                <p><strong>PATROCINADOR:</strong> Galatea Bio Inc.</p>
-                <p><strong>CO PATROCINADOR:</strong> Healthylink Research S.A.S</p>
-                <p><strong>INVESTIGADOR:</strong> '.$nombreInvestigador.'</p>
-                <p><strong>NÚMERO(S) DE TELÉFONO RELACIONADO CON EL ESTUDIO:</strong> ####</p>
-
-                <h2>FICHA INSTRUCTIVA</h2>
-
-                <p><strong>Introducción:</strong> Nos ponemos en contacto con usted para informarle sobre un estudio de investigación en el que se le invita a participar pruebas genómicas y análisis avanzados en Colombia. Este estudio ha sido aprobado por el comité de ética VITA.</p>
-
-                <p><strong>Justificación de la investigación:</strong> El propósito de investigar en material genómico adjunto a información de riesgo clínico en la población estudiada es establecer las herramientas necesarias para realizar estudios genéticos que promuevan el mejoramiento de la prevención, diagnóstico y tratamiento de las enfermedades humanas.</p>
-
-                <p><strong>Te invitamos a participar:</strong> Su participación en este estudio es voluntaria y puedes decidir NO participar en cualquier momento, lo que significa que puedes retirar tu consentimiento si posteriormente decides hacerlo, sin perjuicio de tu atención médica.</p>
-
-                <h3>Nuestros objetivos generales son:</h3>
-                <ul>
-                    <li>Crear una plataforma de muestras y datos para la población Colombiana que sirva para crear una plataforma clínico genómica integrada y así poder investigar enfermedades humanas.</li>
-                    <li>Como proyecto demostrativo de la utilidad de este recurso, nos proponemos estudiar las características genéticas de la población estudiada.</li>
-                    <li>Identificar el riesgo genético asociado a las enfermedades crónicas.</li>
-                    <li>Identificar el riesgo genético asociado a enfermedades infecciosas como el COVID-19.</li>
-                </ul>
-                <p>Con esto, pretendemos ayudar a construir una plataforma de muestras y datos que nos ayuden a estudiar las causas de las enfermedades humanas en Colombia. En este contexto, nuestro objetivo es predecir el riesgo de diversas enfermedades, mejorar el manejo y los resultados de las enfermedades, y obtener información que ayude a descubrir nuevos medicamentos que protejan a las poblaciones vulnerables de los peores aspectos de muchas enfermedades.</p>
-
-                <h3>¿A qué estoy de acuerdo?</h3>
-                <p>Al dar su consentimiento para participar, acepta permitirnos tomar hisopos orales. Estas muestras se utilizarán para pruebas genómicas. Su consentimiento también nos permite utilizar sus datos genéticos, respuestas a encuestas de salud, datos clínicos y cualquier otro dato no identificable para la investigación de marcadores genéticos asociados con la susceptibilidad, la gravedad, las enfermedades previas, así como para futuras investigaciones relacionadas con cualquier enfermedad humana. Eliminaremos toda la información (por ejemplo, nombres, correos electrónicos, direcciones, etc.) que pueda identificarlo antes de utilizar los datos para la investigación con el fin de proteger su privacidad tanto como sea posible, de acuerdo con la Ley 1581 de 2012, sobre la seguridad de los datos personales.</p>
-
-                <!-- Sección de acuerdo y declaración -->
-                <div class="declaration">
-                    <p>Además, declaro que:</p>
-                    <ul>
-                        <li>He podido hacer preguntas sobre el proceso y me las han aclarado. <strong>De acuerdo.</strong></li>
-                        <li>Entiendo que la participación en este proyecto es voluntaria y altruista. <strong>De acuerdo.</strong></li>
-                        <li>Entiendo cómo puedo retirar mi participación en este estudio. <strong>De acuerdo.</strong></li>
-                        <li>Entiendo que mis datos genéticos, respuestas a encuestas de salud, datos clínicos y cualquier otro dato no identificable, pueden ser utilizados para futuras investigaciones relacionadas con cualquier enfermedad humana. <strong>De acuerdo.</strong></li>
-                        <li>Entiendo que Healthylink research y/o Galatea Bio pueden volver a ponerse en contacto conmigo en el futuro (por ejemplo, para responder a preguntas de salud adicionales o para ser invitado a participar en evaluaciones posteriores) (opcional). <strong>De acuerdo.</strong></li>
-                    </ul>
-                </div>
-                <hr>
                 <!-- Sección de formulario de consentimiento informado -->
                 <h3>FORMULARIO DE CONSENTIMIENTO INFORMADO</h3>
-                <p>YO, <strong>JOSE MIGUEL BARRIOS PLATA</strong> Identificado con CC # <strong>1193473810</strong>, residente en la ciudad de <strong>136</strong> y con el número de teléfono celular <strong>3002969799</strong>, reconozco que he leído, entendido y aceptado participar en el estudio: Plataforma Clínico-Genómica Integrada para la Investigación Biomédica en Colombia, según se define en este documento. He leído la siguiente información:</p>
+                <p>YO, <strong>'.$paciente.'</strong>
+                Identificado con CC # <strong>'.$numDocumento.'</strong>, residente en la ciudad de <strong>'.$ciudad.'</strong> y
+                con el número de teléfono celular <strong>'.$ceulular.'</strong>, reconozco que he leído, entendido y
+                aceptado participar en el estudio: Plataforma Clínico-Genómica Integrada para la Investigación Biomédica en Colombia,
+                 según se define en este documento. He leído la siguiente información:</p>
 
                 <!-- Lista de elementos del formulario de consentimiento informado -->
                 <ul>
-                    <li>¿A qué estoy de acuerdo?</li>
-                    <li>¿Cómo proporciono mi muestra y datos genéticos?</li>
-                    <li>¿Cómo se utilizarán mis datos en la investigación?</li>
-                    <li>¿Qué pasará con mis datos?</li>
-                    <li>Beneficios y riesgos de la participación</li>
-                    <li>¿Cómo me retiro de este estudio?</li>
-                    <li>¿A quién puedo contactar si tengo preguntas?</li>
+                    <li>He podido hacer preguntas sobre el proceso y me las han aclarado. De acuerdo.</li>
+                    <li>Entiendo que la participación en este proyecto es voluntaria y altruista. De acuerdo.</li>
+                    <li>Entiendo cómo puedo retirar mi participación en este estudio. De acuerdo.</li>
+                    <li>Entiendo que mis datos genéticos, respuestas a encuestas de salud, datos clínicos y cualquier otro dato no identificable, pueden ser utilizados para futuras investigaciones relacionadas con cualquier enfermedad humana. De acuerdo.</li>
+                    <li>Entiendo que Healthylink research y/o Galatea Bio pueden volver a ponerse en contacto conmigo en el futuro (por ejemplo, para responder a preguntas de salud adicionales o para ser invitado a participar en evaluaciones posteriores) (opcional). De acuerdo.</li>
+                    <li>He leído el consentimiento informado y doy mi permiso al equipo de investigación y a sus colaboradores para realizar las pruebas de laboratorio descritas, incluida la secuenciación y otras pruebas de muestra.</li>
+                    <li>Entiendo y acepto que mis muestras, datos de pruebas e información clínica pueden ser utilizados, sin la información que me identifica directamente, para futuras investigaciones, educación y fines asociados de Galatea Bio, Healthylink Research y sus colaboradores académicos y comerciales, incluida la investigación y el desarrollo de productos médicos.</li>
+                    <li>Entiendo que esto puede implicar que Galatea Bio y Healthylink Research comparta mis muestras, datos de pruebas e información clínica con terceros, incluidos colaboradores académicos y comerciales, que pueden estar fuera del país, con el fin de desarrollar este estudio u otros afines.</li>
+                    <li>Entiendo que no compartiré ninguna ganancia comercial si la investigación conduce a productos médicos o de otro tipo.</li>
+                    <li>Entiendo que puede haber un riesgo para la privacidad de mis datos, pero en este estudio se asignará un código único a mis muestras, pruebas e información clínica antes de cualquier uso en la investigación. Mi nombre u otra información identificable no se usará ni se vinculará con mi muestra e información clínica cuando se comparta con terceros, a menos que autorice explícitamente dicha divulgación.</li>
+                    <li>Entiendo que los miembros del equipo de investigación pueden ponerse en contacto conmigo más adelante con respecto a mi interés en participar en otras actividades de investigación, incluida la contribución de información clínica adicional o muestras para su uso en dichas actividades o la autorización del uso de mi información de identificación para usos de investigación.</li>
+
                 </ul>
 
                 <!-- Declaraciones adicionales -->
                 <div class="declaration">
-                    <p>Además, declaro que:</p>
+                    <p>Por todo lo anterior, consiento en:</p>
                     <ul>
-                        <li>He leído el consentimiento informado y doy mi permiso al equipo de investigación y a sus colaboradores para realizar las pruebas de laboratorio descritas, incluida la secuenciación y otras pruebas de muestra.</li>
-                        <li>Entiendo y acepto que mis muestras, datos de pruebas e información clínica pueden ser utilizados, sin la información que me identifica directamente, para futuras investigaciones, educación y fines asociados de Galatea Bio, Healthylink Research y sus colaboradores académicos y comerciales, incluida la investigación y el desarrollo de productos médicos.</li>
-                        <li>Entiendo que esto puede implicar que Galatea Bio y Healthylink Research comparta mis muestras, datos de pruebas e información clínica con terceros, incluidos colaboradores académicos y comerciales, que pueden estar fuera del país, con el fin de desarrollar este estudio u otros afines.</li>
+                        <li>El personal investigador podrá utilizar las muestras donadas y mis datos para las condiciones establecidas en este consentimiento.</li>
+                        <li>Mi información no identificable podrá ser utilizada por otras entidades nacionales e internacionales para las condiciones establecidas en este consentimiento</li>
                     </ul>
                 </div>
-                <p><strong>Nombre completo:</strong> Jose Miguel Barrios</p>
-                <p><strong>CC #::</strong> 1193473810</p>
-                <p><strong>Fecha de la firma:</strong> 2024-01-01</p>
+                <p><strong>Nombre completo:</strong>'.$paciente.'</p>
+                <p><strong>CC #:</strong> '.$numDocumento.'</p>
+                <p><strong>Fecha de la firma:</strong> '.$fechaFirma.'</p>
                 <p><strong>Firma:</strong></p>
-                <img height="50%" width="100%" src="data:image/jpeg;base64,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">
+                <img height="10%" width="30%" src="'.$firma.'">
             </div>
         </body>
         </html>';
@@ -1002,22 +978,22 @@ class EnvioCorreosAutomaticosRepository
             $mail->isSMTP();
             $mail->Host = 'smtp.hostinger.com';
             $mail->SMTPAuth = true;
-            $mail->Username = 'jose.barrios@mibcode.com';
-            $mail->Password = 'Katya0506*';
+            $mail->Username = 'jose.barrios@mibcode.com';//env('MAIL_USERNAME');//
+            $mail->Password = 'Katya0506*';//'env('MAIL_PASSWORD');//';
             $mail->SMTPSecure = PHPMailer::ENCRYPTION_STARTTLS;
-            $mail->Port = 587;
+            $mail->Port = 587;//env('MAIL_PORT'); //587;
 
             // Configurar el remitente y el destinatario
-            $mail->setFrom('jose.barrios@mibcode.com', 'No - reply');
-            $mail->addAddress('jbarriosplata@gmail.com');
+            $mail->setFrom(/*env('MAIL_FROM_ADDRESS)'*/'jose.barrios@mibcode.com', 'HEALTHYLINK');
+            $mail->addAddress($correoDestino);
 
             // Adjuntar el archivo al correo electrónico
-            $fileName = '1193473810.pdf';
+            $fileName = $numDocumento.'.pdf';
             $mail->addStringAttachment($pdfContent, $fileName);
 
             // Configurar el asunto y el cuerpo del correo electrónico
             $mail->isHTML(true);
-            $mail->Subject = 'Prueba 1';
+            $mail->Subject = 'Consentimiento informado Healthy';
             $mail->Body = 'test';
 
             // Enviar el correo electrónico
