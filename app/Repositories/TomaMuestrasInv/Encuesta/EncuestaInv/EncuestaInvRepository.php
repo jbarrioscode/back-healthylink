@@ -18,8 +18,11 @@ use App\Models\TomaMuestrasInv\Paciente\Pacientes;
 use App\Traits\AuthenticationTrait;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Str;
+use Illuminate\Support\Facades\File;
+use Illuminate\Support\Facades\Input;
 
 
 class EncuestaInvRepository implements EncuestaInvRepositoryInterface
@@ -734,6 +737,43 @@ class EncuestaInvRepository implements EncuestaInvRepositoryInterface
             if (count($enfermedes) == 0) return $this->error('No hay enfermedades registradas oncologicas', 204, []);
 
             return $this->success($enfermedes, count($enfermedes), 'Ok', 200);
+
+        } catch (\Throwable $th) {
+
+            throw $th;
+        }
+    }
+    public function guardarFilesMuestra(Request $request)
+    {
+        try {
+
+            $this->validate($request, [
+//            'file' => 'image|max:3000'
+            ]);
+
+            $file = Input::file('file');
+            $filename = $file->getClientOriginalName();
+
+            $path = hash( 'sha256', time());
+
+            if(Storage::disk('uploads')->put($path.'/'.$filename,  File::get($file))) {
+
+                $input['filename'] = $filename;
+                $input['mime'] = $file->getClientMimeType();
+                $input['path'] = $path;
+                $input['size'] = $file->getClientSize();
+                $file = FileEntry::create($input);
+
+                return response()->json([
+                    'success' => true,
+                    'id' => $file->id
+                ], 200);
+            }
+
+            return response()->json([
+                'success' => false
+            ], 500);
+
 
         } catch (\Throwable $th) {
 

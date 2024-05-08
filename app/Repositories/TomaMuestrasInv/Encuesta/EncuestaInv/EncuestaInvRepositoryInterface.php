@@ -38,6 +38,7 @@ interface EncuestaInvRepositoryInterface
 
     public function getEnfermedadesci10Onco(Request $request);
 
+    public function guardarFilesMuestra(Request $request);
 
 
 }
