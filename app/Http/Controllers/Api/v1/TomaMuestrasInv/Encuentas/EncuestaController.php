@@ -157,6 +157,17 @@ class EncuestaController extends Controller
             throw $th;
         }
     }
+    public function guardarFilesMuestra(Request $request)
+    {
+        try {
+
+            return $this->encuestaRepository->guardarFilesMuestra($request);
+
+        } catch (\Throwable $th) {
+            throw $th;
+        }
+    }
+
     //----------------------------------------------------------------------------
 
 }

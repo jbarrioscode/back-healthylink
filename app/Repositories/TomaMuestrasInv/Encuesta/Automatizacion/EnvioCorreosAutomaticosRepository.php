@@ -859,6 +859,8 @@ class EnvioCorreosAutomaticosRepository
     {
 
         $pdf = new Dompdf();
+        $pdfRevocacion = new Dompdf();
+
         $html = '<!DOCTYPE html>
         <html lang="es">
         <head>
@@ -920,7 +922,6 @@ class EnvioCorreosAutomaticosRepository
                         src="'.self::getlogo().'">
                     </div>
                     <div class="column column2">
-                        <p><strong>FORMULARIO DE CONSENTIMIENTO PARA: PLATAFORMA CLÍNICO-GENÓMICA INTEGRADA PARA LA INVETIGACIÓN BIÓMEDICA EN COLOMBIA</strong></p>
 
                     </div>
                 </div>
@@ -965,11 +966,94 @@ class EnvioCorreosAutomaticosRepository
         </body>
         </html>';
 
+        $htmlRevocacion = '<!DOCTYPE html>
+        <html lang="es">
+        <head>
+            <meta charset="UTF-8">
+            <meta name="viewport" content="width=device-width, initial-scale=1.0">
+            <title>Revocacion de consentimiento informado</title>
+            <style>
+                body {
+                    font-family: Arial, sans-serif;
+                    line-height: 1.6;
+                }
+                h1 {
+                    text-align: center;
+                    margin-bottom: 20px;
+                }
+                .container {
+                    max-width: 800px;
+                    margin: 0 auto;
+                    padding: 20px;
+                    position: relative;
+                }
+                .logo {
+                    position: absolute;
+                    top: 40px;
+                    left: 40px;
+                    width: 180px; /* Ajusta el ancho según tus necesidades */
+                    height: auto; /* El alto se ajustará automáticamente según el ancho */
+                }
+                p {
+                    margin-bottom: 10px;
+                }
+                ul {
+                    margin-bottom: 10px;
+                }
+                .declaration {
+                    margin-top: 30px;
+                }
+                .row {
+                    display: flex; /* Utilizamos flexbox para crear una fila */
+                }
+                .column {
+                    padding: 10px; /* Espacio entre las columnas */
+                }
+
+                .column1 {
+                    flex: 1; /* Columna 1 será el doble de ancha que la columna 2 */
+                }
+
+                .column2 {
+                    flex: 4; /* Columna 2 ocupará la tercera parte del espacio */
+                }
+            </style>
+        </head>
+        <body>
+            <div class="container">
+                <div class="row">
+                    <div class="column column1">
+                        <img alt="" alt="Logo" class="logo"
+                        src="'.self::getlogo().'">
+                    </div>
+                    <div class="column column2">
+
+                    </div>
+                </div>
+                <!-- Sección de formulario de consentimiento informado -->
+                <h3>REVOCACION DE CONSENTIMIENTO INFORMADO</h3>
+                <p>Yo, ________________________________ identificado con _____________________ retiro libre
+                y conscientemente el consentimiento otorgado en la fecha ___________________ para la realización
+                 del estudio: Una Plataforma Clínico-Genómica Integrada para la Investigación Biomédica en Colombia,
+                 y declaro que a partir de la fecha ___________________________ las muestras que he donado,
+                 y que estén disponibles, y mi información sea retirada de la base de datos.:</p>
+
+
+                <p><strong>Firma:</strong></p>
+                <p><strong>Número de documento del participante:</strong></p>
+            </div>
+        </body>
+        </html>';
 
         $pdf->loadHtml($html);
         $pdf->setPaper('letter', 'portrait');
         $pdf->render();
         $pdfContent = $pdf->output();
+
+        $pdfRevocacion->loadHtml($htmlRevocacion);
+        $pdfRevocacion->setPaper('letter', 'portrait');
+        $pdfRevocacion->render();
+        $pdfContentRevocacion = $pdfRevocacion->output();
 
         $mail = new PHPMailer(true);
 
@@ -984,17 +1068,35 @@ class EnvioCorreosAutomaticosRepository
             $mail->Port = 587;//env('MAIL_PORT'); //587;
 
             // Configurar el remitente y el destinatario
-            $mail->setFrom(/*env('MAIL_FROM_ADDRESS)'*/'jose.barrios@mibcode.com', 'HEALTHYLINK');
+            $mail->setFrom(/*env('MAIL_FROM_ADDRESS)'*/'jose.barrios@mibcode.com', 'HEALTHYLINK RESEARCH S.A.S');
             $mail->addAddress($correoDestino);
 
             // Adjuntar el archivo al correo electrónico
             $fileName = $numDocumento.'.pdf';
+            $fileNameRevocacion = 'Revocacion de consentimiento.pdf';
+
+
             $mail->addStringAttachment($pdfContent, $fileName);
+            $mail->addStringAttachment($pdfContentRevocacion, $fileNameRevocacion);
+
+            $mail->addBCC('josebarriosp15@gmail.com');
 
             // Configurar el asunto y el cuerpo del correo electrónico
             $mail->isHTML(true);
-            $mail->Subject = 'Consentimiento informado Healthy';
-            $mail->Body = 'test';
+            $mail->Subject = 'Una Plataforma Clínico-Genómica Integrada para la Investigación Biomédica en Colombia.';
+            $mail->Body = 'Estimado (a) '.$paciente.',
+
+            Espero que este mensaje le encuentre bien. <br>
+
+            Queremos expresar nuestro más sincero agradecimiento por su participación en el proyecto de investigación Plataforma Clínica Genómica. Adjunto a este correo electrónico, encontrará el documento del consentimiento informado que previamente ha sido firmado durante su involucramiento en nuestro proyecto. Este documento contiene detalles completos sobre el proyecto, incluyendo toda la información que fue previamente explicada y que es relevante para su participación.
+
+            Además, hemos incluido un formulario de revocación de consentimiento que le brinda la opción de retirarse del proyecto en cualquier momento, si así lo desea.
+
+            Su confianza en nuestro equipo y en este proyecto de investigación es invaluable. Si tiene alguna pregunta adicional o necesita más información, no dude en ponerse en contacto con nosotros.
+
+            Agradecemos enormemente su tiempo y dedicación. <br>
+
+            Quedamos a su disposición para cualquier consulta que pueda surgir.';
 
             // Enviar el correo electrónico
             $mail->send();
