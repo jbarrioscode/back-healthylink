@@ -22,12 +22,18 @@ class ReportesRepository implements ReportesRepositoryInterface
 
             $muestrasTomadasDiaActual = ReportesComplements::muestrasTomadasDiaActual();
             $muestrasPorEstado = ReportesComplements::getMuestrasForEstados();
+            $getTotalMuestrasTomadas = ReportesComplements::getTotalMuestrasTomadas();
+            $generoDePacientes = ReportesComplements::getGeneroDePacientes();
+            $getEdadPacientes = ReportesComplements::getEdadPacientes();
 
 
             $resultadoDashboard = [
-                'muestrasTomadasDiaActual' => $muestrasTomadasDiaActual,
+                'muestrasTomadasPorDia' => $muestrasTomadasDiaActual,
                 'muestrasEnviadasAlsponsor' => [],
                 'muestrasPorEstados' => $muestrasPorEstado,
+                'totalmuestrastomadas' => $getTotalMuestrasTomadas,
+                'generoDePacientes' => $generoDePacientes,
+                'edadPacientes' => $getEdadPacientes,
             ];
 
             return $this->success($resultadoDashboard, count($resultadoDashboard), 'Ok', 200);

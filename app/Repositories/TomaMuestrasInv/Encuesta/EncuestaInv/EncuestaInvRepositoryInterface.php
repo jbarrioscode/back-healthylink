@@ -21,6 +21,7 @@ interface EncuestaInvRepositoryInterface
     public function muestrasAsignadasAnevera(Request $request);
 
     public function muestrasAsignadasAcajaEnvio(Request $request);
+    public function enviarMuestrasSponsor(Request $request);
 
 
 //----------------------------------------------------------

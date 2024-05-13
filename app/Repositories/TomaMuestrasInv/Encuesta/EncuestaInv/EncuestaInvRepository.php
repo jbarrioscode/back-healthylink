@@ -11,8 +11,10 @@ use App\Models\TomaMuestrasInv\Muestras\InformacionComplementaria\RespuestaInfor
 use App\Models\TomaMuestrasInv\Muestras\LogMuestras;
 use App\Models\TomaMuestrasInv\Muestras\Lote;
 use App\Models\TomaMuestrasInv\Muestras\LoteMuestras;
+use App\Models\TomaMuestrasInv\Muestras\SedesTomaMuestra;
 use App\Models\TomaMuestrasInv\Muestras\TempLote;
 use App\Models\TomaMuestrasInv\Muestras\TempMuestrasBox;
+use App\Models\TomaMuestrasInv\Muestras\ubicacionBioBanco;
 use App\Models\TomaMuestrasInv\Muestras\UbicacionCaja;
 use App\Models\TomaMuestrasInv\Paciente\Pacientes;
 use App\Traits\AuthenticationTrait;
@@ -499,11 +501,13 @@ class EncuestaInvRepository implements EncuestaInvRepositoryInterface
             $rules = [
                 'codigo_muestra' => 'required|string',
                 'user_id' => 'required',
+                'ubicacion_bio_bancos' => 'required',
             ];
 
             $messages = [
                 'codigo_muestra.required' => 'Codigo de la muestra está vacio.',
                 'user_id.required' => 'ID usuario está vacio.',
+                'ubicacion_bio_bancos.required' => 'ID biobanco está vacio.',
             ];
 
             $validator = Validator::make($request->all(), $rules, $messages);
@@ -527,6 +531,7 @@ class EncuestaInvRepository implements EncuestaInvRepositoryInterface
                 'minv_formulario_id' => $codigo_muestra[1],
                 'user_id_located' => $request->user_id,
                 'sede_id' => $codificacion[2],
+                'ubicacion_bio_bancos_id' => $request->ubicacion_bio_bancos,
             ]);
 
             LogMuestras::create([
@@ -538,6 +543,52 @@ class EncuestaInvRepository implements EncuestaInvRepositoryInterface
             DB::commit();
 
             return $this->success($asignacion, 1, 'Asignacion realizada correctamente', 201);
+
+
+        } catch (\Throwable $th) {
+            DB::rollBack();
+            return $this->error('Hay un error' . $th, 204, []);
+            throw $th;
+        }
+    }
+    public function enviarMuestrasSponsor(Request $request)
+    {
+        try {
+
+            $rules = [
+                'user_id' => 'required',
+                'ubicacionbiobanco_id' => 'required',
+            ];
+
+            $messages = [
+                'user_id.required' => 'ID usuario está vacio.',
+                'ubicacionbiobanco_id.required' => 'Ubicacion Biobanco está vacio.',
+            ];
+
+            $validator = Validator::make($request->all(), $rules, $messages);
+            if ($validator->fails()) {
+                return $this->error($validator->errors(), 422, []);
+            }
+
+            if (!ubicacionBioBanco::where('id', $request->ubicacionbiobanco_id)->exists()) return $this->error('Ubicacion biobanco no existe', 204, []);
+
+            $caja=TempMuestrasBox::where('ubicacion_bio_bancos_id',$request->ubicacionbiobanco_id);
+
+            foreach ($caja as $caj){
+
+                LogMuestras::create([
+                    'minv_formulario_id' => $caj->minv_formulario_id,
+                    'user_id_executed' => $request->user_id,
+                    'minv_estados_muestras_id' => 10,
+                ]);
+
+            }
+
+            TempMuestrasBox::where('ubicacion_bio_bancos_id', $request->ubicacionbiobanco_id)->delete();
+
+            DB::commit();
+
+            return $this->success($caja, 1, 'Muestras enviadas a sponsor correctamente', 201);
 
 
         } catch (\Throwable $th) {

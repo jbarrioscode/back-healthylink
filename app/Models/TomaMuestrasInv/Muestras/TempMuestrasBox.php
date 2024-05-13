@@ -16,6 +16,7 @@ class TempMuestrasBox extends Model
     protected $fillable = [
         'minv_formulario_id',
         'user_id_located',
-        'sede_id'
+        'sede_id',
+        'ubicacion_bio_bancos_id'
     ];
 }
