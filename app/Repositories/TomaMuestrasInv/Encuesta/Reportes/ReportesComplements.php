@@ -201,4 +201,13 @@ class ReportesComplements
 
         return $resultado_final;
     }
+
+    public static function getMuestrasEnviadasAsponsor()
+    {
+        $resultado= FormularioMuestra::leftJoin('minv_log_muestras', 'minv_log_muestras.minv_formulario_id', '=', 'minv_formulario_muestras.id')
+            ->where('minv_log_muestras.minv_estados_muestras_id', 10)
+            ->count('minv_formulario_muestras.id');
+
+        return $resultado;
+    }
 }

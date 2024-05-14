@@ -117,7 +117,7 @@ Route::prefix('/v1')->group(function () {
 
 
 
-     Route::get('/encuesta/get/encuestasporestado/{estado?}', [EncuestaController::class, 'trazabilidadEncuestas']);
+    Route::get('/encuesta/get/encuestasporestado/{estado?}', [EncuestaController::class, 'trazabilidadEncuestas']);
     Route::get('/encuesta/get/estadosencuesta/{encuesta_id}', [EncuestaController::class, 'trazabilidadFlujoEstadosEncuesta']);
     Route::get('/encuesta/get/encuestassincrf', [EncuestaController::class, 'getEncuestasForCRF']);
     Route::get('/encuesta/get/respuestasencuestas/{encuesta_id}', [EncuestaController::class, 'respuestasEncuesta']);

@@ -25,11 +25,12 @@ class ReportesRepository implements ReportesRepositoryInterface
             $getTotalMuestrasTomadas = ReportesComplements::getTotalMuestrasTomadas();
             $generoDePacientes = ReportesComplements::getGeneroDePacientes();
             $getEdadPacientes = ReportesComplements::getEdadPacientes();
+            $getMuestrasEnviadasSponsor = ReportesComplements::getMuestrasEnviadasAsponsor();
 
 
             $resultadoDashboard = [
                 'muestrasTomadasPorDia' => $muestrasTomadasDiaActual,
-                'muestrasEnviadasAlsponsor' => [],
+                'muestrasEnviadasAlsponsor' => $getMuestrasEnviadasSponsor,
                 'muestrasPorEstados' => $muestrasPorEstado,
                 'totalmuestrastomadas' => $getTotalMuestrasTomadas,
                 'generoDePacientes' => $generoDePacientes,
