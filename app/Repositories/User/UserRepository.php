@@ -11,7 +11,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Validator;
 
-class UserRepository implements Interfaces\UserRepositoryInterface
+class UserRepository implements UserRepositoryInterface
 {
 
     use AuthenticationTrait;
@@ -19,7 +19,7 @@ class UserRepository implements Interfaces\UserRepositoryInterface
     public function all()
     {
         // TODO: Implement all() method.
-        $users = User::with(['doctype', 'service', 'roles'])
+        $users = User::with(['doctype', 'roles'])
             ->where('users.userStatus', 1)
             ->orderBy('users.firstName', 'ASC')
             ->get();
@@ -51,7 +51,7 @@ class UserRepository implements Interfaces\UserRepositoryInterface
 
         $user->delete();
 
-        return $this->success("User Updated", $user, 200);
+        return $this->success([],1,  "Usuario Actualizado",200);
     }
 
     public function updatePassword(Request $request)

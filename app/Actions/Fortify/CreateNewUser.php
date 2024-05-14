@@ -30,7 +30,6 @@ class CreateNewUser implements CreatesNewUsers
             'username' => ['required', 'string', 'max:20', Rule::unique(User::class)],
             'document' => ['required', 'max:25'],
             'phone' => ['max:13'],
-            'address' => ['string'],
             'email' => [
                 'required',
                 'string',
@@ -53,7 +52,7 @@ class CreateNewUser implements CreatesNewUsers
             'address' => $input['address'],
             'email' => $input['email'],
             'password' => Hash::make($input['password']),
-            'doc_type_id' => $input['doctype_id'],
+            'doc_type_id' => $input['doc_type_id'],
             'passwordExpirationDate' => Carbon::now()->addMonths(2),
             'user_id' => null,
         ]);
@@ -61,6 +60,7 @@ class CreateNewUser implements CreatesNewUsers
         $userPwHistory = new UserPasswordHistory();
         $userPwHistory->user_id = $user->id;
         $userPwHistory->password = $user->password;
+        $user->syncRoles($input['role_id']);
 
         $user->passwords()->save($userPwHistory);
 
