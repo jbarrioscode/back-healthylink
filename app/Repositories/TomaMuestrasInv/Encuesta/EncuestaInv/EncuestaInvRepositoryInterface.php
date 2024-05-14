@@ -22,6 +22,9 @@ interface EncuestaInvRepositoryInterface
 
     public function muestrasAsignadasAcajaEnvio(Request $request);
 
+    public function getTempoBoxSponsor(Request $request,$biobanco_id);
+    public function enviarMuestrasSponsor(Request $request);
+
 
 //----------------------------------------------------------
 

@@ -10,6 +10,7 @@ use App\Http\Controllers\Api\v1\TomaMuestrasInv\Encuentas\EncuestaController;
 use App\Http\Controllers\Api\v1\TomaMuestrasInv\Encuentas\EstadosController;
 use App\Http\Controllers\Api\v1\TomaMuestrasInv\Ubicaciones\UbicacionController;
 use App\Http\Controllers\Api\v1\TomaMuestrasInv\Encuentas\TempLoteController;
+use App\Http\Controllers\Api\v1\TomaMuestrasInv\Reportes\ReportesController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 use Illuminate\Support\Facades\Artisan;
@@ -27,7 +28,7 @@ Route::get('/user', function (Request $request) {
 | routes are loaded by the RouteServiceProvider within a group which
 | is assigned the "api" middleware group. Enjoy building your API!
 |
-*/
+
 Route::middleware(['auth:sanctum', 'verified'])
     ->get('/user', function (Request $request) {
         return $request->user();
@@ -109,10 +110,14 @@ Route::prefix('/v1')->group(function () {
     Route::post('/encuesta/post/lotemuestrasrecibidasbiobanco', [EncuestaController::class, 'muestrasEntregadasBioBanco']);
     Route::post('/encuesta/post/asignacionbiobanco', [EncuestaController::class, 'muestrasAsignadasAnevera']);
     Route::post('/encuesta/post/asignacionMuestrasEnvio', [EncuestaController::class, 'muestrasAsignadasAcajaEnvio']);
+    Route::get('/encuesta/get/tempmuestrassponsorbox/{biobanco_id}', [EncuestaController::class, 'getTempoBoxSponsor']);
+    Route::post('/encuesta/post/enviarmuestrassponsor', [EncuestaController::class, 'enviarMuestrasSponsor']);
 
 
 
-    Route::get('/encuesta/get/encuestasporestado/{estado?}', [EncuestaController::class, 'trazabilidadEncuestas']);
+
+
+     Route::get('/encuesta/get/encuestasporestado/{estado?}', [EncuestaController::class, 'trazabilidadEncuestas']);
     Route::get('/encuesta/get/estadosencuesta/{encuesta_id}', [EncuestaController::class, 'trazabilidadFlujoEstadosEncuesta']);
     Route::get('/encuesta/get/encuestassincrf', [EncuestaController::class, 'getEncuestasForCRF']);
     Route::get('/encuesta/get/respuestasencuestas/{encuesta_id}', [EncuestaController::class, 'respuestasEncuesta']);
@@ -125,6 +130,10 @@ Route::prefix('/v1')->group(function () {
     Route::get('/encuesta/get/tempmuestras/{user_id}/{sede_id}', [TempLoteController::class, 'getLoteTemp']);
     Route::post('/encuesta/delete/tempmuestras', [TempLoteController::class, 'deleteTemp']);
 
+    /*--------------------------------------------------------------------------------*/
+    /* DASHBOARD */
+
+    Route::get('/encuesta/get/reportes/datadashboard', [ReportesController::class, 'getDataDashboard']);
 
 
    });
