@@ -551,6 +551,35 @@ class EncuestaInvRepository implements EncuestaInvRepositoryInterface
             throw $th;
         }
     }
+
+    public function getTempoBoxSponsor(Request $request, $biobanco_id)
+    {
+        try {
+
+            $formularios = TempMuestrasBox::select('minv_formulario_muestras.code_paciente','temp_muestras_boxes.minv_formulario_id',
+            'minv_formulario_muestras.sedes_toma_muestras_id','minv_formulario_muestras.user_created_id')
+                ->leftJoin('minv_formulario_muestras', 'minv_formulario_muestras.id', '=', 'temp_muestras_boxes.minv_formulario_id')
+                ->where('temp_muestras_boxes.ubicacion_bio_bancos_id',$biobanco_id)->get();
+
+            if (count($formularios) == 0) return $this->error('No hay encuestas registradas', 204, []);
+
+            $muestra=[];
+
+            foreach ($formularios as $muestras){
+
+                $muestra[]='MU'.$muestras->minv_formulario_id.'-'.$muestras->code_paciente.'-'.$muestras->sedes_toma_muestras_id.'-'.$muestras->user_created_id;
+
+            }
+
+            return $this->success($muestra, count($muestra), 'Encuestas retornadas correctamente', 200);
+
+
+        } catch (\Throwable $th) {
+
+            throw $th;
+        }
+    }
+
     public function enviarMuestrasSponsor(Request $request)
     {
         try {
@@ -572,7 +601,7 @@ class EncuestaInvRepository implements EncuestaInvRepositoryInterface
 
             if (!ubicacionBioBanco::where('id', $request->ubicacionbiobanco_id)->exists()) return $this->error('Ubicacion biobanco no existe', 204, []);
 
-            $caja=TempMuestrasBox::where('ubicacion_bio_bancos_id',$request->ubicacionbiobanco_id);
+            $caja=TempMuestrasBox::where('ubicacion_bio_bancos_id',$request->ubicacionbiobanco_id)->get();
 
             foreach ($caja as $caj){
 
