@@ -25,6 +25,16 @@ class EncuestaController extends Controller
             throw $th;
         }
     }
+    public function AgregarInformacionComplementaria(Request $request)
+    {
+        try {
+
+            return $this->encuestaRepository->AgregarInformacionComplementaria($request);
+
+        } catch (\Throwable $th) {
+            throw $th;
+        }
+    }
     public function crearAsignacionAutomaticaAlote(Request $request)
     {
         try {
@@ -55,4 +65,129 @@ class EncuestaController extends Controller
             throw $th;
         }
     }
+    public function muestrasAsignadasAnevera(Request $request)
+    {
+        try {
+
+            return $this->encuestaRepository->muestrasAsignadasAnevera($request);
+
+        } catch (\Throwable $th) {
+            throw $th;
+        }
+    }
+    public function muestrasAsignadasAcajaEnvio(Request $request)
+    {
+        try {
+
+            return $this->encuestaRepository->muestrasAsignadasAcajaEnvio($request);
+
+        } catch (\Throwable $th) {
+            throw $th;
+        }
+    }
+    public function getTempoBoxSponsor(Request $request,$biobanco_id)
+    {
+        try {
+
+            return $this->encuestaRepository->getTempoBoxSponsor($request,$biobanco_id);
+
+        } catch (\Throwable $th) {
+            throw $th;
+        }
+    }
+    public function enviarMuestrasSponsor(Request $request)
+    {
+        try {
+
+            return $this->encuestaRepository->enviarMuestrasSponsor($request);
+
+        } catch (\Throwable $th) {
+            throw $th;
+        }
+    }
+    //------------------------------------------------------------------------------------------------------------------
+    public function trazabilidadEncuestas(Request $request,$estado_id=0)
+    {
+        try {
+
+            return $this->encuestaRepository->trazabilidadEncuestas($request,$estado_id);
+
+        } catch (\Throwable $th) {
+            throw $th;
+        }
+    }
+    public function trazabilidadFlujoEstadosEncuesta(Request $request,$encuesta_id)
+    {
+        try {
+
+            return $this->encuestaRepository->trazabilidadFlujoEstadosEncuesta($request,$encuesta_id);
+
+        } catch (\Throwable $th) {
+            throw $th;
+        }
+    }
+    public function getEncuestasForCRF(Request $request)
+    {
+        try {
+
+            return $this->encuestaRepository->getEncuestasForCRF($request);
+
+        } catch (\Throwable $th) {
+            throw $th;
+        }
+    }
+
+    public function respuestasEncuesta(Request $request,$encuesta_id)
+    {
+        try {
+
+            return $this->encuestaRepository->respuestasEncuesta($request,$encuesta_id);
+
+        } catch (\Throwable $th) {
+            throw $th;
+        }
+    }
+    public function respuestasInformacionHistoriaClinica(Request $request,$encuesta_id)
+    {
+        try {
+
+            return $this->encuestaRepository->respuestasInformacionHistoriaClinica($request,$encuesta_id);
+
+        } catch (\Throwable $th) {
+            throw $th;
+        }
+    }
+    public function getEnfermedadesci10(Request $request,$code=0)
+    {
+        try {
+
+            return $this->encuestaRepository->getEnfermedadesci10($request,$code);
+
+        } catch (\Throwable $th) {
+            throw $th;
+        }
+    }
+    public function getEnfermedadesci10Onco(Request $request)
+    {
+        try {
+
+            return $this->encuestaRepository->getEnfermedadesci10Onco($request);
+
+        } catch (\Throwable $th) {
+            throw $th;
+        }
+    }
+    public function guardarFilesMuestra(Request $request)
+    {
+        try {
+
+            return $this->encuestaRepository->guardarFilesMuestra($request);
+
+        } catch (\Throwable $th) {
+            throw $th;
+        }
+    }
+
+    //----------------------------------------------------------------------------
+
 }

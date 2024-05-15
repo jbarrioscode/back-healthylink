@@ -10,8 +10,16 @@ use App\Repositories\Role\Interfaces\RoleRepositoryInterface;
 use App\Repositories\Role\RoleRepository;
 use App\Repositories\TomaMuestrasInv\Encuesta\EncuestaInv\EncuestaInvRepository;
 use App\Repositories\TomaMuestrasInv\Encuesta\EncuestaInv\EncuestaInvRepositoryInterface;
+use App\Repositories\TomaMuestrasInv\Encuesta\EstadosMuestrasInv\EstadosMuestrasRepository;
+use App\Repositories\TomaMuestrasInv\Encuesta\EstadosMuestrasInv\EstadosMuestrasRepositoryInterface;
+use App\Repositories\TomaMuestrasInv\Encuesta\Reportes\ReportesRepository;
+use App\Repositories\TomaMuestrasInv\Encuesta\Reportes\ReportesRepositoryInterface;
 use App\Repositories\TomaMuestrasInv\Encuesta\SedesTomaMuestra\SedesTomaMuestraRepository;
 use App\Repositories\TomaMuestrasInv\Encuesta\SedesTomaMuestra\SedesTomaMuestraRepositoryInterface;
+use App\Repositories\TomaMuestrasInv\Encuesta\TempLote\TempLoteRepository;
+use App\Repositories\TomaMuestrasInv\Encuesta\TempLote\TempRepositoryInterface;
+use App\Repositories\TomaMuestrasInv\Encuesta\Ubicacion\UbicacionRepository;
+use App\Repositories\TomaMuestrasInv\Encuesta\Ubicacion\UbicacionRepositoryInterface;
 use App\Repositories\User\Interfaces\UserRepositoryInterface;
 use App\Repositories\User\UserRepository;
 use Illuminate\Foundation\Support\Providers\EventServiceProvider as ServiceProvider;
@@ -51,6 +59,22 @@ class RepositoryServiceProvider extends ServiceProvider
         $this->app->bind(
             SedesTomaMuestraRepositoryInterface::class,
             SedesTomaMuestraRepository::class
+        );
+        $this->app->bind(
+            EstadosMuestrasRepositoryInterface::class,
+            EstadosMuestrasRepository::class
+        );
+        $this->app->bind(
+            UbicacionRepositoryInterface::class,
+            UbicacionRepository::class
+        );
+        $this->app->bind(
+            TempRepositoryInterface::class,
+            TempLoteRepository::class
+        );
+        $this->app->bind(
+            ReportesRepositoryInterface::class,
+            ReportesRepository::class
         );
     }
 }

@@ -3,29 +3,38 @@
 namespace App\Repositories\TomaMuestrasInv\Encuesta\EncuestaInv;
 
 use App\Models\TomaMuestrasInv\Muestras\FormularioMuestra;
+use App\Models\TomaMuestrasInv\Muestras\InformacionComplementaria\RespuestaInformacionHistoriaClinica;
+use App\Models\TomaMuestrasInv\Muestras\LogMuestras;
 use App\Models\TomaMuestrasInv\Muestras\LoteMuestras;
+use App\Models\TomaMuestrasInv\Muestras\SedesTomaMuestra;
+use App\Models\TomaMuestrasInv\Muestras\TempLote;
+use App\Models\TomaMuestrasInv\Muestras\ubicacionBioBanco;
+use App\Models\TomaMuestrasInv\Muestras\UbicacionCaja;
+use App\Models\TomaMuestrasInv\Muestras\ubicacionEstante;
+use App\Models\User;
 use Illuminate\Support\Facades\DB;
 
 class ValidacionesEncuestaInvRepository
 {
 
-    public static function validarCrearEncuesta($request)
+    public static function validarCrearEncuesta($request, $paciente_id)
     {
 
-        if(count(FormularioMuestra::where('paciente_id','=', $request->paciente_id)->get())>0){
+        if (count(FormularioMuestra::where('paciente_id', '=', $paciente_id)->get()) > 0) {
             return 'Paciente ya se encuentra participando de la encuesta';
         }
 
-        foreach ($request->detalle as $det){
+        foreach ($request->detalle as $det) {
 
-            $validacionDetalles=self::validarCrearDetallesEncuesta($det);
+            $validacionDetalles = self::validarCrearDetallesEncuesta($det);
 
-            if($validacionDetalles!==''){
+            if ($validacionDetalles !== '') {
                 return $validacionDetalles;
             }
         }
 
     }
+
     public static function validarCrearDetallesEncuesta($det)
     {
         $campos_vacios = [];
@@ -177,7 +186,63 @@ class ValidacionesEncuestaInvRepository
         return '';
     }
 
-    public static function validarAsignarMuestraALote($muestras){
+    public static function validarInformacionHistoriaClinica($data, $encuesta_id)
+    {
+        if (FormularioMuestra::where('id', $encuesta_id)->count() == 0) {
+            return 'No existe encuesta con este ID';
+        }
+
+        foreach ($data as $inf) {
+
+            if (RespuestaInformacionHistoriaClinica::where('minv_formulario_id', $encuesta_id)
+                ->where('pregunta_id', $inf['pregunta_id']
+                )->count() > 0) {
+
+                return 'Ya existe información de la pregunta: ' . $inf['pregunta_id'] . ' de la historia clinica';
+            }
+        }
+
+
+        //------------------------------------------
+        $preguntaIds = range(1, 7);
+        $preguntasPresentes = array_column($data, 'pregunta_id');
+        /*
+                foreach ($preguntaIds as $preguntaId) {
+                    if (!in_array($preguntaId, $preguntasPresentes)) {
+                        return "Falta al menos un registro para la pregunta_id: ". $preguntaId;
+                    }
+
+                }
+        */
+        foreach ($data as $inf) {
+
+            if (!isset($inf['fecha'])) {
+                return 'Pregunta ' . $inf['pregunta_id'] . ' debe contener fecha';
+            }
+
+            if (!isset($inf['respuesta'])) {
+                return 'Pregunta ' . $inf['pregunta_id'] . ' debe contener respuesta';
+            }
+
+            switch ($inf['pregunta_id']) {
+                case 4:
+                    if (!isset($inf['unidad'])) {
+                        return "Se requiere 'unidad' para la pregunta_id 4";
+                    }
+                    break;
+                case 6:
+                    if (!isset($inf['tipo_imagen'])) {
+                        return "Se requiere 'tipo imagen' para la pregunta_id 6";
+                    }
+                    break;
+            }//
+
+        }
+        return '';
+    }
+
+    public static function validarAsignarMuestraALote($muestras)
+    {
 
         $muestrasIds = array_column($muestras, 'muestra_id');
 
@@ -195,5 +260,56 @@ class ValidacionesEncuestaInvRepository
 
         return '';
     }
+    public static function validarCodificacionMuestra($codificacion,$codigo_muestra ,$tipo_muestra)
+    {
+        if (!isset($codificacion[0]) || !isset($codificacion[1]) || !isset($codificacion[2]) || !isset($codificacion[3])) {
+            return 'Codigo de muestra invalido';
+        }
 
+        if ($codigo_muestra[0] !== 'MU' && $codigo_muestra[0] !== 'CM') return "Codigo Tipo de muestra invalidoo";
+
+        if ($codigo_muestra[0] === 'MU' && $tipo_muestra !== 'MUESTRA') return "El codigo no pertenece a 'muestra'";
+
+        if ($codigo_muestra[0] === 'CM' && $tipo_muestra !== 'CONTRAMUESTRA') return "El codigo no pertenece a 'contramuestra'";
+
+
+        if (!FormularioMuestra::where('id', $codigo_muestra[1])->exists()) return 'La muestra no existe';
+
+        if (!FormularioMuestra::where('code_paciente', $codificacion[1])->exists()) return 'El paciente no existe';
+
+        if (!FormularioMuestra::where('id', $codigo_muestra[1])->where('code_paciente', $codificacion[1])->exists()) return 'El paciente y la muestra no coinciden';
+
+        if (!SedesTomaMuestra::where('id', $codificacion[2])->exists()) return 'La sede no existe';
+
+        if (!User::where('id', $codificacion[3])->exists()) return 'El recolector no existe';
+
+        return '';
+    }
+
+    public static function validarCodigoUbicacion($codificacionUbicacion,$idMuestra)
+    {
+        if (!isset($codificacionUbicacion[0]) || !isset($codificacionUbicacion[1]) || !isset($codificacionUbicacion[2]) || !isset($codificacionUbicacion[3])) {
+            return 'Codigo invalido';
+        }
+        // 0 => ID BIOBANCO
+        // 1 => ID NEVERA
+        // 2 => # CAJA
+        // 3 => # FILA
+
+        if (!ubicacionBioBanco::where('id', $codificacionUbicacion[0])->exists()) return 'El biobanco no existe';
+
+        if (!ubicacionEstante::where('id', $codificacionUbicacion[1])->exists()) return 'La nevera no existe';
+
+
+        if (!UbicacionCaja::join('ubicacion_estantes', 'ubicacion_cajas.nevera_estante_id', '=', 'ubicacion_estantes.id')
+            ->join('ubicacion_bio_bancos', 'ubicacion_bio_bancos.id', '=', 'ubicacion_estantes.ubicacion_bio_bancos_id')
+            ->where('ubicacion_cajas.num_caja',$codificacionUbicacion[2])
+            ->where('ubicacion_cajas.num_fila',$codificacionUbicacion[3])
+            ->exists()) return 'La codificacion no coincide con la registrada en el sistema';
+
+        if(LogMuestras::where('minv_log_muestras.minv_formulario_id',$idMuestra)
+            ->where('minv_estados_muestras_id','6')->exists()) return 'La muestra ya fue asignada anteriormente';
+
+        return '';
+    }
 }

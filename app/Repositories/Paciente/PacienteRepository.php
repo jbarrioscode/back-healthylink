@@ -3,9 +3,13 @@
 namespace App\Repositories\Paciente;
 
 use App\Http\Controllers\Api\v1\Encrypt\EncryptEncuestaInvController;
+use App\Models\TomaMuestrasInv\Muestras\FormularioMuestra;
 use App\Models\TomaMuestrasInv\Paciente\ConsentimientoInformadoPaciente;
 use App\Models\TomaMuestrasInv\Paciente\Pacientes;
+use App\Models\TomaMuestrasInv\Paciente\RevocacionConsentimientoInformadoPacientes;
+use App\Repositories\TomaMuestrasInv\Encuesta\Automatizacion\EnvioCorreosAutomaticosRepository;
 use App\Traits\AuthenticationTrait;
+use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
 
@@ -26,7 +30,8 @@ class PacienteRepository implements PacienteRepositoryInterface
                 'segundo_apellido' => 'required|string',
                 'telefono_celular' => 'required|string',
                 'fecha_nacimiento' => 'required|string',
-                'fecha_expedicion' => 'required|string',
+                'sexo' => 'required|string',
+                'grupo_sanguineo' => 'required|string',
             ];
 
             $messages = [
@@ -38,7 +43,8 @@ class PacienteRepository implements PacienteRepositoryInterface
                 'primer_apellido.required' => 'Primer apellido está vacio.',
                 'segundo_apellido.required' => 'Segundo apellido está vacio.',
                 'fecha_nacimiento.required' => 'fecha de nacimiento está vacio.',
-                'fecha_expedicion.required' => 'fecha de expedición está vacio.',
+                'sexo.required' => 'sexo está vacio.',
+                'grupo_sanguineo.required' => 'grupo sanguineo está vacio.',
             ];
 
             $validator = Validator::make($request->all(), $rules, $messages);
@@ -56,10 +62,12 @@ class PacienteRepository implements PacienteRepositoryInterface
                 'primer_apellido' => EncryptEncuestaInvController::encryptar($request->primer_apellido),
                 'segundo_apellido' => EncryptEncuestaInvController::encryptar($request->segundo_apellido),
                 'fecha_nacimiento' => $request->fecha_nacimiento,
-                'fecha_expedicion' => $request->fecha_expedicion,
                 'pais_residencia' => $request->pais_residencia,
                 'departamento_residencia' => $request->departamento_residencia,
-                'ciudad_residencia' => $request->ciudad_residencia
+                'ciudad_residencia' => $request->ciudad_residencia,
+                'sexo' => $request->sexo,
+                'correo_electronico' => $request->correo_electronico,
+                'grupo_sanguineo' => $request->grupo_sanguineo
             ]);
 
             if (!$paciente) return $this->error("Error al registrar paciente", 500, "");
@@ -70,35 +78,145 @@ class PacienteRepository implements PacienteRepositoryInterface
         }
     }
 
-    public function patientInformedConsent(Request $request)
+    public function getPatient(Request $request, $id)
     {
-        $rules = [
-            'tipo_consentimiento_id' => 'required|string',
-            'tipo_estudio_id' => 'required|string',
-            'paciente_id' => 'required|string',
-            'firma' => 'required|string',
-        ];
 
-        $messages = [
-            'tipo_consentimiento_id.required' => 'El tipo de consentimiento es obligatorio.',
-            'tipo_estudio_id.required' => 'El ID del tipo de estudio está vacio.',
-            'paciente_id.required' => 'El ID del paciente está vacio.',
-            'firma.required' => 'Firma está vacio.',
-        ];
+        try {
+            if ($id == 0) {
+                $pacientes = Pacientes::all();
 
-        $validator = Validator::make($request->all(), $rules, $messages);
-        if ($validator->fails()) {
-            return $this->error($validator->errors(), 422, []);
+            } else {
+                $pacientes = Pacientes::where('id', $id)->get();
+            }
+
+            foreach ($pacientes as $pac) {
+
+
+                $pac->primer_nombre = EncryptEncuestaInvController::decrypt($pac->primer_nombre);
+                $pac->segundo_nombre = EncryptEncuestaInvController::decrypt($pac->segundo_nombre);
+                $pac->primer_apellido = EncryptEncuestaInvController::decrypt($pac->primer_apellido);
+                $pac->segundo_apellido = EncryptEncuestaInvController::decrypt($pac->segundo_apellido);
+
+            }
+
+            if (count($pacientes) == 0) return $this->error("No se encontró pacientes", 204, []);
+
+            return $this->success($pacientes, count($pacientes), 'ok', 200);
+
+        } catch (\Throwable $th) {
+            throw $th;
         }
 
-        $consentimiento = ConsentimientoInformadoPaciente::create([
-            'tipo_consentimiento_id' => $request->tipo_consentimiento_id,
-            'tipo_estudio_id' => $request->tipo_estudio_id,
-            'paciente_id' => $request->paciente_id,
-            'firma' => $request->firma,
-        ]);
+    }
 
-        return $this->success($consentimiento, 1, 'Consentimiento registrado correctamente', 201);
+    public function patientInformedConsent(Request $request)
+    {
+        try {
+            $rules = [
+                //'tipo_consentimiento_id' => 'required|string',
+                'tipo_consentimiento_id' => 'required',
+                //'tipo_estudio_id' => 'required|string',
+                'tipo_estudio_id' => 'required',
+                /*'paciente_id' => 'required|string',*/
+                'firma' => 'required|string',
+            ];
 
+            $messages = [
+                'tipo_consentimiento_id.required' => 'El tipo de consentimiento es obligatorio.',
+                'tipo_estudio_id.required' => 'El ID del tipo de estudio está vacio.',
+                /*'paciente_id.required' => 'El ID del paciente está vacio.',*/
+                'firma.required' => 'Firma está vacio.',
+            ];
+
+            $validator = Validator::make($request->all(), $rules, $messages);
+            if ($validator->fails()) {
+                return $this->error($validator->errors(), 422, []);
+            }
+
+            $patient = Pacientes::all()
+                ->where('tipo_doc', '=', $request->tipo_doc)
+                ->where('numero_documento', '=', $request->numero_documento)
+                ->first();
+
+            $consentimiento = ConsentimientoInformadoPaciente::create([
+                'tipo_consentimiento_id' => $request->tipo_consentimiento_id,
+                'tipo_estudio_id' => $request->tipo_estudio_id,
+                'paciente_id' => $patient->id,
+                'firma' => $request->firma,
+            ]);
+
+            $date = Carbon::now();
+
+            EnvioCorreosAutomaticosRepository::envioCorreoConsentimiento(
+                EncryptEncuestaInvController::decrypt($patient->primer_nombre).' '.EncryptEncuestaInvController::decrypt($patient->segundo_nombre)
+                        . ' '.EncryptEncuestaInvController::decrypt($patient->primer_apellido). ' '.EncryptEncuestaInvController::decrypt($patient->segundo_apellido). ' ',
+                $patient->numero_documento,
+                $patient->ciudad_residencia,
+                $patient->telefono_celular,
+                $patient->correo_electronico,
+                $request->firma,
+                $date->toDateTimeString()
+            );
+
+            return $this->success($consentimiento, 1, 'Consentimiento registrado correctamente', 201);
+        } catch (\Throwable $th) {
+            throw $th;
+        }
+    }
+
+    public function getpatientInformedConsent(Request $request,$paciente_id)
+    {
+
+        try {
+
+            $consentimiento = ConsentimientoInformadoPaciente::where('paciente_id', $paciente_id)->get();
+
+            if (count($consentimiento) == 0) return $this->error("No se encontró ningun consentimiento", 204, []);
+
+            return $this->success($consentimiento, count($consentimiento), 'ok', 200);
+
+        } catch (\Throwable $th) {
+            throw $th;
+        }
+
+    }
+
+
+    public function revokeInformedConsent(Request $request)
+    {
+        try {
+            $rules = [
+                'tipo_consentimiento_id' => 'required|string',
+                'tipo_estudio_id' => 'required|string',
+                'paciente_id' => 'required|string',
+                'firma' => 'required|string',
+            ];
+
+            $messages = [
+                'tipo_consentimiento_id.required' => 'El tipo de consentimiento es obligatorio.',
+                'tipo_estudio_id.required' => 'El ID del tipo de estudio está vacio.',
+                'paciente_id.required' => 'El ID del paciente está vacio.',
+                'firma.required' => 'Firma está vacio.',
+            ];
+
+            $validator = Validator::make($request->all(), $rules, $messages);
+            if ($validator->fails()) {
+                return $this->error($validator->errors(), 422, []);
+            }
+
+            $consentimiento = RevocacionConsentimientoInformadoPacientes::create([
+                'tipo_consentimiento_id' => $request->tipo_consentimiento_id,
+                'tipo_estudio_id' => $request->tipo_estudio_id,
+                'paciente_id' => $request->paciente_id,
+                'firma' => $request->firma,
+            ]);
+
+            FormularioMuestra::where('paciente_id', $request->paciente_id)->delete();
+
+            return $this->success($consentimiento, 1, 'Revocacion consentimiento registrado correctamente', 201);
+
+        } catch (\Throwable $th) {
+            throw $th;
+        }
     }
 }

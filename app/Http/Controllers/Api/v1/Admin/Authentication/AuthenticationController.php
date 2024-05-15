@@ -16,7 +16,7 @@ class AuthenticationController extends Controller
     {
         $user = (new CreateNewUser())->create($request->all());
 
-        if (!$user) return $this->error('Error While Creating User', 500);
-        return $this->success($user, 'User Created Succefully!', 201);
+        if (!$user) return $this->error('Error While Creating User', 500, []);
+        return $this->success($user, 1,'User Created Succefully!', 201);
     }
 }

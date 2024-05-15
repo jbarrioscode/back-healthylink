@@ -1,0 +1,65 @@
+version: '3.9'
+
+services:
+    db:
+        container_name: db
+        image: postgres:14
+        restart: unless-stopped
+        expose:
+            - 5432
+        ports:
+            - ${DB_PORT:-5432}:5432
+        environment:
+            POSTGRES_USER: ${DB_USERNAME:-homestead}
+            POSTGRES_PASSWORD: ${DB_PASSWORD:-secret}
+            POSTGRES_DB: ${DB_DATABASE:-homestead}
+        volumes:
+            - pgdata:/var/lib/postgresql/data
+        networks:
+            -  healthylink-network
+
+    adminer:
+        image: adminer
+        restart: always
+        ports:
+            - ${ADMINER_PORT_DB:-8080}:8080
+        environment:
+            - ADMINER_DEFAULT_SERVER=pgsql
+            - ADMINER_DESIGN=price
+        networks:
+            -  healthylink-network
+        depends_on:
+            - db
+    
+    composer_installation:
+        container_name: composer
+        image: composer
+        volumes:
+            - ./:/app
+        command: composer install --ignore-platform-reqs
+        networks:
+            -  healthylink-network
+
+    laravelapp:
+        container_name: laravelapp
+        image: healthylink/laravelapp:1.0.3
+        build: .
+        ports:
+            - "8000:8000"    
+        env_file:
+            - .env
+        working_dir: /var/www/html
+        volumes:
+            - /var/www/html/vendor
+            - ./:/var/www/html
+        networks:
+            -  healthylink-network
+        depends_on:
+            - composer_installation
+
+networks:
+    healthylink-network:
+        driver: bridge
+
+volumes:
+    pgdata:
