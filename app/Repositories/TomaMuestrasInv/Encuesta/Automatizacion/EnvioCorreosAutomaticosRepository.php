@@ -1106,4 +1106,37 @@ class EnvioCorreosAutomaticosRepository
             return "Error al enviar el correo electrónico: {$mail->ErrorInfo}";
         }
     }
+
+    public static function enviarTokenMFA($token,$correo)
+    {
+        $mail = new PHPMailer(true);
+
+        try {
+
+            $mail->isSMTP();
+            $mail->Host = 'smtp.hostinger.com';
+            $mail->SMTPAuth = true;
+            $mail->Username = 'jose.barrios@mibcode.com';//env('MAIL_USERNAME');//
+            $mail->Password = 'Katya0506*';//'env('MAIL_PASSWORD');//';
+            $mail->SMTPSecure = PHPMailer::ENCRYPTION_STARTTLS;
+            $mail->Port = 587;//env('MAIL_PORT'); //587;
+
+
+            $mail->setFrom(/*env('MAIL_FROM_ADDRESS)'*/'jose.barrios@mibcode.com', 'HEALTHYLINK RESEARCH S.A.S');
+            $mail->addAddress($correo);
+
+            //$mail->addBCC('josebarriosp15@gmail.com');
+
+
+            $mail->isHTML(true);
+            $mail->Subject = 'CODIGO DE ACCESO - HEALTHYLINK APP.';
+            $mail->Body = 'Estimado Usuario su codigo de ingreso A la plataforma es: '.$token;
+
+            $mail->send();
+
+            return true;
+        } catch (Exception $e) {
+            return "Error al enviar el correo electrónico: {$mail->ErrorInfo}";
+        }
+    }
 }
