@@ -18,7 +18,6 @@ class UserRepository implements UserRepositoryInterface
 
     public function all()
     {
-        // TODO: Implement all() method.
         $users = User::with(['doctype', 'roles'])
             ->where('users.userStatus', 1)
             ->orderBy('users.firstName', 'ASC')
@@ -41,7 +40,6 @@ class UserRepository implements UserRepositoryInterface
 
     public function inactivateUserById(Request $request, $id)
     {
-        // TODO: Implement inactivateUserById() method.
         $user = User::find($id);
 
         if (!$user) return $this->error("We could not Find the User with ID" . $id, 204);
@@ -56,7 +54,6 @@ class UserRepository implements UserRepositoryInterface
 
     public function updatePassword(Request $request)
     {
-        // TODO: Implement updatePassword() method.
         $request->validate([
             'old_password' => 'required',
             'new_password' => 'required|confirmed'
@@ -85,7 +82,6 @@ class UserRepository implements UserRepositoryInterface
 
     public function updateUser(Request $request, $userid = null)
     {
-        // TODO: Implement updateUser() method.
         try {
 
             if (!$userid) return $this->error("Parametro userid no puede estar vacio", 400, "");
