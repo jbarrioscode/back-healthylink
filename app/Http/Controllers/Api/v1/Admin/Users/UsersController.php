@@ -53,5 +53,20 @@ class UsersController extends Controller
             return $th;
         }
     }
-
+    public function sendCodeMFA(Request $request)
+    {
+        try {
+            return $this->userRepository->sendCodeMFA($request);
+        } catch (\Throwable $th) {
+            return $th;
+        }
+    }
+    public function validateCodeMFA(Request $request)
+    {
+        try {
+            return $this->userRepository->validateCodeMFA($request);
+        } catch (\Throwable $th) {
+            return $th;
+        }
+    }
 }

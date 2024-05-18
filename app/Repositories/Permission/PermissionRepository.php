@@ -14,7 +14,6 @@ class PermissionRepository implements Interfaces\PermissionRepositoryInterface
 
     public function all()
     {
-        // TODO: Implement all() method.
         try {
 
             $permissions = Permission::all();
@@ -29,7 +28,6 @@ class PermissionRepository implements Interfaces\PermissionRepositoryInterface
 
     public function savePermission(PermissionRequest $request)
     {
-        // TODO: Implement savePermission() method.
         try {
 
             $request->validated();
@@ -50,7 +48,6 @@ class PermissionRepository implements Interfaces\PermissionRepositoryInterface
 
     public function inactivatePermissionById($id = null)
     {
-        // TODO: Implement inactivatePermissionById() method.
         try {
 
             if(!$id) return $this->error("ID parameter cannot be Empty!", 500);

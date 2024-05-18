@@ -2,9 +2,20 @@
 FROM php:8.2
 
 # Install systems dependencies
-RUN apt-get update && apt-get install -y \
+RUN apt-get update \
+    && apt-get install -y \
+    git \
+    curl \
+    libpng-dev \
+    libonig-dev \
+    libxml2-dev \
+    zip \
+    unzip \
+    zlib1g-dev \
     libpq-dev \
-    && docker-php-ext-install pdo pdo_pgsql
+    libzip-dev
+
+RUN docker-php-ext-install pdo pdo_pgsql zip bcmath gd
 
 # Set working directory
 WORKDIR /var/www/html

@@ -10,6 +10,7 @@ use App\Http\Controllers\Api\v1\TomaMuestrasInv\Encuentas\EncuestaController;
 use App\Http\Controllers\Api\v1\TomaMuestrasInv\Encuentas\EstadosController;
 use App\Http\Controllers\Api\v1\TomaMuestrasInv\Ubicaciones\UbicacionController;
 use App\Http\Controllers\Api\v1\TomaMuestrasInv\Encuentas\TempLoteController;
+use App\Http\Controllers\Api\v1\TomaMuestrasInv\FileUploader\PatientFileUploaderController;
 use App\Http\Controllers\Api\v1\TomaMuestrasInv\Reportes\ReportesController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
@@ -37,6 +38,8 @@ Route::middleware(['auth:sanctum', 'verified'])
 /** App Routes */
 Route::prefix('/v1')->group(function () {
 
+    Route::post('file/upload', [PatientFileUploaderController::class, 'store']);
+
    Route::middleware(['auth', 'verified'])->group(function () {
 
     /* ADMINISTRADOR*/
@@ -58,6 +61,11 @@ Route::prefix('/v1')->group(function () {
     Route::post('roles/store', [RolesController::class, 'saveRole']);
     Route::put('roles/edit/{id}', [RolesController::class, 'modifyRoleById']);
     Route::delete('roles/delete/{id?}', [RolesController::class, 'inactivateRoleById']);
+
+
+    Route::post('mfa/user', [UsersController::class, 'sendCodeMFA']);
+    Route::get('mfa/user/validate', [UsersController::class, 'validateCodeMFA']);
+
 
     /*--------------------------------------------------------------------------------*/
 
@@ -112,9 +120,6 @@ Route::prefix('/v1')->group(function () {
     Route::post('/encuesta/post/asignacionMuestrasEnvio', [EncuestaController::class, 'muestrasAsignadasAcajaEnvio']);
     Route::get('/encuesta/get/tempmuestrassponsorbox/{biobanco_id}', [EncuestaController::class, 'getTempoBoxSponsor']);
     Route::post('/encuesta/post/enviarmuestrassponsor', [EncuestaController::class, 'enviarMuestrasSponsor']);
-
-
-
 
 
     Route::get('/encuesta/get/encuestasporestado/{estado?}', [EncuestaController::class, 'trazabilidadEncuestas']);
