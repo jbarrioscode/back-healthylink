@@ -62,6 +62,11 @@ Route::prefix('/v1')->group(function () {
     Route::put('roles/edit/{id}', [RolesController::class, 'modifyRoleById']);
     Route::delete('roles/delete/{id?}', [RolesController::class, 'inactivateRoleById']);
 
+
+    Route::post('mfa/user', [UsersController::class, 'sendCodeMFA']);
+    Route::get('mfa/user/validate', [UsersController::class, 'validateCodeMFA']);
+
+
     /*--------------------------------------------------------------------------------*/
 
     /* PAISES - DEPARTAMENTOS - CIUDADES/MUNICIPIOS  */
@@ -115,9 +120,6 @@ Route::prefix('/v1')->group(function () {
     Route::post('/encuesta/post/asignacionMuestrasEnvio', [EncuestaController::class, 'muestrasAsignadasAcajaEnvio']);
     Route::get('/encuesta/get/tempmuestrassponsorbox/{biobanco_id}', [EncuestaController::class, 'getTempoBoxSponsor']);
     Route::post('/encuesta/post/enviarmuestrassponsor', [EncuestaController::class, 'enviarMuestrasSponsor']);
-
-
-
 
 
     Route::get('/encuesta/get/encuestasporestado/{estado?}', [EncuestaController::class, 'trazabilidadEncuestas']);

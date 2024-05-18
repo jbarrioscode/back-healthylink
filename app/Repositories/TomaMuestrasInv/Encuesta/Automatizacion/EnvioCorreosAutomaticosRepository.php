@@ -1083,7 +1083,7 @@ class EnvioCorreosAutomaticosRepository
 
             // Configurar el asunto y el cuerpo del correo electrónico
             $mail->isHTML(true);
-            $mail->Subject = 'Una Plataforma Clínico-Genómica Integrada para la Investigación Biomédica en Colombia.';
+            $mail->Subject = 'Una Plataforma Clinico-Genomica Integrada para la Investigación Biomedica en Colombia.';
             $mail->Body = 'Estimado (a) '.$paciente.',
 
             Espero que este mensaje le encuentre bien. <br>
@@ -1099,6 +1099,39 @@ class EnvioCorreosAutomaticosRepository
             Quedamos a su disposición para cualquier consulta que pueda surgir.';
 
             // Enviar el correo electrónico
+            $mail->send();
+
+            return true;
+        } catch (Exception $e) {
+            return "Error al enviar el correo electrónico: {$mail->ErrorInfo}";
+        }
+    }
+
+    public static function enviarTokenMFA($token,$correo)
+    {
+        $mail = new PHPMailer(true);
+
+        try {
+
+            $mail->isSMTP();
+            $mail->Host = 'smtp.hostinger.com';
+            $mail->SMTPAuth = true;
+            $mail->Username = 'jose.barrios@mibcode.com';//env('MAIL_USERNAME');//
+            $mail->Password = 'Katya0506*';//'env('MAIL_PASSWORD');//';
+            $mail->SMTPSecure = PHPMailer::ENCRYPTION_STARTTLS;
+            $mail->Port = 587;//env('MAIL_PORT'); //587;
+
+
+            $mail->setFrom(/*env('MAIL_FROM_ADDRESS)'*/'jose.barrios@mibcode.com', 'HEALTHYLINK RESEARCH S.A.S');
+            $mail->addAddress($correo);
+
+            //$mail->addBCC('josebarriosp15@gmail.com');
+
+
+            $mail->isHTML(true);
+            $mail->Subject = 'CODIGO DE ACCESO - HEALTHYLINK APP.';
+            $mail->Body = 'Estimado Usuario su codigo de ingreso A la plataforma es: '.$token;
+
             $mail->send();
 
             return true;

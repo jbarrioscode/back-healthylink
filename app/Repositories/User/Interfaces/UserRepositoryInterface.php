@@ -13,4 +13,7 @@ interface UserRepositoryInterface
     public function inactivateUserById(Request $request, $id);
     public function updatePassword(Request $request);
     public function updateUser(Request $request, $userid = null);
+    public function sendCodeMFA(Request $request);
+    public function validateCodeMFA(Request $request);
+
 }

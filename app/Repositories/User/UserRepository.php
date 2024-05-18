@@ -4,6 +4,8 @@ namespace App\Repositories\User;
 
 use App\Models\User;
 use App\Models\UserPasswordHistory;
+use App\Models\UsersMFA;
+use App\Repositories\TomaMuestrasInv\Encuesta\Automatizacion\EnvioCorreosAutomaticosRepository;
 use App\Repositories\User\Interfaces\UserRepositoryInterface;
 use App\Traits\AuthenticationTrait;
 use Carbon\Carbon;
@@ -118,6 +120,52 @@ class UserRepository implements UserRepositoryInterface
 
             return $this->success($user, 1, "Usuario actualizado Correctamente", 201);
 
+
+        } catch (\Throwable $th) {
+            return $th;
+        }
+    }
+    public function sendCodeMFA(Request $request){
+        try {
+
+            //Carbon::now()->addMinute(20);
+
+            $code=str_pad(mt_rand(1, 999999), 6, '0', STR_PAD_LEFT);
+
+            $user=User::find(1/*\auth()->user()->id*/);
+
+            UsersMFA::create([
+                'user_id' => 1,//\auth()->user()->id,
+                'code' => $code,
+                'fecha_hora_vencimiento' => Carbon::now()->addMinute(5)
+            ]);
+
+            EnvioCorreosAutomaticosRepository::enviarTokenMFA($code,$user->email);
+
+
+            return $this->success(['resultado'=>'Codigo enviado al correo'],0,'ok',201);
+
+        } catch (\Throwable $th) {
+            return $th;
+        }
+    }
+    public function validateCodeMFA(Request $request){
+        try {
+
+            $validacion = UsersMFA::where('code', $request->code)
+                ->where('user_id', 1/*\auth()->user()->id*/)
+                ->where('used', false)
+                ->where('fecha_hora_vencimiento', '>', Carbon::now())
+                ->first();
+
+        if($validacion){
+            $validacion->update([
+                'used' => true
+            ]);
+            return $this->success(['result'=>true],0,'ok',200);
+        } else{
+            return $this->success(['result'=>false],0,'ok',200);
+        }
 
         } catch (\Throwable $th) {
             return $th;
