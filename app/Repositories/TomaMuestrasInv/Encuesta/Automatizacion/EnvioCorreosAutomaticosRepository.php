@@ -1083,7 +1083,7 @@ class EnvioCorreosAutomaticosRepository
 
             // Configurar el asunto y el cuerpo del correo electrónico
             $mail->isHTML(true);
-            $mail->Subject = 'Una Plataforma Clinico-Genomica Integrada para la Investigación Biomedica en Colombia.';
+            $mail->Subject = 'Una Plataforma Clinico-Genomica Integrada para la Investigacion Biomedica en Colombia.';
             $mail->Body = 'Estimado (a) '.$paciente.',
 
             Espero que este mensaje le encuentre bien. <br>
