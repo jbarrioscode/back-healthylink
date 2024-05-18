@@ -153,7 +153,7 @@ class PacienteRepository implements PacienteRepositoryInterface
             ]);
 
             $date = Carbon::now();
-
+            /*
             EnvioCorreosAutomaticosRepository::envioCorreoConsentimiento(
                 EncryptEncuestaInvController::decrypt($patient->primer_nombre).' '.EncryptEncuestaInvController::decrypt($patient->segundo_nombre)
                         . ' '.EncryptEncuestaInvController::decrypt($patient->primer_apellido). ' '.EncryptEncuestaInvController::decrypt($patient->segundo_apellido). ' ',
@@ -164,7 +164,7 @@ class PacienteRepository implements PacienteRepositoryInterface
                 $request->firma,
                 $date->toDateTimeString()
             );
-
+            */
 
             //---------------------------------------------------
 
@@ -256,6 +256,17 @@ class PacienteRepository implements PacienteRepositoryInterface
 
             $formulario->detalle = $detalle;
             $formulario->code = $formulario->id.'-'.$code_paciente.'-'.$request->sedes_toma_muestras_id.'-'.$request->user_created_id;
+
+            EnvioCorreosAutomaticosRepository::envioCorreoConsentimiento(
+                EncryptEncuestaInvController::decrypt($patient->primer_nombre).' '.EncryptEncuestaInvController::decrypt($patient->segundo_nombre)
+                . ' '.EncryptEncuestaInvController::decrypt($patient->primer_apellido). ' '.EncryptEncuestaInvController::decrypt($patient->segundo_apellido). ' ',
+                $patient->numero_documento,
+                $patient->ciudad_residencia,
+                $patient->telefono_celular,
+                $patient->correo_electronico,
+                $request->firma,
+                $date->toDateTimeString()
+            );
 
             return $this->success($formulario, 1, 'Formulario registrado', 201);
 
