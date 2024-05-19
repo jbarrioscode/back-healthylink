@@ -318,7 +318,7 @@ class EncuestaInvRepository implements EncuestaInvRepositoryInterface
 
             $muestras = LoteMuestras::select('lote_muestras.minv_formulario_muestras_id')
                 ->join('lotes', 'lotes.id', '=', 'lote_muestras.lote_id')
-                ->where('lotes.code_lote', $request->code_lote)
+                ->where('lotes.code_lote', 'like', '%' . $request->code_lote)
                 ->get();
 
             $log = [];
