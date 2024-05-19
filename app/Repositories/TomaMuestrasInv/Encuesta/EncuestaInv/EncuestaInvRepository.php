@@ -18,6 +18,7 @@ use App\Models\TomaMuestrasInv\Muestras\ubicacionBioBanco;
 use App\Models\TomaMuestrasInv\Muestras\UbicacionCaja;
 use App\Models\TomaMuestrasInv\Paciente\Pacientes;
 use App\Traits\AuthenticationTrait;
+use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Storage;
@@ -224,13 +225,26 @@ class EncuestaInvRepository implements EncuestaInvRepositoryInterface
                 $ultimoID = 0;
             }
 
+            $id_sede=0;
+            foreach ($request->muestras as $as){
+
+                $id_sede=  FormularioMuestra::where('id', $as['muestra_id'])->value('sedes_toma_muestras_id');
+                break;
+            }
+
+            $consecutivo=(Lote::select(DB::raw('COUNT(DISTINCT DATE(created_at)) as cantidad_lotes'))
+                ->first()->cantidad_lotes)+1;
+
+            $fechaActual = Carbon::now()->format('Ymd');
+
             $loteMuestra = Lote::create([
-                'code_lote' => 'MU-LOT-' . ($ultimoID + 1),
+                'code_lote' => $fechaActual.'-MU'.$consecutivo.'-'.$id_sede,//'MU-LOT-' . ($ultimoID + 1),
                 'tipo_muestra' => 'MUESTRA'
             ]);
 
+
             $loteContraMuestra = Lote::create([
-                'code_lote' => 'CM-LOT-' . ($ultimoID + 1),
+                'code_lote' => $fechaActual.'-CM'.$consecutivo.'-'.$id_sede,//'CM-LOT-' . ($ultimoID + 1),
                 'tipo_muestra' => 'CONTRAMUESTRA'
             ]);
 
@@ -268,7 +282,7 @@ class EncuestaInvRepository implements EncuestaInvRepositoryInterface
 
         } catch (\Throwable $th) {
             DB::rollBack();
-            return $this->error('Hay un error con el ID de la muestra: ' . $idErrorMuestra. $th, 204, []);
+            return $this->error('Hay un error con el ID de la muestra: ' . $th, 204, []);
             throw $th;
         }
     }
@@ -293,11 +307,12 @@ class EncuestaInvRepository implements EncuestaInvRepositoryInterface
             if ($validator->fails()) {
                 return $this->error($validator->errors(), 422, []);
             }
-
+            //20240519-MU1-1
+            //Pero se ingresa MU1-1
 
             $codificacionLote = explode('-', $request->code_lote);
 
-            if(!isset($codificacionLote[0]) || !isset($codificacionLote[1]) || !isset($codificacionLote[2])){
+            if(!isset($codificacionLote[0]) || !isset($codificacionLote[1])){
                 return $this->error('Codigo invalido' , 204, []);
             }
 
