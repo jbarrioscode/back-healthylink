@@ -55,6 +55,7 @@ class CreateNewUser implements CreatesNewUsers
             'doc_type_id' => $input['doc_type_id'],
             'passwordExpirationDate' => Carbon::now()->addMonths(2),
             'user_id' => null,
+            'email_verified_at' => Carbon::now(),
         ]);
 
         $userPwHistory = new UserPasswordHistory();
