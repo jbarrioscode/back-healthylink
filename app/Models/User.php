@@ -68,4 +68,10 @@ class User extends Authenticatable implements MustVerifyEmail
         return $this->hasMany(UserPasswordHistory::class);
     }
 
+    protected $with = [
+        'doctype:id,name,created_at',
+        'roles:id,name',
+        'roles.permissions:id,name'
+    ];
+
 }
