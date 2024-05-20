@@ -15,7 +15,7 @@ use App\Http\Controllers\Api\v1\TomaMuestrasInv\Reportes\ReportesController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 use Illuminate\Support\Facades\Artisan;
-
+/*
 Route::get('/user', function (Request $request) {
     return $request->user();
 })->middleware('auth:sanctum');
@@ -38,7 +38,7 @@ Route::middleware(['auth:sanctum', 'verified'])
 /** App Routes */
 Route::prefix('/v1')->group(function () {
 
-    Route::post('file/upload', [PatientFileUploaderController::class, 'store']);
+   Route::post('file/upload', [PatientFileUploaderController::class, 'store']);
 
    Route::middleware(['auth', 'verified'])->group(function () {
 
@@ -140,7 +140,6 @@ Route::prefix('/v1')->group(function () {
 
     Route::get('/encuesta/get/reportes/datadashboard', [ReportesController::class, 'getDataDashboard']);
 
-
    });
 
     /* ------------------------------------------------------------------------------------
@@ -150,6 +149,6 @@ Route::prefix('/v1')->group(function () {
         Artisan::call('route:clear');
         Artisan::call('config:clear');
         Artisan::call('view:clear');
-    });
+   });
 
 });

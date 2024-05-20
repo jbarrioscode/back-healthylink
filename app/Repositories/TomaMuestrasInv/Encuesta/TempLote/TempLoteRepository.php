@@ -94,7 +94,6 @@ class TempLoteRepository implements TempRepositoryInterface
             $tempMuestras = TempLote::select('temp_lotes.minv_formulario_id',
                 'temp_lotes.user_id','temp_lotes.sede_id','temp_lotes.lote_cerrado','temp_lotes.tipo_muestra','minv_formulario_muestras.code_paciente')
                 ->leftJoin('minv_formulario_muestras', 'minv_formulario_muestras.id', '=', 'temp_lotes.minv_formulario_id')
-                ->where('temp_lotes.sede_id', $sede_id)
                 ->where('temp_lotes.user_id', $user_id)
                 ->where('temp_lotes.lote_cerrado', 'false')
                 ->where('temp_lotes.tipo_muestra', 'MUESTRA')->get();
@@ -102,7 +101,6 @@ class TempLoteRepository implements TempRepositoryInterface
             $tempContramuestras = TempLote::select('temp_lotes.minv_formulario_id',
                 'temp_lotes.user_id','temp_lotes.sede_id','temp_lotes.lote_cerrado','temp_lotes.tipo_muestra','minv_formulario_muestras.code_paciente')
                 ->leftJoin('minv_formulario_muestras', 'minv_formulario_muestras.id', '=', 'temp_lotes.minv_formulario_id')
-                ->where('temp_lotes.sede_id', $sede_id)
                 ->where('temp_lotes.user_id', $user_id)
                 ->where('temp_lotes.lote_cerrado', 'false')
                 ->where('temp_lotes.tipo_muestra', 'CONTRAMUESTRA')->get();

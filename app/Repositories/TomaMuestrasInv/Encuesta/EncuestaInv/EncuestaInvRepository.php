@@ -18,6 +18,7 @@ use App\Models\TomaMuestrasInv\Muestras\ubicacionBioBanco;
 use App\Models\TomaMuestrasInv\Muestras\UbicacionCaja;
 use App\Models\TomaMuestrasInv\Paciente\Pacientes;
 use App\Traits\AuthenticationTrait;
+use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Storage;
@@ -224,13 +225,26 @@ class EncuestaInvRepository implements EncuestaInvRepositoryInterface
                 $ultimoID = 0;
             }
 
+            $id_sede=0;
+            foreach ($request->muestras as $as){
+
+                $id_sede=  FormularioMuestra::where('id', $as['muestra_id'])->value('sedes_toma_muestras_id');
+                break;
+            }
+
+            $consecutivo=(Lote::select(DB::raw('COUNT(DISTINCT DATE(created_at)) as cantidad_lotes'))
+                ->first()->cantidad_lotes)+1;
+
+            $fechaActual = Carbon::now()->format('Ymd');
+
             $loteMuestra = Lote::create([
-                'code_lote' => 'MU-LOT-' . ($ultimoID + 1),
+                'code_lote' => $fechaActual.'-MU'.$consecutivo.'-'.$id_sede,//'MU-LOT-' . ($ultimoID + 1),
                 'tipo_muestra' => 'MUESTRA'
             ]);
 
+
             $loteContraMuestra = Lote::create([
-                'code_lote' => 'CM-LOT-' . ($ultimoID + 1),
+                'code_lote' => $fechaActual.'-CM'.$consecutivo.'-'.$id_sede,//'CM-LOT-' . ($ultimoID + 1),
                 'tipo_muestra' => 'CONTRAMUESTRA'
             ]);
 
@@ -268,7 +282,7 @@ class EncuestaInvRepository implements EncuestaInvRepositoryInterface
 
         } catch (\Throwable $th) {
             DB::rollBack();
-            return $this->error('Hay un error con el ID de la muestra: ' . $idErrorMuestra. $th, 204, []);
+            return $this->error('Hay un error con el ID de la muestra: ' . $th, 204, []);
             throw $th;
         }
     }
@@ -293,17 +307,20 @@ class EncuestaInvRepository implements EncuestaInvRepositoryInterface
             if ($validator->fails()) {
                 return $this->error($validator->errors(), 422, []);
             }
-
+            //20240519-MU1-1
+            //Pero se ingresa MU1-1
 
             $codificacionLote = explode('-', $request->code_lote);
 
-            if(!isset($codificacionLote[0]) || !isset($codificacionLote[1]) || !isset($codificacionLote[2])){
-                return $this->error('Codigo invalido' , 204, []);
+            if(!isset($codificacionLote[0]) || !isset($codificacionLote[1])){
+                return $this->error('Codigo invalido transporte' , 204, []);
             }
+
+            $tipoLote= preg_split('/([0-9]+)/', $codificacionLote[0], -1, PREG_SPLIT_NO_EMPTY | PREG_SPLIT_DELIM_CAPTURE);
 
             $muestras = LoteMuestras::select('lote_muestras.minv_formulario_muestras_id')
                 ->join('lotes', 'lotes.id', '=', 'lote_muestras.lote_id')
-                ->where('lotes.code_lote', $request->code_lote)
+                ->where('lotes.code_lote', 'like', '%' . $request->code_lote)
                 ->get();
 
             $log = [];
@@ -311,9 +328,11 @@ class EncuestaInvRepository implements EncuestaInvRepositoryInterface
 
             if(count($muestras)==0) return $this->error('Este lote no se encuentra registrado' , 204, []);
 
+
+
             foreach ($muestras as $mu) {
 
-                if($codificacionLote[0]=='MU'){
+                if($tipoLote[0]=='MU'){
 
                     $log[] = LogMuestras::create([
                         'minv_formulario_id' => $mu->minv_formulario_muestras_id,
@@ -321,14 +340,14 @@ class EncuestaInvRepository implements EncuestaInvRepositoryInterface
                         'minv_estados_muestras_id' => 4,
                     ]);
                 }else{
-                    if($codificacionLote[0]=='CM'){
+                    if($tipoLote[0]=='CM'){
                         $log[] = LogMuestras::create([
                             'minv_formulario_id' => $mu->minv_formulario_muestras_id,
                             'user_id_executed' => $request->user_id_executed,
                             'minv_estados_muestras_id' => 7,
                         ]);
                     }else{
-                        return $this->error('Codigo invalido' , 204, []);
+                        return $this->error('Codigo invalido transporte' .$codificacionLote[0], 204, []);
                     }
                 }
 
@@ -367,51 +386,60 @@ class EncuestaInvRepository implements EncuestaInvRepositoryInterface
             if ($validator->fails()) {
                 return $this->error($validator->errors(), 422, []);
             }
+            //20240519-MU1-1
+            //Pero se ingresa MU1-1
 
+            $codificacionLote = explode('-', $request->code_lote);
+
+            if(!isset($codificacionLote[0]) || !isset($codificacionLote[1])){
+                return $this->error('Codigo invalido transporte' , 204, []);
+            }
+
+            $tipoLote= preg_split('/([0-9]+)/', $codificacionLote[0], -1, PREG_SPLIT_NO_EMPTY | PREG_SPLIT_DELIM_CAPTURE);
 
             $muestras = LoteMuestras::select('lote_muestras.minv_formulario_muestras_id')
                 ->join('lotes', 'lotes.id', '=', 'lote_muestras.lote_id')
-                ->where('lotes.code_lote', $request->code_lote)
+                ->where('lotes.code_lote', 'like', '%' . $request->code_lote)
                 ->get();
 
-            $codificacion = explode('-', $request->code_lote);
-
-            $codigo_muestra = preg_split('/([0-9]+)/', $codificacion[0], -1, PREG_SPLIT_NO_EMPTY | PREG_SPLIT_DELIM_CAPTURE);
-
             $log = [];
+
+
+            if(count($muestras)==0) return $this->error('Este lote no se encuentra registrado' , 204, []);
+
+
+
             foreach ($muestras as $mu) {
 
-                if($codigo_muestra[0]=='MU'){
+                if($tipoLote[0]=='MU'){
+
                     $log[] = LogMuestras::create([
                         'minv_formulario_id' => $mu->minv_formulario_muestras_id,
                         'user_id_executed' => $request->user_id_executed,
                         'minv_estados_muestras_id' => 5,
                     ]);
                 }else{
-                    if($codigo_muestra[0]=='CM'){
+                    if($tipoLote[0]=='CM'){
                         $log[] = LogMuestras::create([
                             'minv_formulario_id' => $mu->minv_formulario_muestras_id,
                             'user_id_executed' => $request->user_id_executed,
                             'minv_estados_muestras_id' => 9,
                         ]);
                     }else{
-                        return $this->error('Codigo invalido', 422, []);
-
+                        return $this->error('Codigo invalido' .$codificacionLote[0], 204, []);
                     }
-
                 }
 
 
             }
 
             DB::commit();
-
             return $this->success($log, 1, 'Muestras recibidas en el centro de custodio', 201);
 
 
         } catch (\Throwable $th) {
             DB::rollBack();
-            return $this->error('Hay un error' . $th, 204, []);
+            return $this->error($validator->errors(), 422, []);
             throw $th;
         }
 

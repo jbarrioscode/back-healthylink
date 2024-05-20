@@ -33,6 +33,7 @@ class User extends Authenticatable implements MustVerifyEmail
         'passwordExpirationDate',
         'doc_type_id',
         'user_id',
+        'email_verified_at'
     ];
 
     /**
