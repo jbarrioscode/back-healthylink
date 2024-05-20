@@ -30,19 +30,32 @@ services:
             -  healthylink-network
         depends_on:
             - db
+    
+    composer_installation:
+        container_name: composer
+        image: composer
+        volumes:
+            - ./:/app
+        command: composer install --ignore-platform-reqs
+        networks:
+            -  healthylink-network
 
     laravelapp:
         container_name: laravelapp
-        image: healthylink/laravelapp:1.0.5
+        image: healthylink/laravelapp:1.0.3
         build: .
         ports:
             - "8000:8000"    
         env_file:
             - .env
+        working_dir: /var/www/html
+        volumes:
+            - /var/www/html/vendor
+            - ./:/var/www/html
         networks:
             -  healthylink-network
         depends_on:
-            - adminer
+            - composer_installation
 
 networks:
     healthylink-network:

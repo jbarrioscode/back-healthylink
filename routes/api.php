@@ -10,6 +10,7 @@ use App\Http\Controllers\Api\v1\TomaMuestrasInv\Encuentas\EncuestaController;
 use App\Http\Controllers\Api\v1\TomaMuestrasInv\Encuentas\EstadosController;
 use App\Http\Controllers\Api\v1\TomaMuestrasInv\Ubicaciones\UbicacionController;
 use App\Http\Controllers\Api\v1\TomaMuestrasInv\Encuentas\TempLoteController;
+use App\Http\Controllers\Api\v1\TomaMuestrasInv\FileUploader\PatientFileUploaderController;
 use App\Http\Controllers\Api\v1\TomaMuestrasInv\Reportes\ReportesController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
@@ -37,7 +38,9 @@ Route::middleware(['auth:sanctum', 'verified'])
 /** App Routes */
 Route::prefix('/v1')->group(function () {
 
-   //Route::middleware(['auth', 'verified'])->group(function () {
+   Route::post('file/upload', [PatientFileUploaderController::class, 'store']);
+
+   Route::middleware(['auth', 'verified'])->group(function () {
 
     /* ADMINISTRADOR*/
 
@@ -146,6 +149,6 @@ Route::prefix('/v1')->group(function () {
         Artisan::call('route:clear');
         Artisan::call('config:clear');
         Artisan::call('view:clear');
-   // });
+   });
 
 });
