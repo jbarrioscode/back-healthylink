@@ -171,6 +171,7 @@ class EncuestaInvRepository implements EncuestaInvRepositoryInterface
                     'fecha' => $inf['fecha'],
                     'respuesta' => $inf['respuesta'],
                     'pregunta_id' => $inf['pregunta_id'],
+                    'valor' => $inf['valor'],
                     'minv_formulario_id' => $request->encuesta_id,
                 ];
 

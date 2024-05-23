@@ -20,6 +20,7 @@ class RespuestaInformacionHistoriaClinica extends Model
         'tipo_imagen',
         'observacion',
         'minv_formulario_id',
-        'pregunta_id'
+        'pregunta_id',
+        'valor'
     ];
 }
