@@ -167,11 +167,17 @@ class EncuestaInvRepository implements EncuestaInvRepositoryInterface
             $respuestas = [];
 
             foreach ($request->datos as $inf) {
+
+                $value=null;
+                if(isset($inf['valor'])){
+                    $value = $inf['valor'];
+                }
+
                 $data = [
                     'fecha' => $inf['fecha'],
                     'respuesta' => $inf['respuesta'],
                     'pregunta_id' => $inf['pregunta_id'],
-                    'valor' => $inf['valor'],
+                    'valor' => $value,
                     'minv_formulario_id' => $request->encuesta_id,
                 ];
 
