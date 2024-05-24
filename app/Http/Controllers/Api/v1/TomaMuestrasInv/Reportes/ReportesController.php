@@ -25,4 +25,14 @@ class ReportesController extends Controller
             throw $th;
         }
     }
+    public function getDataForFecha(Request $request,$dateStart,$dateEnd)
+    {
+        try {
+
+            return $this->reportesRepository->getDataForFecha($request,$dateStart,$dateEnd);
+
+        } catch (\Throwable $th) {
+            throw $th;
+        }
+    }
 }
