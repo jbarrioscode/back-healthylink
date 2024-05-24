@@ -3,6 +3,7 @@
 namespace App\Repositories\TomaMuestrasInv\Encuesta\EncuestaInv;
 
 use App\Models\TomaMuestrasInv\Muestras\FormularioMuestra;
+use App\Models\TomaMuestrasInv\Muestras\InformacionComplementaria\PreguntaHistoriaClinica;
 use App\Models\TomaMuestrasInv\Muestras\InformacionComplementaria\RespuestaInformacionHistoriaClinica;
 use App\Models\TomaMuestrasInv\Muestras\LogMuestras;
 use App\Models\TomaMuestrasInv\Muestras\LoteMuestras;
@@ -206,14 +207,15 @@ class ValidacionesEncuestaInvRepository
         //------------------------------------------
         $preguntaIds = range(1, 7);
         $preguntasPresentes = array_column($data, 'pregunta_id');
-        /*
+
                 foreach ($preguntaIds as $preguntaId) {
                     if (!in_array($preguntaId, $preguntasPresentes)) {
-                        return "Falta al menos un registro para la pregunta_id: ". $preguntaId;
+                        $pregunta=PreguntaHistoriaClinica::find($preguntaId);
+                        return "Falta al menos un registro para la pregunta: ". $pregunta->pregunta;
                     }
 
                 }
-        */
+
         foreach ($data as $inf) {
 
             if (!isset($inf['fecha'])) {
