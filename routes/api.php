@@ -124,6 +124,7 @@ Route::prefix('/v1')->group(function () {
         /* DASHBOARD */
 
         Route::get('/encuesta/get/reportes/datadashboard', [ReportesController::class, 'getDataDashboard']);
+        Route::get('/encuesta/get/reportes/databydate/{initdate}/{enddate}', [ReportesController::class, 'getDataForFecha']);
 
     });
 
