@@ -12,7 +12,7 @@ return new class extends Migration
     public function up(): void
     {
         Schema::table('minv_respuesta_informacion_historia_clinicas', function (Blueprint $table) {
-            $table->string('valor');
+            $table->string('valor')->nullable();
         });
     }
 
