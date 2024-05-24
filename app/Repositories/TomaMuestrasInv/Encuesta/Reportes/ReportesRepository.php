@@ -5,6 +5,7 @@ namespace App\Repositories\TomaMuestrasInv\Encuesta\Reportes;
 use App\Models\TomaMuestrasInv\Muestras\FormularioMuestra;
 use App\Models\TomaMuestrasInv\Muestras\InformacionComplementaria\RespuestaInformacionHistoriaClinica;
 use App\Traits\AuthenticationTrait;
+use Carbon\Carbon;
 use Illuminate\Http\Request;
 
 
@@ -52,6 +53,16 @@ class ReportesRepository implements ReportesRepositoryInterface
     {
         try {
 
+            $fechaInicio = Carbon::parse($dateStart);
+            $fechaFin = Carbon::parse($dateEnd);
+
+            $diferenciaDias = $fechaInicio->diffInDays($fechaFin);
+
+
+            if($diferenciaDias > 31){
+                return $this->error('El intervalo de fecha no puede ser mayor a 31 dias',204,[]);
+            }
+
             $dataPrincipal = FormularioMuestra::leftJoin('pacientes', 'pacientes.id', '=', 'minv_formulario_muestras.paciente_id')
                 ->leftJoin('minv_detalle_encuestas', 'minv_detalle_encuestas.minv_formulario_id', '=', 'minv_formulario_muestras.id')
                 ->select(
@@ -65,9 +76,10 @@ class ReportesRepository implements ReportesRepositoryInterface
                     'pacientes.sexo',
                     'minv_detalle_encuestas.*'
                 )
+                ->whereBetween('minv_formulario_muestras.created_at', [$dateStart, $dateEnd])
                 ->get()
                 ->each(function ($item) {
-                    $item->makeHidden('deleted_at','updated_at','updated_at');
+                    $item->makeHidden('deleted_at','updated_at','created_at');
                 });
             $formularioIds = [];
             foreach ($dataPrincipal as $dat){
