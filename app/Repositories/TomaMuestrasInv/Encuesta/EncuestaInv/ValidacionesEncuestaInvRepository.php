@@ -314,4 +314,15 @@ class ValidacionesEncuestaInvRepository
 
         return '';
     }
+    public static function validar_y_obtenerMuestrasConCodePaciente($code_paciente)
+    {
+        $id_muestras = [];
+        foreach ($code_paciente as $code) {
+            $muestra_ids = FormularioMuestra::where('code_paciente', $code)->pluck('id')->toArray();
+            foreach ($muestra_ids as $id) {
+                $id_muestras[] = ['muestra_id' => $id];
+            }
+        }
+        return $id_muestras;
+    }
 }

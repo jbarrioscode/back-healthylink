@@ -216,6 +216,10 @@ class EncuestaInvRepository implements EncuestaInvRepositoryInterface
 
         try {
 
+            $id_muestras=ValidacionesEncuestaInvRepository::validar_y_obtenerMuestrasConCodePaciente($request->codigo_muestra);
+
+            if(count($id_muestras)==0) return $this->error('Codigo de muestra invalido o no existe', 204, []);
+
             $validacion = ValidacionesEncuestaInvRepository::validarAsignarMuestraALote($request->muestras);
 
             if ($validacion != "") {
