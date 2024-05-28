@@ -220,7 +220,7 @@ class EncuestaInvRepository implements EncuestaInvRepositoryInterface
 
             if(count($id_muestras)==0) return $this->error('Codigo de muestra invalido o no existe', 204, []);
 
-            $validacion = ValidacionesEncuestaInvRepository::validarAsignarMuestraALote($request->muestras);
+            $validacion = ValidacionesEncuestaInvRepository::validarAsignarMuestraALote($id_muestras);
 
             if ($validacion != "") {
                 return $this->error($validacion, 204, []);
@@ -237,7 +237,7 @@ class EncuestaInvRepository implements EncuestaInvRepositoryInterface
             }
 
             $id_sede=0;
-            foreach ($request->muestras as $as){
+            foreach ($id_muestras as $as){
 
                 $id_sede=  FormularioMuestra::where('id', $as['muestra_id'])->value('sedes_toma_muestras_id');
                 break;
@@ -262,7 +262,7 @@ class EncuestaInvRepository implements EncuestaInvRepositoryInterface
             $resultado=['LoteMuestra'=>$loteMuestra, 'LoteContra'=>$loteContraMuestra];
 
             $idErrorMuestra = 0;
-            foreach ($request->muestras as $mu) {
+            foreach ($id_muestras as $mu) {
                 $idErrorMuestra = $mu['muestra_id'];
 
                 $detalleLote[] = LoteMuestras::create([
@@ -283,7 +283,7 @@ class EncuestaInvRepository implements EncuestaInvRepositoryInterface
 
             //$resultado->detalleLote = $detalleLote;
 
-            foreach ($request->muestras as $mu) {
+            foreach ($id_muestras as $mu) {
                 TempLote::where('minv_formulario_id','=', $mu['muestra_id'])->update(['lote_cerrado' => true]);
             }
 
