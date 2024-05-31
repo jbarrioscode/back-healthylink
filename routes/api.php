@@ -115,7 +115,7 @@ Route::prefix('/v1')->group(function () {
     Route::post('/encuesta/post/asignacionbiobanco', [EncuestaController::class, 'muestrasAsignadasAnevera']);//TRES
     Route::post('/encuesta/post/asignacionMuestrasEnvio', [EncuestaController::class, 'muestrasAsignadasAcajaEnvio']);//CUATRO
     Route::get('/encuesta/get/tempmuestrassponsorbox/{biobanco_id}', [EncuestaController::class, 'getTempoBoxSponsor']);
-    Route::post('/encuesta/post/enviarmuestrassponsor', [EncuestaController::class, 'enviarMuestrasSponsor']);//CINCO
+    Route::post('/encuesta/post/enviarmuestrassponsor', [EncuestaController::class, 'enviarMuestrasSponsor']);//CINCO//
 */
         Route::get('/encuesta/get/encuestasporestado/{estado?}', [EncuestaController::class, 'trazabilidadEncuestas']);
         Route::get('/encuesta/get/estadosencuesta/{encuesta_id}', [EncuestaController::class, 'trazabilidadFlujoEstadosEncuesta']);
