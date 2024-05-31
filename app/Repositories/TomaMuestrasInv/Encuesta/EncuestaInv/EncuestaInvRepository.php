@@ -482,8 +482,12 @@ class EncuestaInvRepository implements EncuestaInvRepositoryInterface
 
             $codigo_muestra = preg_split('/([0-9]+)/', $codificacion[0], -1, PREG_SPLIT_NO_EMPTY | PREG_SPLIT_DELIM_CAPTURE);
 
+            if(isset($codigo_muestra[1])){
+                $validacion = ValidacionesEncuestaInvRepository::validarCodificacionMuestra($codificacion,$codigo_muestra,'','CONTRAMUESTRA');
+            }else{
+                $validacion = ValidacionesEncuestaInvRepository::validarCodificacionMuestra($codificacion,$codigo_muestra,$codificacion[1],'CONTRAMUESTRA');
 
-            $validacion = ValidacionesEncuestaInvRepository::validarCodificacionMuestra($codificacion,$codigo_muestra,'CONTRAMUESTRA');
+            }
 
             if ($validacion != "") {
                 return $this->error($validacion, 204, []);
@@ -559,22 +563,28 @@ class EncuestaInvRepository implements EncuestaInvRepositoryInterface
             $codigo_muestra = preg_split('/([0-9]+)/', $codificacion[0], -1, PREG_SPLIT_NO_EMPTY | PREG_SPLIT_DELIM_CAPTURE);
 
 
-            $validacion = ValidacionesEncuestaInvRepository::validarCodificacionMuestra($codificacion,$codigo_muestra,'MUESTRA');
+            if(isset($codigo_muestra[1])){
+                $validacion = ValidacionesEncuestaInvRepository::validarCodificacionMuestra($codificacion,$codigo_muestra,'','MUESTRA');
+            }else{
+                $validacion = ValidacionesEncuestaInvRepository::validarCodificacionMuestra($codificacion,$codigo_muestra,$codificacion[1],'MUESTRA');
+
+            }
 
             if ($validacion != "") {
                 return $this->error($validacion, 204, []);
             }
 
+            $id_muestra=FormularioMuestra::where('code_paciente', $codificacion[1])->pluck('id')->first();
 
             $asignacion = TempMuestrasBox::create([
-                'minv_formulario_id' => $codigo_muestra[1],
+                'minv_formulario_id' => $id_muestra,
                 'user_id_located' => $request->user_id,
                 'sede_id' => $codificacion[2],
                 'ubicacion_bio_bancos_id' => $request->ubicacion_bio_bancos,
             ]);
 
             LogMuestras::create([
-                'minv_formulario_id' => $codigo_muestra[1],
+                'minv_formulario_id' =>$id_muestra,
                 'user_id_executed' => $request->user_id,
                 'minv_estados_muestras_id' => 8,
             ]);
