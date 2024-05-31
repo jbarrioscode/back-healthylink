@@ -216,7 +216,7 @@ class EncuestaInvRepository implements EncuestaInvRepositoryInterface
 
         try {
 
-            $id_muestras=ValidacionesEncuestaInvRepository::validar_y_obtenerMuestrasConCodePaciente($request->codigo_muestra);
+            $id_muestras=ValidacionesEncuestaInvRepository::validar_y_obtenerMuestrasConCodePaciente($request->muestras);
 
             if(count($id_muestras)==0) return $this->error('Codigo de muestra invalido o no existe', 204, []);
 
@@ -495,8 +495,14 @@ class EncuestaInvRepository implements EncuestaInvRepositoryInterface
 
             $codificacionUbicacion = explode('-', $request->codigo_ubicacion);
 
+            if(!isset($codigo_muestra[1])){
+                $id_muestra=FormularioMuestra::where('code_paciente',$codificacion[1])->pluck('id')->first();
+            }else{
+                $id_muestra=$codigo_muestra[1];
+            }
 
-            $validacion2 = ValidacionesEncuestaInvRepository::validarCodigoUbicacion($codificacionUbicacion,$codigo_muestra[1]);
+
+            $validacion2 = ValidacionesEncuestaInvRepository::validarCodigoUbicacion($codificacionUbicacion,$id_muestra);
 
             if ($validacion2 != "") {
                 return $this->error($validacion2, 204, []);
@@ -513,13 +519,13 @@ class EncuestaInvRepository implements EncuestaInvRepositoryInterface
 
 
             $asignacion = AsignacionMuestraUbicacion::create([
-                'minv_formulario_muestras_id' => $codigo_muestra[1],
+                'minv_formulario_muestras_id' => $id_muestra,
                 'user_id_located' => $request->user_id,
                 'caja_nevera_id' => $idUbicacion->id,
             ]);
 
             LogMuestras::create([
-                'minv_formulario_id' => $codigo_muestra[1],
+                'minv_formulario_id' => $id_muestra,
                 'user_id_executed' => $request->user_id,
                 'minv_estados_muestras_id' => 6,
             ]);
@@ -693,7 +699,7 @@ class EncuestaInvRepository implements EncuestaInvRepositoryInterface
                         FROM minv_log_muestras
                         LEFT JOIN minv_estados_muestras est ON est.id = minv_log_muestras.minv_estados_muestras_id
                         WHERE minv_formulario_muestras.id = minv_log_muestras.minv_formulario_id
-                        ORDER BY minv_log_muestras.minv_estados_muestras_id DESC
+                        ORDER BY minv_log_muestras.id DESC
                         LIMIT 1) AS ultimo_estado'))
                     ->leftJoin('sedes_toma_muestras', 'sedes_toma_muestras.id', '=', 'minv_formulario_muestras.sedes_toma_muestras_id')
                     ->get();
@@ -706,7 +712,7 @@ class EncuestaInvRepository implements EncuestaInvRepositoryInterface
                             FROM minv_log_muestras
                             LEFT JOIN minv_estados_muestras est ON est.id = minv_log_muestras.minv_estados_muestras_id
                             WHERE minv_formulario_muestras.id = minv_log_muestras.minv_formulario_id
-                            ORDER BY minv_log_muestras.minv_estados_muestras_id DESC
+                            ORDER BY minv_log_muestras.id DESC
                             LIMIT 1) AS ultimo_estado'))
                     ->leftJoin('sedes_toma_muestras', 'sedes_toma_muestras.id', '=', 'minv_formulario_muestras.sedes_toma_muestras_id')
                     ->where(function ($query) use ($estado_id) {

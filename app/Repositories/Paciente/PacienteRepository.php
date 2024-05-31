@@ -255,7 +255,7 @@ class PacienteRepository implements PacienteRepositoryInterface
             DB::commit();
 
             $formulario->detalle = $detalle;
-            $formulario->code = $formulario->id.'-'.$code_paciente.'-'.$request->sedes_toma_muestras_id.'-'.$request->user_created_id;
+            $formulario->code = '-'.$code_paciente.'-'.$request->sedes_toma_muestras_id.'-'.$request->user_created_id;
 
             EnvioCorreosAutomaticosRepository::envioCorreoConsentimiento(
                 EncryptEncuestaInvController::decrypt($patient->primer_nombre).' '.EncryptEncuestaInvController::decrypt($patient->segundo_nombre)

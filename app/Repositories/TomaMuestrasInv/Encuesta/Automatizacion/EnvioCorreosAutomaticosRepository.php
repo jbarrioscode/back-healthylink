@@ -1060,15 +1060,15 @@ class EnvioCorreosAutomaticosRepository
         try {
             // Configurar el servidor SMTP
             $mail->isSMTP();
-            $mail->Host = 'smtp.office365.com';
+            $mail->Host = 'smtp.hostinger.com';
             $mail->SMTPAuth = true;
-            $mail->Username = 'legal@hlinkresearch.com';//env('MAIL_USERNAME');//
-            $mail->Password = 'legalprocedures';//'env('MAIL_PASSWORD');//';
+            $mail->Username = 'jose.barrios@mibcode.com';//env('MAIL_USERNAME');//
+            $mail->Password = 'Katya0506*';//'env('MAIL_PASSWORD');//';
             $mail->SMTPSecure = PHPMailer::ENCRYPTION_STARTTLS;
             $mail->Port = 587;//env('MAIL_PORT'); //587;
 
             // Configurar el remitente y el destinatario
-            $mail->setFrom(/*env('MAIL_FROM_ADDRESS)'*/'legal@hlinkresearch.com', 'HEALTHYLINK RESEARCH S.A.S');
+            $mail->setFrom(/*env('MAIL_FROM_ADDRESS)'*/'jose.barrios@mibcode.com', 'HEALTHYLINK RESEARCH S.A.S');
             $mail->addAddress($correoDestino);
 
             // Adjuntar el archivo al correo electrónico
