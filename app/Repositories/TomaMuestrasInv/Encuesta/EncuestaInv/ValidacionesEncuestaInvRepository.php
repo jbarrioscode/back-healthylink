@@ -262,10 +262,19 @@ class ValidacionesEncuestaInvRepository
 
         return '';
     }
-    public static function validarCodificacionMuestra($codificacion,$codigo_muestra ,$tipo_muestra)
+    public static function validarCodificacionMuestra($codificacion,$codigo_muestra,$codigo_paciente,$tipo_muestra)
     {
         if (!isset($codificacion[0]) || !isset($codificacion[1]) || !isset($codificacion[2]) || !isset($codificacion[3])) {
             return 'Codigo de muestra invalido';
+        }
+
+        if($codigo_paciente != ''){
+            $muestraPr=FormularioMuestra::where('code_paciente',$codigo_paciente)->get();
+
+            foreach ($muestraPr as $muestra){
+                $codigo_muestra[1]=$muestra->id;
+            }
+
         }
 
         if ($codigo_muestra[0] !== 'MU' && $codigo_muestra[0] !== 'CM') return "Codigo Tipo de muestra invalidoo";
@@ -313,5 +322,16 @@ class ValidacionesEncuestaInvRepository
             ->where('minv_estados_muestras_id','6')->exists()) return 'La muestra ya fue asignada anteriormente';
 
         return '';
+    }
+    public static function validar_y_obtenerMuestrasConCodePaciente($code_paciente)
+    {
+        $id_muestras = [];
+        foreach ($code_paciente as $code) {
+            $muestra_ids = FormularioMuestra::where('code_paciente', $code)->pluck('id')->toArray();
+            foreach ($muestra_ids as $id) {
+                $id_muestras[] = ['muestra_id' => $id];
+            }
+        }
+        return $id_muestras;
     }
 }

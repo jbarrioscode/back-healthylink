@@ -1114,15 +1114,15 @@ class EnvioCorreosAutomaticosRepository
         try {
 
             $mail->isSMTP();
-            $mail->Host = 'smtp.hostinger.com';
+            $mail->Host = 'smtp.office365.com';
             $mail->SMTPAuth = true;
-            $mail->Username = 'jose.barrios@mibcode.com';//env('MAIL_USERNAME');//
-            $mail->Password = 'Katya0506*';//'env('MAIL_PASSWORD');//';
+            $mail->Username = 'legal@hlinkresearch.com';//env('MAIL_USERNAME');//
+            $mail->Password = 'legalprocedures';//'env('MAIL_PASSWORD');//';
             $mail->SMTPSecure = PHPMailer::ENCRYPTION_STARTTLS;
             $mail->Port = 587;//env('MAIL_PORT'); //587;
 
 
-            $mail->setFrom(/*env('MAIL_FROM_ADDRESS)'*/'jose.barrios@mibcode.com', 'HEALTHYLINK RESEARCH S.A.S');
+            $mail->setFrom(/*env('MAIL_FROM_ADDRESS)'*/'legal@hlinkresearch.com', 'HEALTHYLINK RESEARCH S.A.S');
             $mail->addAddress($correo);
 
             //$mail->addBCC('josebarriosp15@gmail.com');

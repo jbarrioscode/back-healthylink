@@ -216,7 +216,11 @@ class EncuestaInvRepository implements EncuestaInvRepositoryInterface
 
         try {
 
-            $validacion = ValidacionesEncuestaInvRepository::validarAsignarMuestraALote($request->muestras);
+            $id_muestras=ValidacionesEncuestaInvRepository::validar_y_obtenerMuestrasConCodePaciente($request->muestras);
+
+            if(count($id_muestras)==0) return $this->error('Codigo de muestra invalido o no existe', 204, []);
+
+            $validacion = ValidacionesEncuestaInvRepository::validarAsignarMuestraALote($id_muestras);
 
             if ($validacion != "") {
                 return $this->error($validacion, 204, []);
@@ -233,7 +237,7 @@ class EncuestaInvRepository implements EncuestaInvRepositoryInterface
             }
 
             $id_sede=0;
-            foreach ($request->muestras as $as){
+            foreach ($id_muestras as $as){
 
                 $id_sede=  FormularioMuestra::where('id', $as['muestra_id'])->value('sedes_toma_muestras_id');
                 break;
@@ -258,7 +262,7 @@ class EncuestaInvRepository implements EncuestaInvRepositoryInterface
             $resultado=['LoteMuestra'=>$loteMuestra, 'LoteContra'=>$loteContraMuestra];
 
             $idErrorMuestra = 0;
-            foreach ($request->muestras as $mu) {
+            foreach ($id_muestras as $mu) {
                 $idErrorMuestra = $mu['muestra_id'];
 
                 $detalleLote[] = LoteMuestras::create([
@@ -279,7 +283,7 @@ class EncuestaInvRepository implements EncuestaInvRepositoryInterface
 
             //$resultado->detalleLote = $detalleLote;
 
-            foreach ($request->muestras as $mu) {
+            foreach ($id_muestras as $mu) {
                 TempLote::where('minv_formulario_id','=', $mu['muestra_id'])->update(['lote_cerrado' => true]);
             }
 
@@ -478,8 +482,12 @@ class EncuestaInvRepository implements EncuestaInvRepositoryInterface
 
             $codigo_muestra = preg_split('/([0-9]+)/', $codificacion[0], -1, PREG_SPLIT_NO_EMPTY | PREG_SPLIT_DELIM_CAPTURE);
 
+            if(isset($codigo_muestra[1])){
+                $validacion = ValidacionesEncuestaInvRepository::validarCodificacionMuestra($codificacion,$codigo_muestra,'','CONTRAMUESTRA');
+            }else{
+                $validacion = ValidacionesEncuestaInvRepository::validarCodificacionMuestra($codificacion,$codigo_muestra,$codificacion[1],'CONTRAMUESTRA');
 
-            $validacion = ValidacionesEncuestaInvRepository::validarCodificacionMuestra($codificacion,$codigo_muestra,'CONTRAMUESTRA');
+            }
 
             if ($validacion != "") {
                 return $this->error($validacion, 204, []);
@@ -487,8 +495,14 @@ class EncuestaInvRepository implements EncuestaInvRepositoryInterface
 
             $codificacionUbicacion = explode('-', $request->codigo_ubicacion);
 
+            if(!isset($codigo_muestra[1])){
+                $id_muestra=FormularioMuestra::where('code_paciente',$codificacion[1])->pluck('id')->first();
+            }else{
+                $id_muestra=$codigo_muestra[1];
+            }
 
-            $validacion2 = ValidacionesEncuestaInvRepository::validarCodigoUbicacion($codificacionUbicacion,$codigo_muestra[1]);
+
+            $validacion2 = ValidacionesEncuestaInvRepository::validarCodigoUbicacion($codificacionUbicacion,$id_muestra);
 
             if ($validacion2 != "") {
                 return $this->error($validacion2, 204, []);
@@ -505,13 +519,13 @@ class EncuestaInvRepository implements EncuestaInvRepositoryInterface
 
 
             $asignacion = AsignacionMuestraUbicacion::create([
-                'minv_formulario_muestras_id' => $codigo_muestra[1],
+                'minv_formulario_muestras_id' => $id_muestra,
                 'user_id_located' => $request->user_id,
                 'caja_nevera_id' => $idUbicacion->id,
             ]);
 
             LogMuestras::create([
-                'minv_formulario_id' => $codigo_muestra[1],
+                'minv_formulario_id' => $id_muestra,
                 'user_id_executed' => $request->user_id,
                 'minv_estados_muestras_id' => 6,
             ]);
@@ -555,22 +569,28 @@ class EncuestaInvRepository implements EncuestaInvRepositoryInterface
             $codigo_muestra = preg_split('/([0-9]+)/', $codificacion[0], -1, PREG_SPLIT_NO_EMPTY | PREG_SPLIT_DELIM_CAPTURE);
 
 
-            $validacion = ValidacionesEncuestaInvRepository::validarCodificacionMuestra($codificacion,$codigo_muestra,'MUESTRA');
+            if(isset($codigo_muestra[1])){
+                $validacion = ValidacionesEncuestaInvRepository::validarCodificacionMuestra($codificacion,$codigo_muestra,'','MUESTRA');
+            }else{
+                $validacion = ValidacionesEncuestaInvRepository::validarCodificacionMuestra($codificacion,$codigo_muestra,$codificacion[1],'MUESTRA');
+
+            }
 
             if ($validacion != "") {
                 return $this->error($validacion, 204, []);
             }
 
+            $id_muestra=FormularioMuestra::where('code_paciente', $codificacion[1])->pluck('id')->first();
 
             $asignacion = TempMuestrasBox::create([
-                'minv_formulario_id' => $codigo_muestra[1],
+                'minv_formulario_id' => $id_muestra,
                 'user_id_located' => $request->user_id,
                 'sede_id' => $codificacion[2],
                 'ubicacion_bio_bancos_id' => $request->ubicacion_bio_bancos,
             ]);
 
             LogMuestras::create([
-                'minv_formulario_id' => $codigo_muestra[1],
+                'minv_formulario_id' =>$id_muestra,
                 'user_id_executed' => $request->user_id,
                 'minv_estados_muestras_id' => 8,
             ]);
@@ -679,7 +699,7 @@ class EncuestaInvRepository implements EncuestaInvRepositoryInterface
                         FROM minv_log_muestras
                         LEFT JOIN minv_estados_muestras est ON est.id = minv_log_muestras.minv_estados_muestras_id
                         WHERE minv_formulario_muestras.id = minv_log_muestras.minv_formulario_id
-                        ORDER BY minv_log_muestras.minv_estados_muestras_id DESC
+                        ORDER BY minv_log_muestras.id DESC
                         LIMIT 1) AS ultimo_estado'))
                     ->leftJoin('sedes_toma_muestras', 'sedes_toma_muestras.id', '=', 'minv_formulario_muestras.sedes_toma_muestras_id')
                     ->get();
@@ -692,7 +712,7 @@ class EncuestaInvRepository implements EncuestaInvRepositoryInterface
                             FROM minv_log_muestras
                             LEFT JOIN minv_estados_muestras est ON est.id = minv_log_muestras.minv_estados_muestras_id
                             WHERE minv_formulario_muestras.id = minv_log_muestras.minv_formulario_id
-                            ORDER BY minv_log_muestras.minv_estados_muestras_id DESC
+                            ORDER BY minv_log_muestras.id DESC
                             LIMIT 1) AS ultimo_estado'))
                     ->leftJoin('sedes_toma_muestras', 'sedes_toma_muestras.id', '=', 'minv_formulario_muestras.sedes_toma_muestras_id')
                     ->where(function ($query) use ($estado_id) {
