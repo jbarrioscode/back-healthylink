@@ -6,7 +6,7 @@
     "license": "MIT",
     "require": {
         "php": "^8.2",
-        "aws/aws-sdk-php": "^3.307",
+        "aws/aws-sdk-php-laravel": "^3.9",
         "dompdf/dompdf": "^2.0",
         "laravel/fortify": "^1.21",
         "laravel/framework": "^11.0",
