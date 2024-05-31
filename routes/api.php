@@ -106,7 +106,7 @@ Route::prefix('/v1')->group(function () {
         Route::get('/encuesta/get/tempmuestrassponsorbox/{biobanco_id}', [EncuestaController::class, 'getTempoBoxSponsor']);
         Route::post('/encuesta/post/enviarmuestrassponsor', [EncuestaController::class, 'enviarMuestrasSponsor']);
 
-
+/*
     Route::post('/encuesta/post/registrarencuesta', [EncuestaController::class, 'crearEncuesta']);
     Route::post('/encuesta/post/registrarinformacionhistoriaclinica', [EncuestaController::class, 'AgregarInformacionComplementaria']);
     Route::post('/encuesta/post/asignarmuestrasalote', [EncuestaController::class, 'crearAsignacionAutomaticaAlote']);//UNA
@@ -116,7 +116,7 @@ Route::prefix('/v1')->group(function () {
     Route::post('/encuesta/post/asignacionMuestrasEnvio', [EncuestaController::class, 'muestrasAsignadasAcajaEnvio']);//CUATRO
     Route::get('/encuesta/get/tempmuestrassponsorbox/{biobanco_id}', [EncuestaController::class, 'getTempoBoxSponsor']);
     Route::post('/encuesta/post/enviarmuestrassponsor', [EncuestaController::class, 'enviarMuestrasSponsor']);//CINCO
-
+*/
         Route::get('/encuesta/get/encuestasporestado/{estado?}', [EncuestaController::class, 'trazabilidadEncuestas']);
         Route::get('/encuesta/get/estadosencuesta/{encuesta_id}', [EncuestaController::class, 'trazabilidadFlujoEstadosEncuesta']);
         Route::get('/encuesta/get/encuestassincrf', [EncuestaController::class, 'getEncuestasForCRF']);
@@ -131,9 +131,9 @@ Route::prefix('/v1')->group(function () {
         Route::post('/encuesta/delete/tempmuestras', [TempLoteController::class, 'deleteTemp']);
 
 
-    Route::post('/encuesta/post/tempmuestras', [TempLoteController::class, 'guardarLoteTemp']);//SEIS
-    Route::get('/encuesta/get/tempmuestras/{user_id}/{sede_id}', [TempLoteController::class, 'getLoteTemp']);
-    Route::post('/encuesta/delete/tempmuestras', [TempLoteController::class, 'deleteTemp']);
+    //Route::post('/encuesta/post/tempmuestras', [TempLoteController::class, 'guardarLoteTemp']);//SEIS
+    //Route::get('/encuesta/get/tempmuestras/{user_id}/{sede_id}', [TempLoteController::class, 'getLoteTemp']);
+    //Route::post('/encuesta/delete/tempmuestras', [TempLoteController::class, 'deleteTemp']);
 
         /*--------------------------------------------------------------------------------*/
         /* DASHBOARD */
@@ -142,11 +142,11 @@ Route::prefix('/v1')->group(function () {
         Route::get('/encuesta/get/reportes/databydate/{initdate}/{enddate}', [ReportesController::class, 'getDataForFecha']);
 
 
-    Route::get('/encuesta/get/reportes/datadashboard', [ReportesController::class, 'getDataDashboard']);
-    Route::get('/encuesta/get/reportes/datadashboard/{startDate}/{endDate}', [ReportesController::class, 'getDataForFecha']);
+    //Route::get('/encuesta/get/reportes/datadashboard', [ReportesController::class, 'getDataDashboard']);
+    //Route::get('/encuesta/get/reportes/datadashboard/{startDate}/{endDate}', [ReportesController::class, 'getDataForFecha']);
 
    });
-    });
+    //});
 
 
     /* ------------------------------------------------------------------------------------
