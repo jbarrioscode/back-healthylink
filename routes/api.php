@@ -101,8 +101,8 @@ Route::prefix('/v1')->group(function () {
         Route::post('/encuesta/post/asignarmuestrasalote', [EncuestaController::class, 'crearAsignacionAutomaticaAlote']);
         Route::post('/encuesta/post/lotesentrasporte', [EncuestaController::class, 'lotesEntrasporte']);
         Route::post('/encuesta/post/lotemuestrasrecibidasbiobanco', [EncuestaController::class, 'muestrasEntregadasBioBanco']);
-        Route::post('/encuesta/post/asignacionbiobanco', [EncuestaController::class, 'muestrasAsignadasAnevera']);
-        Route::post('/encuesta/post/asignacionMuestrasEnvio', [EncuestaController::class, 'muestrasAsignadasAcajaEnvio']);
+        Route::post('/encuesta/post/asignacionbiobanco', [EncuestaController::class, 'muestrasAsignadasAnevera']);//CONTRAMUESTRAS
+        Route::post('/encuesta/post/asignacionMuestrasEnvio', [EncuestaController::class, 'muestrasAsignadasAcajaEnvio']);//MUESTRAS
         Route::get('/encuesta/get/tempmuestrassponsorbox/{biobanco_id}', [EncuestaController::class, 'getTempoBoxSponsor']);
         Route::post('/encuesta/post/enviarmuestrassponsor', [EncuestaController::class, 'enviarMuestrasSponsor']);
 

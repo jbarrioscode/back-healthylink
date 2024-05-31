@@ -44,14 +44,20 @@ class TempLoteRepository implements TempRepositoryInterface
 
             $codigo_muestra = preg_split('/([0-9]+)/', $codificacion[0], -1, PREG_SPLIT_NO_EMPTY | PREG_SPLIT_DELIM_CAPTURE);
 
-            $validacion = self::validarCodificacionLote($codificacion,$codigo_muestra, $request->tipo_muestra);
+            $validacion = self::validarCodificacionLote($codificacion,$codigo_muestra,$codificacion[1], $request->tipo_muestra);
             if ($validacion != "") {
                 return $this->error($validacion, 204, []);
             }
 
+            if(!isset($codigo_muestra[1])){
+                $id_muestra=FormularioMuestra::where('code_paciente',$codificacion[1])->pluck('id')->first();
+            }else{
+                $id_muestra=$codigo_muestra[1];
+            }
+
 
             $temp = TempLote::create([
-                'minv_formulario_id' => $codigo_muestra[1],
+                'minv_formulario_id' => $id_muestra,
                 'user_id' => $codificacion[3],
                 'sede_id' => $codificacion[2],
                 'tipo_muestra' => $request->tipo_muestra,
@@ -71,16 +77,23 @@ class TempLoteRepository implements TempRepositoryInterface
 
     }
 
-    public static function validarCodificacionLote($codificacion,$codigo_muestra ,$tipo_muestra)
+    public static function validarCodificacionLote($codificacion,$codigo_muestra ,$codigo_paciente,$tipo_muestra)
     {
-        $validacion = ValidacionesEncuestaInvRepository::validarCodificacionMuestra($codificacion,$codigo_muestra ,$tipo_muestra);
+        $validacion = ValidacionesEncuestaInvRepository::validarCodificacionMuestra($codificacion,$codigo_muestra ,$codigo_paciente,$tipo_muestra);
 
         if ($validacion != "") {
             return $validacion;
         }
         //ok ready
 
-        if(TempLote::where('minv_formulario_id',$codigo_muestra[1])->where('tipo_muestra',$tipo_muestra)->where('sede_id', $codificacion[2]
+
+        if(!isset($codigo_muestra[1])){
+            $id_muestra=FormularioMuestra::where('code_paciente',$codigo_paciente)->pluck('id')->first();
+        }else{
+            $id_muestra=$codigo_muestra[1];
+        }
+
+        if(TempLote::where('minv_formulario_id',$id_muestra)->where('tipo_muestra',$tipo_muestra)->where('sede_id', $codificacion[2]
             )->where('lote_cerrado',false)->exists()) return 'Esta muestra ya existe';
 
         return '';
