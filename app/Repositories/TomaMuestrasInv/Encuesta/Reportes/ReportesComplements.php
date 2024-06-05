@@ -90,31 +90,30 @@ class ReportesComplements
         $resultados = EstadosMuestras::leftJoin(DB::raw("
         (
            SELECT
-		            minv_log_muestras.minv_estados_muestras_id,
-		            MAX(minv_log_muestras.id) AS ultimo_id,
-		            minv_log_muestras.minv_formulario_id as formulario_id
+			distinct (minv_log_muestras.minv_formulario_id) as formulario_id,
+			(
+				select mlm.minv_estados_muestras_id
+				from minv_log_muestras mlm
+				where mlm.minv_formulario_id =minv_log_muestras.minv_formulario_id
+				order by mlm.id desc
+				limit 1
+			)
+			as minv_estados_muestras_id
 
-		        FROM
-		            minv_log_muestras
-
-		        left JOIN
-		        	minv_formulario_muestras on minv_formulario_muestras.id = minv_log_muestras.minv_formulario_id
-
-		        where
-		        	minv_formulario_muestras.created_at > '2024-05-01'
-
-
-		        GROUP BY
-		           minv_log_muestras.minv_formulario_id,minv_log_muestras.minv_estados_muestras_id,minv_log_muestras.id
-
-		         order by (minv_log_muestras.id) DESC
-
-		          limit 1
+        FROM
+            minv_log_muestras
+        LEFT JOIN
+            minv_formulario_muestras ON minv_formulario_muestras.id = minv_log_muestras.minv_formulario_id
+        WHERE
+            minv_formulario_muestras.created_at > '".$fechaHace7Dias."'
+        GROUP BY
+            minv_log_muestras.minv_formulario_id,
+            minv_log_muestras.id
         ) AS logmuestras
     "), function ($join) {
             $join->on('logmuestras.minv_estados_muestras_id', '=', 'minv_estados_muestras.id');
         })
-            ->selectRaw('COUNT(logmuestras.ultimo_id) as cantidad_muestras, minv_estados_muestras.nombre')
+            ->selectRaw('COUNT(logmuestras.formulario_id) as cantidad_muestras, minv_estados_muestras.nombre')
             ->groupBy('minv_estados_muestras.nombre', 'minv_estados_muestras.id')
             ->orderByRaw('
         CASE minv_estados_muestras.id
