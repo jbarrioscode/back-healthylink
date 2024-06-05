@@ -153,6 +153,8 @@ class PacienteRepository implements PacienteRepositoryInterface
             ]);
 
             $date = Carbon::now();
+            $date->subHours(5);
+
             /*
             EnvioCorreosAutomaticosRepository::envioCorreoConsentimiento(
                 EncryptEncuestaInvController::decrypt($patient->primer_nombre).' '.EncryptEncuestaInvController::decrypt($patient->segundo_nombre)
@@ -256,6 +258,8 @@ class PacienteRepository implements PacienteRepositoryInterface
 
             $formulario->detalle = $detalle;
             $formulario->code = '-'.$code_paciente.'-'.$request->sedes_toma_muestras_id.'-'.$request->user_created_id;
+
+
 
             EnvioCorreosAutomaticosRepository::envioCorreoConsentimiento(
                 EncryptEncuestaInvController::decrypt($patient->primer_nombre).' '.EncryptEncuestaInvController::decrypt($patient->segundo_nombre)

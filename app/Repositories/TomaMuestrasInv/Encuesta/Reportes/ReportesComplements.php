@@ -174,8 +174,13 @@ class ReportesComplements
             ->get();
 
         $intervalos = [
-            ["inicio" => 18, "fin" => 24],
-            ["inicio" => 25, "fin" => 30],
+            ["inicio" => 18, "fin" => 26],
+            ["inicio" => 27, "fin" => 35],
+            ["inicio" => 36, "fin" => 44],
+            ["inicio" => 45, "fin" => 54],
+            ["inicio" => 55, "fin" => 65],
+            ["inicio" => 66, "fin" => 75],
+            ["inicio" => 76, "fin" => 100],
         ];
 
         $conteo_personas = [];
