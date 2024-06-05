@@ -246,7 +246,7 @@ class EncuestaInvRepository implements EncuestaInvRepositoryInterface
             $consecutivo=(Lote::select(DB::raw('COUNT(DISTINCT DATE(created_at)) as cantidad_lotes'))
                 ->first()->cantidad_lotes)+1;
 
-            $fechaActual = Carbon::now()->format('Ymd');
+            $fechaActual = Carbon::now()->subHours(5)->format('Ymd');
 
             $loteMuestra = Lote::create([
                 'code_lote' => $fechaActual.'-MU'.$consecutivo.'-'.$id_sede,//'MU-LOT-' . ($ultimoID + 1),
