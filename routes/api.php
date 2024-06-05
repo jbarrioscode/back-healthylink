@@ -4,6 +4,7 @@ use App\Http\Controllers\Api\v1\Admin\Authentication\AuthenticationController;
 use App\Http\Controllers\Api\v1\Admin\Permissions\PermissionsController;
 use App\Http\Controllers\Api\v1\Admin\Roles\RolesController;
 use App\Http\Controllers\Api\v1\Admin\Users\UsersController;
+use App\Http\Controllers\Api\v1\Admin\Doctypes\DoctypesController;
 use App\Http\Controllers\Api\v1\TomaMuestrasInv\Paciente\PacienteController;
 use App\Http\Controllers\Api\v1\TomaMuestrasInv\Encuentas\SedesTomaMuestraController;
 use App\Http\Controllers\Api\v1\TomaMuestrasInv\Encuentas\EncuestaController;
@@ -47,6 +48,9 @@ Route::prefix('/v1')->group(function () {
         Route::post('roles/store', [RolesController::class, 'saveRole']);
         Route::put('roles/edit/{id}', [RolesController::class, 'modifyRoleById']);
         Route::delete('roles/delete/{id?}', [RolesController::class, 'inactivateRoleById']);
+
+        /* DOCTYPES */
+        Route::get('doctypes', [DoctypesController::class, 'all']);
 
 
         Route::post('mfa/user', [UsersController::class, 'sendCodeMFA']);
