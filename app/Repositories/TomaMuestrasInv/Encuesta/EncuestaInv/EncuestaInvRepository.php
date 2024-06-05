@@ -796,6 +796,7 @@ class EncuestaInvRepository implements EncuestaInvRepositoryInterface
                 ->leftJoin('minv_respuesta_informacion_historia_clinicas', 'minv_respuesta_informacion_historia_clinicas.minv_formulario_id', '=', 'minv_formulario_muestras.id')
                 ->leftJoin('pacientes', 'pacientes.id', '=', 'minv_formulario_muestras.paciente_id')
                 ->whereNull('minv_respuesta_informacion_historia_clinicas.id')
+                ->orderBy('minv_formulario_muestras.id','asc')
                 ->get();
 
             if (count($formularios) == 0) return $this->error('No hay encuestas registradas', 204, []);
