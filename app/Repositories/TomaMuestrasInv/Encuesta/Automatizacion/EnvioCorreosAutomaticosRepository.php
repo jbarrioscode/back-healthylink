@@ -961,7 +961,7 @@ class EnvioCorreosAutomaticosRepository
                 <p><strong>CC #:</strong> '.$numDocumento.'</p>
                 <p><strong>Fecha de la firma:</strong> '.$fechaFirma.'</p>
                 <p><strong>Firma:</strong></p>
-                <img height="10%" width="30%" src="'.$firma.'">
+                <img height="20%" width="40%" src="'.$firma.'">
             </div>
         </body>
         </html>';

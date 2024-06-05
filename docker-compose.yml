@@ -33,7 +33,7 @@ services:
 
     laravelapp:
         container_name: laravelapp
-        image: healthylink/laravelapp:1.0.9
+        image: healthylink/laravelapp:1.1.0
         build: .
         ports:
             - "8000:8000"

@@ -246,7 +246,7 @@ class EncuestaInvRepository implements EncuestaInvRepositoryInterface
             $consecutivo=(Lote::select(DB::raw('COUNT(DISTINCT DATE(created_at)) as cantidad_lotes'))
                 ->first()->cantidad_lotes)+1;
 
-            $fechaActual = Carbon::now()->format('Ymd');
+            $fechaActual = Carbon::now()->subHours(5)->format('Ymd');
 
             $loteMuestra = Lote::create([
                 'code_lote' => $fechaActual.'-MU'.$consecutivo.'-'.$id_sede,//'MU-LOT-' . ($ultimoID + 1),
@@ -693,7 +693,8 @@ class EncuestaInvRepository implements EncuestaInvRepositoryInterface
 
                 $formularios = FormularioMuestra::select('minv_formulario_muestras.id',
                     'minv_formulario_muestras.created_at', 'minv_formulario_muestras.updated_at',
-                    'minv_formulario_muestras.deleted_at', 'minv_formulario_muestras.code_paciente',
+                    'minv_formulario_muestras.deleted_at', 'minv_formulario_muestras.code_paciente', 'minv_formulario_muestras.sedes_toma_muestras_id'
+                    , 'minv_formulario_muestras.user_created_id',
                     'sedes_toma_muestras.nombre as sede_toma_muestra')
                     ->addSelect(DB::raw('(SELECT est.nombre
                         FROM minv_log_muestras
@@ -706,7 +707,7 @@ class EncuestaInvRepository implements EncuestaInvRepositoryInterface
             } else {
                 $formularios = FormularioMuestra::select('minv_formulario_muestras.id',
                     'minv_formulario_muestras.created_at', 'minv_formulario_muestras.updated_at',
-                    'minv_formulario_muestras.deleted_at', 'minv_formulario_muestras.code_paciente',
+                    'minv_formulario_muestras.deleted_at', 'minv_formulario_muestras.code_paciente', 'minv_formulario_muestras.sedes_toma_muestras_id',
                     'sedes_toma_muestras.nombre as sede_toma_muestra')
                     ->addSelect(DB::raw('(SELECT est.nombre
                             FROM minv_log_muestras
@@ -726,6 +727,10 @@ class EncuestaInvRepository implements EncuestaInvRepositoryInterface
             }
 
             if (count($formularios) == 0) return $this->error('No hay encuestas registradas', 204, []);
+
+            foreach ($formularios as $for){
+                $for->code_muestra = '-'.$for->code_paciente.'-'.$for->sedes_toma_muestras_id.'-'.$for->user_created_id;
+            }
 
             return $this->success($formularios, count($formularios), 'Encuestas retornadas correctamente', 200);
 
@@ -791,6 +796,7 @@ class EncuestaInvRepository implements EncuestaInvRepositoryInterface
                 ->leftJoin('minv_respuesta_informacion_historia_clinicas', 'minv_respuesta_informacion_historia_clinicas.minv_formulario_id', '=', 'minv_formulario_muestras.id')
                 ->leftJoin('pacientes', 'pacientes.id', '=', 'minv_formulario_muestras.paciente_id')
                 ->whereNull('minv_respuesta_informacion_historia_clinicas.id')
+                ->orderBy('minv_formulario_muestras.id','asc')
                 ->get();
 
             if (count($formularios) == 0) return $this->error('No hay encuestas registradas', 204, []);
