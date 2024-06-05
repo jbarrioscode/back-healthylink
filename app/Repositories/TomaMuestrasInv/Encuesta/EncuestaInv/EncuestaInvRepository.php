@@ -693,7 +693,7 @@ class EncuestaInvRepository implements EncuestaInvRepositoryInterface
 
                 $formularios = FormularioMuestra::select('minv_formulario_muestras.id',
                     'minv_formulario_muestras.created_at', 'minv_formulario_muestras.updated_at',
-                    'minv_formulario_muestras.deleted_at', 'minv_formulario_muestras.code_paciente'
+                    'minv_formulario_muestras.deleted_at', 'minv_formulario_muestras.code_paciente', 'minv_formulario_muestras.sedes_toma_muestras_id'
                     , 'minv_formulario_muestras.user_created_id',
                     'sedes_toma_muestras.nombre as sede_toma_muestra')
                     ->addSelect(DB::raw('(SELECT est.nombre
@@ -707,8 +707,7 @@ class EncuestaInvRepository implements EncuestaInvRepositoryInterface
             } else {
                 $formularios = FormularioMuestra::select('minv_formulario_muestras.id',
                     'minv_formulario_muestras.created_at', 'minv_formulario_muestras.updated_at',
-                    'minv_formulario_muestras.deleted_at', 'minv_formulario_muestras.code_paciente'
-                    , 'minv_formulario_muestras.user_created_id',
+                    'minv_formulario_muestras.deleted_at', 'minv_formulario_muestras.code_paciente', 'minv_formulario_muestras.sedes_toma_muestras_id',
                     'sedes_toma_muestras.nombre as sede_toma_muestra')
                     ->addSelect(DB::raw('(SELECT est.nombre
                             FROM minv_log_muestras
