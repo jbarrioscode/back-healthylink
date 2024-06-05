@@ -6,7 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Models\TomaMuestrasInv\Muestras\files;
 use App\Traits\AuthenticationTrait;
 use Illuminate\Http\Request;
-use Illuminate\Validation\Rules\File;
+use Illuminate\Support\Facades\Storage;
 
 class PatientFileUploaderController extends Controller
 {
@@ -18,31 +18,28 @@ class PatientFileUploaderController extends Controller
         try {
 
             $request->validate([
-                'filename' => 'string|required',
                 'file' => 'required|mimes:pdf,xls,xlsx|max:2048'
             ]);
 
             if ($request->hasFile('file')) {
-                //This is to get the extension of the image file just uploaded
-                $extension = $request->file('file')->getClientOriginalExtension();
-                $size = $request->file('file')->getSize();
 
-                $filename = $request->filename;
-                return $extension .'---'.$filename . '---'. $size;
-                /*$path = $request->file('file')->storeAs(
-                    'images',
-                    $filename,
-                    's3'
-                );*/
-                /*$file = files::create([
-                    'filename' => $request->filename,
-                    'mime' => $request->fileExtension,
-                    'path' => $path,
-                    'size' => '1080',
+                $file = $request->file('file');
+                $fileextension = $file->getClientOriginalExtension();
+                $filesize = $file->getSize();
+                $filename = $file->hashName();
+
+                $path = 'images/'. $filename;
+                Storage::disk('s3')->put($path, $file);
+
+                $fileCreated = files::create([
+                    'filename' => $filename,
+                    'mime' => $fileextension,
+                    'path' => Storage::disk('s3')->url($path),
+                    'size' => $filesize,
                     'minv_formulario_id' => $request->minv_formulario_id
                 ]);
 
-                return $this->success($file, 1, 'File Saved', 201);*/
+                return response()->json(['url' => $fileCreated], 200);
 
             }
 
