@@ -39,7 +39,7 @@ class ReportesComplements
         $diaEncontrado = false;
         $diaHoy = Carbon::now();
 
-        $hace7dias = $diaHoy->subDays(8);
+        $hace7dias = $diaHoy->subDays(8)->subHours(5);
 
         for ($i = 1; $i <= 8; $i++) {
 
