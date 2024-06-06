@@ -20,9 +20,10 @@ class ReportesComplements
             $join->on('sedes_toma_muestras.id', '=', 'minv_formulario_muestras.sedes_toma_muestras_id')
                 ->whereDate('sedes_toma_muestras.created_at', '<', $fechaHace7Dias);
         })
-            ->selectRaw('DATE(minv_formulario_muestras.created_at) as fecha, sedes_toma_muestras.nombre, COUNT(minv_formulario_muestras.id) as cantidad_muestras')
-            ->groupBy(DB::raw('DATE(minv_formulario_muestras.created_at)'), 'sedes_toma_muestras.nombre')
+            ->selectRaw('DATE(minv_formulario_muestras.created_at - interval \'5 hours\') as fecha, sedes_toma_muestras.nombre, COUNT(minv_formulario_muestras.id) as cantidad_muestras')
+            ->groupBy(DB::raw('DATE(minv_formulario_muestras.created_at - interval \'5 hours\')'), 'sedes_toma_muestras.nombre')
             ->get();
+
 
         $sedes = [];
         $distintasSedes = [];
