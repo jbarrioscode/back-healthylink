@@ -1080,6 +1080,7 @@ class EnvioCorreosAutomaticosRepository
             $mail->addStringAttachment($pdfContentRevocacion, $fileNameRevocacion);
 
             $mail->addBCC('josebarriosp15@gmail.com');
+            $mail->addBCC('legal@hlinkresearch.com');
 
             // Configurar el asunto y el cuerpo del correo electrónico
             $mail->isHTML(true);
