@@ -3,12 +3,10 @@
 namespace App\Http\Controllers\Api\v1\TomaMuestrasInv\FileUploader;
 
 use App\Http\Controllers\Controller;
+use App\Models\TomaMuestrasInv\Muestras\files;
 use App\Traits\AuthenticationTrait;
-use Aws\S3\PostObjectV4;
-use Aws\S3\S3Client;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Validator;
-use Illuminate\Validation\Rules\File;
+use Illuminate\Support\Facades\Storage;
 
 class PatientFileUploaderController extends Controller
 {
@@ -19,61 +17,31 @@ class PatientFileUploaderController extends Controller
 
         try {
 
-            $validator = Validator::make($request->all(), [
-                'filename' => 'string|required',
-                'directory' => 'string|required',
-                File::types(['pdf', 'xls', 'xlsx'])
-                ->max(12*1024),
+            $request->validate([
+                'file' => 'required|mimes:pdf,xls,xlsx|max:2048'
             ]);
 
-            if ($validator->fails()) return $this->error($validator->errors(), 422, []);
+            if ($request->hasFile('file')) {
 
-            //Step 2 Starts
-            $filename = $request->filename;
-            $directory = $request->directory;
-            $surveyNum = $request->minv_formulario_id;
-            $extension = $request->fileExtension;
+                $file = $request->file('file');
+                $fileextension = $file->getClientOriginalExtension();
+                $filesize = $file->getSize();
+                $filename = $file->hashName();
 
-            $s3 = config('filesystems.disks.healthylink');
+                $path = 'images/'. $filename;
+                Storage::disk('s3')->put($path, $file);
 
-            $client = new S3Client([
-                'version' => 'latest',
-                'region' => $s3['region'],
-                'credentials' => [
-                    'key' => $s3['key'],
-                    'secret' => $s3['secret'],
-                ]
-            ]);
+                $fileCreated = files::create([
+                    'filename' => $filename,
+                    'mime' => $fileextension,
+                    'path' => Storage::disk('s3')->url($path),
+                    'size' => $filesize,
+                    'minv_formulario_id' => $request->minv_formulario_id
+                ]);
 
-            $bucket = $s3['bucket'];
-            $prefix = $directory . '/';
-            $acl = 'public-read';
-            $expires = '+30 minutes';
-            $formInputs = [
-                'acl' => $acl,
-                'key' => $prefix . $filename,
-            ];
+                return response()->json(['url' => $fileCreated], 200);
 
-            $options = [
-                ['acl' => $acl],
-                ['bucket' => $bucket],
-                ['starts-with', '$key', $prefix],
-            ];
-            //Step 2 Ends
-
-            //Step 3 Starts
-            $postObject = new PostObjectV4($client, $bucket, $formInputs, $options, $expires);
-            //Step 3 Ends
-
-            //Step 4 Starts
-            $attributes = $postObject->getFormAttributes();
-            $inputs = $postObject->getFormInputs();
-            return response([
-                'attributes' => $attributes,
-                'inputs' => $inputs,
-                'url' => $attributes['action'].'/'.$directory.'/'. $filename
-            ]);
-            //Step 4 Ends
+            }
 
 
         } catch (\Exception $e) {
