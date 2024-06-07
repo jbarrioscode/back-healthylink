@@ -52,15 +52,12 @@ class ReportesRepository implements ReportesRepositoryInterface
     public function getDataForFecha(Request $request, $dateStart, $dateEnd)
     {
         try {
-
             $fechaInicio = Carbon::parse($dateStart);
             $fechaFin = Carbon::parse($dateEnd);
-
             $diferenciaDias = $fechaInicio->diffInDays($fechaFin);
 
-
-            if($diferenciaDias > 31){
-                return $this->error('El intervalo de fecha no puede ser mayor a 31 dias',204,[]);
+            if ($diferenciaDias > 31) {
+                return $this->error('El intervalo de fecha no puede ser mayor a 31 días', 204, []);
             }
 
             $dataPrincipal = FormularioMuestra::leftJoin('pacientes', 'pacientes.id', '=', 'minv_formulario_muestras.paciente_id')
@@ -79,13 +76,10 @@ class ReportesRepository implements ReportesRepositoryInterface
                 ->whereBetween('minv_formulario_muestras.created_at', [$dateStart, $dateEnd])
                 ->get()
                 ->each(function ($item) {
-                    $item->makeHidden('deleted_at','updated_at','created_at');
+                    $item->makeHidden('deleted_at', 'updated_at', 'created_at');
                 });
-            $formularioIds = [];
-            foreach ($dataPrincipal as $dat){
-                $formularioIds[]=$dat->minv_formulario_id;
-            }
 
+            $formularioIds = $dataPrincipal->pluck('id')->toArray();
 
             $dataComplementaria = RespuestaInformacionHistoriaClinica::leftJoin('minv_formulario_muestras', 'minv_formulario_muestras.id', '=', 'minv_respuesta_informacion_historia_clinicas.minv_formulario_id')
                 ->leftJoin('minv_pregunta_historia_clinicas', 'minv_pregunta_historia_clinicas.id', '=', 'minv_respuesta_informacion_historia_clinicas.pregunta_id')
@@ -93,20 +87,55 @@ class ReportesRepository implements ReportesRepositoryInterface
                 ->select(
                     'minv_formulario_muestras.code_paciente',
                     'minv_pregunta_historia_clinicas.pregunta',
-                    'minv_respuesta_informacion_historia_clinicas.fecha',
                     'minv_respuesta_informacion_historia_clinicas.respuesta',
-                    'minv_respuesta_informacion_historia_clinicas.unidad',
-                    'minv_respuesta_informacion_historia_clinicas.tipo_imagen',
-                    'minv_respuesta_informacion_historia_clinicas.observacion',
-                    'minv_respuesta_informacion_historia_clinicas.valor'
+                    'minv_respuesta_informacion_historia_clinicas.valor',
+                    'minv_respuesta_informacion_historia_clinicas.fecha',
+                    'minv_respuesta_informacion_historia_clinicas.pregunta_id'
                 )
                 ->orderBy('minv_formulario_muestras.code_paciente')
                 ->get();
 
-            return $this->success(['survey'=>$dataPrincipal,'dataComplementaria'=>$dataComplementaria], count($dataPrincipal), 'Ok', 200);
+
+
+            $combinedData = [];
+
+            foreach ($dataPrincipal as $principalItem) {
+                $combinedItem = $principalItem->toArray();
+                $codePaciente = $principalItem->code_paciente;
+
+                foreach ($dataComplementaria as $complementario) {
+                    if ($complementario->code_paciente === $codePaciente) {
+                        if ($complementario->pregunta_id == 6) {
+                            if (!is_null($complementario->fecha)) {
+                                $combinedItem[$complementario->pregunta] = $complementario->fecha . '__' . $complementario->respuesta;
+                            } else {
+                                $combinedItem[$complementario->pregunta] = $complementario->respuesta;
+                            }
+                        } elseif (in_array($complementario->pregunta_id, [1, 7, 8])) {
+                            $combinedItem[$complementario->pregunta] = $complementario->respuesta;
+                        } elseif ($complementario->pregunta_id == 2) {
+
+                            if (!isset($combinedItem['Antecedentes Farmacológicos'])) {
+                                $combinedItem['Antecedentes Farmacológicos'] = '';
+                            }
+
+                            $combinedItem['Antecedentes Farmacológicos'] .= "({$complementario->fecha}__{$complementario->respuesta};{$complementario->valor})& ";
+                        } else {
+                            $key = $complementario->pregunta . ' - ' . $complementario->respuesta;
+                            $combinedItem[$key] = $complementario->fecha.'__'.$complementario->valor;
+                        }
+                    }
+                }
+
+                $combinedData[] = $combinedItem;
+            }
+
+            return $this->success(['survey' => $combinedData,'dataComplementaria' => []], count($dataPrincipal), 'Ok', 200);
 
         } catch (\Throwable $th) {
             throw $th;
         }
     }
+
+
 }
