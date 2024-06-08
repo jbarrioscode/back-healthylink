@@ -92,7 +92,8 @@ class ReportesRepository implements ReportesRepositoryInterface
                     'minv_respuesta_informacion_historia_clinicas.respuesta',
                     'minv_respuesta_informacion_historia_clinicas.valor',
                     'minv_respuesta_informacion_historia_clinicas.fecha',
-                    'minv_respuesta_informacion_historia_clinicas.pregunta_id'
+                    'minv_respuesta_informacion_historia_clinicas.pregunta_id',
+                    'minv_respuesta_informacion_historia_clinicas.tipo_imagen'
                 )
                 ->orderBy('minv_formulario_muestras.code_paciente')
                 ->get();
@@ -110,10 +111,10 @@ class ReportesRepository implements ReportesRepositoryInterface
                         if ($complementario->pregunta_id == 6) {
                             if (!is_null($complementario->fecha)) {
 
-                                if($complementario->respuesta == 'N/A'){
+                                if($complementario->tipo_imagen == 'N/A'){
                                     $combinedItem[$complementario->pregunta] = 'N/A';
                                 }else{
-                                    $combinedItem[$complementario->pregunta] = $complementario->fecha . ' ' . $complementario->respuesta;
+                                    $combinedItem[$complementario->pregunta] = $complementario->fecha . ' ' . $complementario->tipo_imagen .' '. $complementario->respuesta;
                                 }
 
                             } else {
@@ -127,7 +128,13 @@ class ReportesRepository implements ReportesRepositoryInterface
                                 $combinedItem['Antecedentes Farmacológicos'] = '';
                             }
 
-                            $combinedItem['Antecedentes Farmacológicos'] .= "({$complementario->fecha}__{$complementario->respuesta};{$complementario->valor})& ";
+                            if (strpos($complementario->respuesta, 'N/A') !== false){
+                                $combinedItem['Antecedentes Farmacológicos'] .= "N/A";
+                            }else{
+                                $combinedItem['Antecedentes Farmacológicos'] .= "({$complementario->fecha} {$complementario->respuesta} {$complementario->valor})& ";
+
+                            }
+
                         } else {
                             //LABORATORIOS
 
