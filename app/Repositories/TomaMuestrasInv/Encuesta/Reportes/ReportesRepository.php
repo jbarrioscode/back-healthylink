@@ -22,7 +22,7 @@ class ReportesRepository implements ReportesRepositoryInterface
         //muestras recibidas
 
         try {
-
+            //return ReportesComplements::muestrasTomadasDiaActual();
             $muestrasTomadasDiaActual = ReportesComplements::muestrasTomadasDiaActual();
             $muestrasPorEstado = ReportesComplements::getMuestrasForEstados();
             $getTotalMuestrasTomadas = ReportesComplements::getTotalMuestrasTomadas();
