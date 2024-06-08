@@ -107,7 +107,13 @@ class ReportesRepository implements ReportesRepositoryInterface
                     if ($complementario->code_paciente === $codePaciente) {
                         if ($complementario->pregunta_id == 6) {
                             if (!is_null($complementario->fecha)) {
-                                $combinedItem[$complementario->pregunta] = $complementario->fecha . '__' . $complementario->respuesta;
+
+                                if($complementario->respuesta == 'N/A'){
+                                    $combinedItem[$complementario->pregunta] = 'N/A';
+                                }else{
+                                    $combinedItem[$complementario->pregunta] = $complementario->fecha . ' ' . $complementario->respuesta;
+                                }
+
                             } else {
                                 $combinedItem[$complementario->pregunta] = $complementario->respuesta;
                             }
@@ -121,8 +127,19 @@ class ReportesRepository implements ReportesRepositoryInterface
 
                             $combinedItem['Antecedentes Farmacológicos'] .= "({$complementario->fecha}__{$complementario->respuesta};{$complementario->valor})& ";
                         } else {
+                            //LABORATORIOS
+
+                            $partsLab = explode(' ', $complementario->valor);
+
                             $key = $complementario->pregunta . ' - ' . $complementario->respuesta;
-                            $combinedItem[$key] = $complementario->fecha.'__'.$complementario->valor;
+
+                            if (strpos($complementario->valor, 'N/A') !== false || $partsLab[0] == '0') {
+                                $combinedItem[$key] = 'N/A';
+                            } else {
+                                $combinedItem[$key] = $complementario->fecha . ' ' . $complementario->valor;
+                            }
+
+
                         }
                     }
                 }
