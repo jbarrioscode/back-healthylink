@@ -56,6 +56,8 @@ class ReportesRepository implements ReportesRepositoryInterface
             $fechaFin = Carbon::parse($dateEnd);
             $diferenciaDias = $fechaInicio->diffInDays($fechaFin);
 
+            $fechaFin->setTime(23, 59);
+
             if ($diferenciaDias > 31) {
                 return $this->error('El intervalo de fecha no puede ser mayor a 31 días', 204, []);
             }
