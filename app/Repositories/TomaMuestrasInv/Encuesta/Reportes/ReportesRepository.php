@@ -56,6 +56,8 @@ class ReportesRepository implements ReportesRepositoryInterface
             $fechaFin = Carbon::parse($dateEnd);
             $diferenciaDias = $fechaInicio->diffInDays($fechaFin);
 
+            $fechaFin->setTime(23, 59);
+
             if ($diferenciaDias > 31) {
                 return $this->error('El intervalo de fecha no puede ser mayor a 31 días', 204, []);
             }
@@ -90,7 +92,8 @@ class ReportesRepository implements ReportesRepositoryInterface
                     'minv_respuesta_informacion_historia_clinicas.respuesta',
                     'minv_respuesta_informacion_historia_clinicas.valor',
                     'minv_respuesta_informacion_historia_clinicas.fecha',
-                    'minv_respuesta_informacion_historia_clinicas.pregunta_id'
+                    'minv_respuesta_informacion_historia_clinicas.pregunta_id',
+                    'minv_respuesta_informacion_historia_clinicas.tipo_imagen'
                 )
                 ->orderBy('minv_formulario_muestras.code_paciente')
                 ->get();
@@ -107,7 +110,13 @@ class ReportesRepository implements ReportesRepositoryInterface
                     if ($complementario->code_paciente === $codePaciente) {
                         if ($complementario->pregunta_id == 6) {
                             if (!is_null($complementario->fecha)) {
-                                $combinedItem[$complementario->pregunta] = $complementario->fecha . '__' . $complementario->respuesta;
+
+                                if($complementario->tipo_imagen == 'N/A'){
+                                    $combinedItem[$complementario->pregunta] = 'N/A';
+                                }else{
+                                    $combinedItem[$complementario->pregunta] = $complementario->fecha . ' ' . $complementario->tipo_imagen .' '. $complementario->respuesta;
+                                }
+
                             } else {
                                 $combinedItem[$complementario->pregunta] = $complementario->respuesta;
                             }
@@ -119,10 +128,27 @@ class ReportesRepository implements ReportesRepositoryInterface
                                 $combinedItem['Antecedentes Farmacológicos'] = '';
                             }
 
-                            $combinedItem['Antecedentes Farmacológicos'] .= "({$complementario->fecha}__{$complementario->respuesta};{$complementario->valor})& ";
+                            if (strpos($complementario->respuesta, 'N/A') !== false){
+                                $combinedItem['Antecedentes Farmacológicos'] .= "N/A";
+                            }else{
+                                $combinedItem['Antecedentes Farmacológicos'] .= "({$complementario->fecha} {$complementario->respuesta} {$complementario->valor})& ";
+
+                            }
+
                         } else {
+                            //LABORATORIOS
+
+                            $partsLab = explode(' ', $complementario->valor);
+
                             $key = $complementario->pregunta . ' - ' . $complementario->respuesta;
-                            $combinedItem[$key] = $complementario->fecha.'__'.$complementario->valor;
+
+                            if (strpos($complementario->valor, 'N/A') !== false || $partsLab[0] == '0') {
+                                $combinedItem[$key] = 'N/A';
+                            } else {
+                                $combinedItem[$key] = $complementario->fecha . ' ' . $complementario->valor;
+                            }
+
+
                         }
                     }
                 }
