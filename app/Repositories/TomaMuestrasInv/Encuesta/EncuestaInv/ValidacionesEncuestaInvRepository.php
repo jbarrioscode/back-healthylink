@@ -205,7 +205,7 @@ class ValidacionesEncuestaInvRepository
 
 
         //------------------------------------------
-        $preguntaIds = range(1, 7);
+        $preguntaIds = range(1, 8);
         $preguntasPresentes = array_column($data, 'pregunta_id');
 
                 foreach ($preguntaIds as $preguntaId) {
@@ -218,26 +218,32 @@ class ValidacionesEncuestaInvRepository
 
         foreach ($data as $inf) {
 
-            if (!isset($inf['fecha'])) {
-                return 'Pregunta ' . $inf['pregunta_id'] . ' debe contener fecha';
-            }
-
             if (!isset($inf['respuesta'])) {
                 return 'Pregunta ' . $inf['pregunta_id'] . ' debe contener respuesta';
             }
 
-            switch ($inf['pregunta_id']) {
-                case 4:
-                    if (!isset($inf['unidad'])) {
-                        return "Se requiere 'unidad' para la pregunta_id 4";
-                    }
-                    break;
-                case 6:
-                    if (!isset($inf['tipo_imagen'])) {
-                        return "Se requiere 'tipo imagen' para la pregunta_id 6";
-                    }
-                    break;
-            }//
+            if($inf['pregunta_id'] != 1 && $inf['pregunta_id'] != 7 && $inf['pregunta_id'] != 8 && $inf['pregunta_id'] != 9){
+
+                if (!isset($inf['fecha'])) {
+                    return 'Pregunta ' . $inf['pregunta_id'] . ' debe contener fecha';
+                }
+
+                switch ($inf['pregunta_id']) {
+                    case 4:
+                        if (!isset($inf['unidad'])) {
+                            return "Se requiere 'unidad' para la pregunta_id 4";
+                        }
+                        break;
+                    case 6:
+                        if (!isset($inf['tipo_imagen'])) {
+                            return "Se requiere 'tipo imagen' para la pregunta_id 6";
+                        }
+                        break;
+                }//
+
+
+            }
+
 
         }
         return '';
