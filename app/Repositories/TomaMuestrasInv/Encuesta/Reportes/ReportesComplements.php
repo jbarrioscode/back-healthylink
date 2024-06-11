@@ -13,75 +13,62 @@ class ReportesComplements
 
     public static function muestrasTomadasDiaActual()
     {
-        $fechaHace7Dias = Carbon::now()->subDays(7)->toDateString();;
+        $fechaHace7Dias = Carbon::now()->subDays(7)->toDateString();
+        $diaHoy = Carbon::now()->toDateString();
+
+
+        $sedes = SedesTomaMuestra::select('nombre')->distinct()->pluck('nombre');
+
+
+        $fechas = [];
+        $fechaInicio = Carbon::now()->subDays(7)->subHours(5);
+        for ($i = 0; $i <= 7; $i++) {
+            $fechas[] = $fechaInicio->copy()->addDays($i)->toDateString();
+        }
 
 
         $query = SedesTomaMuestra::leftJoin('minv_formulario_muestras', function ($join) use ($fechaHace7Dias) {
             $join->on('sedes_toma_muestras.id', '=', 'minv_formulario_muestras.sedes_toma_muestras_id')
-                ->whereDate('sedes_toma_muestras.created_at', '<', $fechaHace7Dias);
+                ->whereDate('minv_formulario_muestras.created_at', '>=', $fechaHace7Dias);
         })
             ->selectRaw('DATE(minv_formulario_muestras.created_at - interval \'5 hours\') as fecha, sedes_toma_muestras.nombre, COUNT(minv_formulario_muestras.id) as cantidad_muestras')
             ->groupBy(DB::raw('DATE(minv_formulario_muestras.created_at - interval \'5 hours\')'), 'sedes_toma_muestras.nombre')
             ->get();
 
 
-        $sedes = [];
-        $distintasSedes = [];
         $cantidades_dias = [];
 
+
+        foreach ($fechas as $fecha) {
+            foreach ($sedes as $sede) {
+                $cantidades_dias[$fecha][$sede] = 0;
+            }
+        }
+
+
         foreach ($query as $data) {
-            $sedes[] = $data->nombre;
+            $fecha = $data->fecha;
+            $sede = $data->nombre;
+            $cantidad = $data->cantidad_muestras;
+
+            if (isset($cantidades_dias[$fecha][$sede])) {
+                $cantidades_dias[$fecha][$sede] = $cantidad;
+            }
         }
 
-        $distintasSedes = array_unique($sedes);
 
-
-        $diaEncontrado = false;
-        $diaHoy = Carbon::now();
-
-        $hace7dias = $diaHoy->subDays(8)->subHours(5);
-
-        for ($i = 1; $i <= 8; $i++) {
-
-            $diaEncontrado = false;
-            $diaSeleccionado = $hace7dias->addDay();
-
-            $diaSeleccionado = $diaSeleccionado->toDateString();
-
-
-            foreach ($query as $qr) {
-
-                if ($diaSeleccionado === $qr->fecha) {
-
-                    $diaEncontrado = true;
-
-                    $cantidades_dias[] = [
-                        'sede' => $qr->nombre,//"nombre" es el nombre de la sede
-                        'fecha' => $diaSeleccionado,
-                        'cantidad' => $qr->cantidad_muestras
-                    ];
-
-                }
+        $resultados = [];
+        foreach ($cantidades_dias as $fecha => $sedes) {
+            foreach ($sedes as $sede => $cantidad) {
+                $resultados[] = [
+                    'sede' => $sede,
+                    'fecha' => $fecha,
+                    'cantidad' => $cantidad,
+                ];
             }
-
-            if (!$diaEncontrado) {
-                foreach ($distintasSedes as $sed) {
-
-                    $cantidades_dias[] = [
-                        'sede' => $sed,
-                        'fecha' => $diaSeleccionado,
-                        'cantidad' => 0
-                    ];
-
-                }
-
-            }
-
-
         }
 
-        return ["cantidades" => $cantidades_dias, "sedes" => $distintasSedes];
-
+        return ["cantidades" => $resultados, "sedes" => $sedes];
     }
 
 
