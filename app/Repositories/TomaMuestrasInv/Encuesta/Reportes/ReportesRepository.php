@@ -147,12 +147,14 @@ class ReportesRepository implements ReportesRepositoryInterface
 
                             if(!isset($cie10part[0])){
                                 $cie10part=$complementario->respuesta;
+                            }else{
+                                $cie10part=$cie10part[0];
                             }
 
                             if (strpos($complementario->respuesta, 'N/A') !== false){
                                 $combinedItem['Antecedentes patologicos (CIE10)'] .= "N/A";
                             }else{
-                                $combinedItem['Antecedentes patologicos (CIE10)'] .= "{$cie10part[0]};";
+                                $combinedItem['Antecedentes patologicos (CIE10)'] .= "{$cie10part};";
 
                             }
 
