@@ -143,10 +143,16 @@ class ReportesRepository implements ReportesRepositoryInterface
                                 $combinedItem['Antecedentes patologicos (CIE10)'] = '';
                             }
 
+                            $cie10part = explode('-', $complementario->respuesta);
+
+                            if(!isset($cie10part[0])){
+                                $cie10part=$complementario->respuesta;
+                            }
+
                             if (strpos($complementario->respuesta, 'N/A') !== false){
                                 $combinedItem['Antecedentes patologicos (CIE10)'] .= "N/A";
                             }else{
-                                $combinedItem['Antecedentes patologicos (CIE10)'] .= "{$complementario->respuesta};";
+                                $combinedItem['Antecedentes patologicos (CIE10)'] .= "{$cie10part[0]};";
 
                             }
 
