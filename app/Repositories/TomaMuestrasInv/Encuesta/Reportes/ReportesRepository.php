@@ -26,6 +26,7 @@ class ReportesRepository implements ReportesRepositoryInterface
             $muestrasTomadasDiaActual = ReportesComplements::muestrasTomadasDiaActual();
             $muestrasPorEstado = ReportesComplements::getMuestrasForEstados();
             $getTotalMuestrasTomadas = ReportesComplements::getTotalMuestrasTomadas();
+            $getMuestrasPendientesEcrf = ReportesComplements::getMuestrasPendientesEcrf();
             $generoDePacientes = ReportesComplements::getGeneroDePacientes();
             $getEdadPacientes = ReportesComplements::getEdadPacientes();
             $getMuestrasEnviadasSponsor = ReportesComplements::getMuestrasEnviadasAsponsor();
@@ -35,6 +36,7 @@ class ReportesRepository implements ReportesRepositoryInterface
                 'muestrasTomadasPorDia' => $muestrasTomadasDiaActual,
                 'muestrasEnviadasAlsponsor' => $getMuestrasEnviadasSponsor,
                 'muestrasPorEstados' => $muestrasPorEstado,
+                'pendientesecrf' => $getMuestrasPendientesEcrf,
                 'totalmuestrastomadas' => $getTotalMuestrasTomadas,
                 'generoDePacientes' => $generoDePacientes,
                 'edadPacientes' => $getEdadPacientes,
@@ -58,8 +60,8 @@ class ReportesRepository implements ReportesRepositoryInterface
 
             $fechaFin->setTime(23, 59);
 
-            if ($diferenciaDias > 31) {
-                return $this->error('El intervalo de fecha no puede ser mayor a 31 días', 204, []);
+            if ($diferenciaDias > 91) {
+                return $this->error('El intervalo de fecha no puede ser mayor a 91 días', 204, []);
             }
 
             $dataPrincipal = FormularioMuestra::leftJoin('pacientes', 'pacientes.id', '=', 'minv_formulario_muestras.paciente_id')
@@ -132,6 +134,19 @@ class ReportesRepository implements ReportesRepositoryInterface
                                 $combinedItem['Antecedentes Farmacológicos'] .= "N/A";
                             }else{
                                 $combinedItem['Antecedentes Farmacológicos'] .= "({$complementario->fecha} {$complementario->respuesta} {$complementario->valor})& ";
+
+                            }
+
+                        } elseif ($complementario->pregunta_id == 9) {
+
+                            if (!isset($combinedItem['Antecedentes patologicos (CIE10)'])) {
+                                $combinedItem['Antecedentes patologicos (CIE10)'] = '';
+                            }
+
+                            if (strpos($complementario->respuesta, 'N/A') !== false){
+                                $combinedItem['Antecedentes patologicos (CIE10)'] .= "N/A";
+                            }else{
+                                $combinedItem['Antecedentes patologicos (CIE10)'] .= "{$complementario->respuesta};";
 
                             }
 
