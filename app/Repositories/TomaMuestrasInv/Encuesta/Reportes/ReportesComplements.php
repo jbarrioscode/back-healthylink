@@ -74,7 +74,9 @@ class ReportesComplements
 
     public static function getMuestrasForEstados()
     {
-        $fechaHace7Dias = Carbon::now()->subDays(7)->toDateString();;
+        $fechaHace7Dias = Carbon::now()->subDays(7)->toDateString();
+
+        /*
         $resultados = EstadosMuestras::leftJoin(DB::raw("
         (
            SELECT
@@ -118,15 +120,57 @@ class ReportesComplements
         END
     ')
             ->get();
+        */
+
+    $resultados = EstadosMuestras::leftJoin(DB::raw("
+    (
+        SELECT
+            COUNT(id) as formulario_id,
+            minv_log_muestras.minv_estados_muestras_id as minv_estados_muestras_id
+        FROM minv_log_muestras
+        GROUP BY minv_log_muestras.minv_estados_muestras_id
+    ) AS logmuestras
+    "), function ($join) {
+                $join->on('logmuestras.minv_estados_muestras_id', '=', 'minv_estados_muestras.id');
+            })
+                ->selectRaw('COALESCE(logmuestras.formulario_id, 0) as cantidad_muestras, minv_estados_muestras.nombre')
+                ->groupBy('minv_estados_muestras.nombre', 'logmuestras.formulario_id', 'minv_estados_muestras.id')
+                ->orderByRaw('
+        CASE minv_estados_muestras.id
+            WHEN 1 THEN 1
+            WHEN 2 THEN 2
+            WHEN 3 THEN 3
+            WHEN 4 THEN 4
+            WHEN 7 THEN 5
+            WHEN 5 THEN 6
+            WHEN 9 THEN 7
+            WHEN 8 THEN 8
+            WHEN 6 THEN 9
+            ELSE 10
+        END
+    ')
+            ->get();
+
 
         return $resultados;
     }
 
     public static function getTotalMuestrasTomadas()
     {
-        $fechaHace30Dias = Carbon::now()->subDays(30)->toDateString();;
 
-        $resultado = FormularioMuestra::where('created_at', '>', $fechaHace30Dias)->count('id');
+        $resultado = FormularioMuestra::count('id');
+
+        return $resultado;
+
+    }
+
+    public static function getMuestrasPendientesEcrf()
+    {
+
+        $resultado = FormularioMuestra::leftJoin('minv_respuesta_informacion_historia_clinicas', 'minv_respuesta_informacion_historia_clinicas.minv_formulario_id', '=', 'minv_formulario_muestras.id')
+            ->whereNull('minv_respuesta_informacion_historia_clinicas.id')
+            ->orderBy('minv_formulario_muestras.id','asc')
+            ->count();
 
         return $resultado;
 
