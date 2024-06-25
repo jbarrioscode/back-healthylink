@@ -66,9 +66,11 @@ class ReportesRepository implements ReportesRepositoryInterface
 
             $dataPrincipal = FormularioMuestra::leftJoin('pacientes', 'pacientes.id', '=', 'minv_formulario_muestras.paciente_id')
                 ->leftJoin('minv_detalle_encuestas', 'minv_detalle_encuestas.minv_formulario_id', '=', 'minv_formulario_muestras.id')
+                ->leftJoin('sedes_toma_muestras', 'sedes_toma_muestras.id', '=', 'minv_formulario_muestras.sedes_toma_muestras_id')
                 ->select(
                     'minv_formulario_muestras.id',
                     'minv_formulario_muestras.code_paciente',
+                    'sedes_toma_muestras.nombre as sede',
                     'pacientes.ciudad_residencia',
                     'pacientes.departamento_residencia',
                     'pacientes.fecha_nacimiento',
@@ -133,7 +135,7 @@ class ReportesRepository implements ReportesRepositoryInterface
                             if (strpos($complementario->respuesta, 'N/A') !== false){
                                 $combinedItem['Antecedentes Farmacológicos'] .= "N/A";
                             }else{
-                                $combinedItem['Antecedentes Farmacológicos'] .= "({$complementario->fecha} {$complementario->respuesta} {$complementario->valor})& ";
+                                $combinedItem['Antecedentes Farmacológicos'] .= "({$complementario->fecha} {$complementario->respuesta} {$complementario->valor}) ";
 
                             }
 
@@ -157,6 +159,20 @@ class ReportesRepository implements ReportesRepositoryInterface
                                 $combinedItem['Antecedentes patologicos (CIE10)'] .= "{$cie10part};";
 
                             }
+
+                        } elseif ($complementario->pregunta_id == 10) {
+
+                            if (!isset($combinedItem['Otros laboratorios'])) {
+                                $combinedItem['Otros laboratorios'] = '';
+                            }
+
+                            if (strpos($complementario->respuesta, 'N/A') !== false){
+                                $combinedItem['Otros laboratorios'] .= "N/A";
+                            }else{
+                                $combinedItem['Otros laboratorios'] .= "({$complementario->fecha} {$complementario->respuesta} {$complementario->valor}) ";
+
+                            }
+
 
                         } else {
                             //LABORATORIOS
