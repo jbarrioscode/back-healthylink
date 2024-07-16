@@ -260,7 +260,7 @@ class PacienteRepository implements PacienteRepositoryInterface
             $formulario->code = '-'.$code_paciente.'-'.$request->sedes_toma_muestras_id.'-'.$request->user_created_id;
 
 
-
+            /*
             EnvioCorreosAutomaticosRepository::envioCorreoConsentimiento(
                 EncryptEncuestaInvController::decrypt($patient->primer_nombre).' '.EncryptEncuestaInvController::decrypt($patient->segundo_nombre)
                 . ' '.EncryptEncuestaInvController::decrypt($patient->primer_apellido). ' '.EncryptEncuestaInvController::decrypt($patient->segundo_apellido). ' ',
@@ -271,7 +271,7 @@ class PacienteRepository implements PacienteRepositoryInterface
                 $request->firma,
                 $date->toDateTimeString()
             );
-
+            */
             return $this->success($formulario, 1, 'Formulario registrado', 201);
 
 
