@@ -855,7 +855,7 @@ class EnvioCorreosAutomaticosRepository
     }
 
     public static function envioCorreoConsentimiento
-    ($paciente,$numDocumento,$ciudad,$ceulular,$correoDestino,$firma ,$fechaFirma)
+    ($paciente,$numDocumento,$ciudad,$ceulular,$correoDestino,$firma ,$fechaFirma,$asunto)
     {
 
         $pdf = new Dompdf();
@@ -1084,7 +1084,7 @@ class EnvioCorreosAutomaticosRepository
 
             // Configurar el asunto y el cuerpo del correo electrónico
             $mail->isHTML(true);
-            $mail->Subject = 'Una Plataforma Clinico-Genomica Integrada para la Investigacion Biomedica en Colombia.';
+            $mail->Subject = $asunto;
             $mail->Body = 'Estimado (a) '.$paciente.',
 
             Espero que este mensaje le encuentre bien. <br>
