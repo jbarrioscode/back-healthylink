@@ -78,6 +78,7 @@ Route::prefix('/v1')->group(function () {
         Route::get('/patient/get/patientinformedconsent/{paciente_id}', [PacienteController::class, 'getpatientInformedConsent']);
         Route::post('/patient/post/revokeinformedconsent', [PacienteController::class, 'revokeInformedConsent']);
 
+        Route::post('/patient/get/valdiarpaciente', [PacienteController::class, 'validarPaciente']);
 
         /*--------------------------------------------------------------------------------*/
         /* SEDES DE TOMA DE MUESTRAS */
@@ -139,6 +140,6 @@ Route::prefix('/v1')->group(function () {
         Artisan::call('route:clear');
         Artisan::call('config:clear');
         Artisan::call('view:clear');
-    });
+   });
 
 });

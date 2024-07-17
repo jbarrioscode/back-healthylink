@@ -83,6 +83,41 @@ class PacienteRepository implements PacienteRepositoryInterface
         }
     }
 
+    public function validarPaciente(Request $request)
+    {
+        try {
+
+            $rules = [
+                'tipo_doc' => 'required|string',
+                'numero_documento' => 'required|string',
+            ];
+
+            $messages = [
+                'tipo_doc.required' => 'Tipo documento está vacio.',
+                'numero_documento.required' => 'Numero de documento está vacio.',
+            ];
+
+            $validator = Validator::make($request->all(), $rules, $messages);
+            if ($validator->fails()) {
+                return $this->error($validator->errors(), 422, []);
+            }
+
+            $pacientes = Pacientes::where('tipo_doc', $request->tipo_doc)
+                ->where('numero_documento', $request->numero_documento)->get();
+
+            if(count($pacientes) == 0){
+                return $this->success([], 1, 'Paciente disponible', 200);
+            }else{
+                return $this->error('El paciente ya se encuentra registrado',204,[]);
+            }
+
+        } catch (\Throwable $th) {
+
+            return $this->error('Hay un error' . $th, 204, []);
+            throw $th;
+        }
+    }
+
     public function getPatient(Request $request, $id)
     {
 
