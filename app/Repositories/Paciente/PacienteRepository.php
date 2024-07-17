@@ -3,6 +3,7 @@
 namespace App\Repositories\Paciente;
 
 use App\Http\Controllers\Api\v1\Encrypt\EncryptEncuestaInvController;
+use App\Models\TomaMuestrasInv\Config;
 use App\Models\TomaMuestrasInv\Muestras\DetalleEncuesta;
 use App\Models\TomaMuestrasInv\Muestras\FormularioMuestra;
 use App\Models\TomaMuestrasInv\Muestras\LogMuestras;
@@ -83,6 +84,41 @@ class PacienteRepository implements PacienteRepositoryInterface
         }
     }
 
+    public function validarPaciente(Request $request)
+    {
+        try {
+
+            $rules = [
+                'tipo_doc' => 'required|string',
+                'numero_documento' => 'required|string',
+            ];
+
+            $messages = [
+                'tipo_doc.required' => 'Tipo documento está vacio.',
+                'numero_documento.required' => 'Numero de documento está vacio.',
+            ];
+
+            $validator = Validator::make($request->all(), $rules, $messages);
+            if ($validator->fails()) {
+                return $this->error($validator->errors(), 422, []);
+            }
+
+            $pacientes = Pacientes::where('tipo_doc', $request->tipo_doc)
+                ->where('numero_documento', $request->numero_documento)->get();
+
+            if (count($pacientes) == 0) {
+                return $this->success([], 1, 'Paciente disponible', 200);
+            } else {
+                return $this->error('El paciente ya se encuentra registrado', 204, []);
+            }
+
+        } catch (\Throwable $th) {
+
+            return $this->error('Hay un error' . $th, 204, []);
+            throw $th;
+        }
+    }
+
     public function getPatient(Request $request, $id)
     {
 
@@ -154,6 +190,7 @@ class PacienteRepository implements PacienteRepositoryInterface
 
             $date = Carbon::now();
             $date->subHours(5);
+
 
             /*
             EnvioCorreosAutomaticosRepository::envioCorreoConsentimiento(
@@ -257,21 +294,27 @@ class PacienteRepository implements PacienteRepositoryInterface
             DB::commit();
 
             $formulario->detalle = $detalle;
-            $formulario->code = '-'.$code_paciente.'-'.$request->sedes_toma_muestras_id.'-'.$request->user_created_id;
+            $formulario->code = '-' . $code_paciente . '-' . $request->sedes_toma_muestras_id . '-' . $request->user_created_id;
 
 
-            /*
-            EnvioCorreosAutomaticosRepository::envioCorreoConsentimiento(
-                EncryptEncuestaInvController::decrypt($patient->primer_nombre).' '.EncryptEncuestaInvController::decrypt($patient->segundo_nombre)
-                . ' '.EncryptEncuestaInvController::decrypt($patient->primer_apellido). ' '.EncryptEncuestaInvController::decrypt($patient->segundo_apellido). ' ',
-                $patient->numero_documento,
-                $patient->ciudad_residencia,
-                $patient->telefono_celular,
-                $patient->correo_electronico,
-                $request->firma,
-                $date->toDateTimeString()
-            );
-            */
+            $configConsentimiento = Config::where('modulo', 'envioCorreoConsentimiento')->first();
+
+            if ($configConsentimiento && $configConsentimiento->status === true) {
+                EnvioCorreosAutomaticosRepository::envioCorreoConsentimiento(
+                    EncryptEncuestaInvController::decrypt($patient->primer_nombre) . ' ' . EncryptEncuestaInvController::decrypt($patient->segundo_nombre)
+                    . ' ' . EncryptEncuestaInvController::decrypt($patient->primer_apellido) . ' ' . EncryptEncuestaInvController::decrypt($patient->segundo_apellido) . ' ',
+                    $patient->numero_documento,
+                    $patient->ciudad_residencia,
+                    $patient->telefono_celular,
+                    $patient->correo_electronico,
+                    $request->firma,
+                    $date->toDateTimeString(),
+                    $configConsentimiento->submodulo
+                );
+            }
+
+
+
             return $this->success($formulario, 1, 'Formulario registrado', 201);
 
 
@@ -282,7 +325,7 @@ class PacienteRepository implements PacienteRepositoryInterface
         }
     }
 
-    public function getpatientInformedConsent(Request $request,$paciente_id)
+    public function getpatientInformedConsent(Request $request, $paciente_id)
     {
 
         try {

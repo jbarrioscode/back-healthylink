@@ -25,6 +25,16 @@ class PacienteController extends Controller
             throw $th;
         }
     }
+    public function validarPaciente(Request $request)
+    {
+        try {
+
+            return $this->pacienteRepository->validarPaciente($request);
+
+        } catch (\Throwable $th) {
+            throw $th;
+        }
+    }
     public function getPatient(Request $request,$id=0)
     {
         try {
