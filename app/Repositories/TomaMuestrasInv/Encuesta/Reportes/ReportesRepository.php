@@ -233,7 +233,7 @@ class ReportesRepository implements ReportesRepositoryInterface
 
 
 
-            $permisoDescarga = UserForSedes::where('user_id', 3)->get(); //\auth()->user()->id
+            $permisoDescarga = UserForSedes::where('user_id', \auth()->user()->id)->get(); //\auth()->user()->id
 
             if ($permisoDescarga->isEmpty()) {
                 return $this->error('No tiene ninguna sede asignada para ver este reporte', 204, []);
