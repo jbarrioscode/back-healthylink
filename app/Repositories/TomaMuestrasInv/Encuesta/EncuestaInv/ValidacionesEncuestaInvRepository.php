@@ -205,7 +205,7 @@ class ValidacionesEncuestaInvRepository
 
 
         //------------------------------------------
-        $preguntaIds = range(1, 8);
+        $preguntaIds = range(1, 9);
         $preguntasPresentes = array_column($data, 'pregunta_id');
 
                 foreach ($preguntaIds as $preguntaId) {
