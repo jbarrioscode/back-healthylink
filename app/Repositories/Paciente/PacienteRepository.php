@@ -220,7 +220,7 @@ class PacienteRepository implements PacienteRepositoryInterface
             }
 
             do {
-                $code_paciente = strtoupper(Str::random(4, 'abcdefghijklmnopqrstuvwxyz0123456789'));
+                $code_paciente = strtoupper(Str::random(3, 'abcdefghijklmnopqrstuvwxyz0123456789'));
             } while (count(FormularioMuestra::where('code_paciente', '=', $code_paciente)->get()) === 1);
 
 
