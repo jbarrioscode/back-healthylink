@@ -272,7 +272,7 @@ class ReportesRepository implements ReportesRepositoryInterface
 
 
 
-            $formularioIds = $dataPrincipal->pluck('id');
+            $formularioIds = $dataPrincipal->pluck('minv_formulario_id');
 
             $dataComplementaria = RespuestaInformacionHistoriaClinica::leftJoin('minv_formulario_muestras', 'minv_formulario_muestras.id', '=', 'minv_respuesta_informacion_historia_clinicas.minv_formulario_id')
                 ->leftJoin('minv_pregunta_historia_clinicas', 'minv_pregunta_historia_clinicas.id', '=', 'minv_respuesta_informacion_historia_clinicas.pregunta_id')
