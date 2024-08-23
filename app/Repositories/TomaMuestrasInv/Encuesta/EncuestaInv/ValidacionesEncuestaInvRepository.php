@@ -262,9 +262,11 @@ class ValidacionesEncuestaInvRepository
 
         foreach ($muestras as $mue) {
             if (in_array($mue['muestra_id'], $muestrasEnLote)) {
-                return 'El id ' . $mue['muestra_id'] . ' ya se encuentra registrado en un lote';
+                $muestra = FormularioMuestra::where('muestra_id', $mue['muestra_id'])->first();
+                return 'La muestra: ' . $muestra->code_paciente . ' ya se encuentra registrado en un lote';
             }
         }
+
 
         return '';
     }
