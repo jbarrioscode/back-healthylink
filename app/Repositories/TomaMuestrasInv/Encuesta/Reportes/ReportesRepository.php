@@ -231,6 +231,7 @@ class ReportesRepository implements ReportesRepositoryInterface
             */
 
             set_time_limit(360);
+            ini_set('memory_limit', '600M');
 
 
 
