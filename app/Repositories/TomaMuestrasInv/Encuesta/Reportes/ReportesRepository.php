@@ -335,9 +335,9 @@ class ReportesRepository implements ReportesRepositoryInterface
             return $this->success(['survey' => $combinedData, 'dataComplementaria' => []], $dataPrincipal->count(), 'Ok', 200);
 
 
-        } catch (\Throwable $th) {
-            Log::error($th);
-            return $this->error($th,500,[]);
+        } catch (\Exception $e) {
+            Log::error( $e->getMessage());
+            return $this->error( $e->getMessage(),500,[]);
             //throw $th;
         }
     }
