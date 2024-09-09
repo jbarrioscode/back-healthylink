@@ -9,6 +9,7 @@ use App\Models\UserForSedes;
 use App\Traits\AuthenticationTrait;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Log;
 
 
 class ReportesRepository implements ReportesRepositoryInterface
@@ -335,6 +336,7 @@ class ReportesRepository implements ReportesRepositoryInterface
 
 
         } catch (\Throwable $th) {
+            Log::error($th);
             return $this->error($th,500,[]);
             //throw $th;
         }
