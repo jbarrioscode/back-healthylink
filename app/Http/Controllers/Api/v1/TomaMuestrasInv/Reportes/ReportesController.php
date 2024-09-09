@@ -25,7 +25,7 @@ class ReportesController extends Controller
             throw $th;
         }
     }
-    public function getDataForFecha(Request $request,$dateStart,$dateEnd)
+    public function getDataForFecha(Request $request,$dateStart=0,$dateEnd=0)
     {
         try {
 

@@ -17,6 +17,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 use Illuminate\Support\Facades\Artisan;
 
+
 Route::middleware(['auth:sanctum', 'verified'])
     ->get('/user', function (Request $request) {
         return $request->user();
@@ -128,7 +129,7 @@ Route::prefix('/v1')->group(function () {
         /* DASHBOARD */
 
         Route::get('/encuesta/get/reportes/datadashboard', [ReportesController::class, 'getDataDashboard']);
-        Route::get('/encuesta/get/reportes/databydate/{initdate}/{enddate}', [ReportesController::class, 'getDataForFecha']);
+        Route::get('/encuesta/get/reportes/databydate/{initdate?}/{enddate?}', [ReportesController::class, 'getDataForFecha']);
 
     });
 

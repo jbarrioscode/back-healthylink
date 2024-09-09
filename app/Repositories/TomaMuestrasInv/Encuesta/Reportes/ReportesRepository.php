@@ -244,33 +244,57 @@ class ReportesRepository implements ReportesRepositoryInterface
                 return $perm->allSedes ? SedesTomaMuestra::all()->pluck('id') : [$perm->sedes_toma_muestras_id];
             })->unique()->toArray();
 
-            $fechaEnd = Carbon::createFromFormat('Y-m-d', $dateEnd)->setTime(23, 59, 59);
+            if($dateStart==0 && $dateEnd==0){
 
+                $dataPrincipal = FormularioMuestra::leftJoin('pacientes', 'pacientes.id', '=', 'minv_formulario_muestras.paciente_id')
+                    ->leftJoin('minv_detalle_encuestas', 'minv_detalle_encuestas.minv_formulario_id', '=', 'minv_formulario_muestras.id')
+                    ->leftJoin('sedes_toma_muestras', 'sedes_toma_muestras.id', '=', 'minv_formulario_muestras.sedes_toma_muestras_id')
+                    ->select(
+                        'minv_formulario_muestras.id',
+                        'minv_formulario_muestras.created_at as fecha',
+                        'minv_formulario_muestras.code_paciente',
+                        'sedes_toma_muestras.nombre as sede',
+                        'pacientes.ciudad_residencia',
+                        'pacientes.departamento_residencia',
+                        'pacientes.fecha_nacimiento',
+                        'pacientes.grupo_sanguineo',
+                        'pacientes.pais_residencia',
+                        'pacientes.sexo',
+                        'minv_detalle_encuestas.*'
+                    )->whereIn('minv_formulario_muestras.sedes_toma_muestras_id', $sedes_permiso)
+                    ->get()
+                    ->each(function ($item) {
+                        $item->fecha = Carbon::parse($item->fecha)->subHours(5)->format('Y-m-d H:i:s');
+                        $item->makeHidden(['deleted_at', 'updated_at', 'created_at']);
+                    });
 
-            $dataPrincipal = FormularioMuestra::leftJoin('pacientes', 'pacientes.id', '=', 'minv_formulario_muestras.paciente_id')
-                ->leftJoin('minv_detalle_encuestas', 'minv_detalle_encuestas.minv_formulario_id', '=', 'minv_formulario_muestras.id')
-                ->leftJoin('sedes_toma_muestras', 'sedes_toma_muestras.id', '=', 'minv_formulario_muestras.sedes_toma_muestras_id')
-                ->select(
-                    'minv_formulario_muestras.id',
-                    'minv_formulario_muestras.created_at as fecha',
-                    'minv_formulario_muestras.code_paciente',
-                    'sedes_toma_muestras.nombre as sede',
-                    'pacientes.ciudad_residencia',
-                    'pacientes.departamento_residencia',
-                    'pacientes.fecha_nacimiento',
-                    'pacientes.grupo_sanguineo',
-                    'pacientes.pais_residencia',
-                    'pacientes.sexo',
-                    'minv_detalle_encuestas.*'
-                )
-                ->whereBetween('minv_formulario_muestras.created_at', [$dateStart, $fechaEnd])
-                ->whereIn('minv_formulario_muestras.sedes_toma_muestras_id', $sedes_permiso)
-                ->get()
-                ->each(function ($item) {
-                    $item->fecha = Carbon::parse($item->fecha)->subHours(5)->format('Y-m-d H:i:s');;
-                    $item->makeHidden(['deleted_at', 'updated_at', 'created_at']);
-                });
+            }else{
+                $fechaEnd = Carbon::createFromFormat('Y-m-d', $dateEnd)->setTime(23, 59, 59);
 
+                $dataPrincipal = FormularioMuestra::leftJoin('pacientes', 'pacientes.id', '=', 'minv_formulario_muestras.paciente_id')
+                    ->leftJoin('minv_detalle_encuestas', 'minv_detalle_encuestas.minv_formulario_id', '=', 'minv_formulario_muestras.id')
+                    ->leftJoin('sedes_toma_muestras', 'sedes_toma_muestras.id', '=', 'minv_formulario_muestras.sedes_toma_muestras_id')
+                    ->select(
+                        'minv_formulario_muestras.id',
+                        'minv_formulario_muestras.created_at as fecha',
+                        'minv_formulario_muestras.code_paciente',
+                        'sedes_toma_muestras.nombre as sede',
+                        'pacientes.ciudad_residencia',
+                        'pacientes.departamento_residencia',
+                        'pacientes.fecha_nacimiento',
+                        'pacientes.grupo_sanguineo',
+                        'pacientes.pais_residencia',
+                        'pacientes.sexo',
+                        'minv_detalle_encuestas.*'
+                    )
+                    ->whereBetween('minv_formulario_muestras.created_at', [$dateStart, $fechaEnd])
+                    ->whereIn('minv_formulario_muestras.sedes_toma_muestras_id', $sedes_permiso)
+                    ->get()
+                    ->each(function ($item) {
+                        $item->fecha = Carbon::parse($item->fecha)->subHours(5)->format('Y-m-d H:i:s');;
+                        $item->makeHidden(['deleted_at', 'updated_at', 'created_at']);
+                    });
+            }
 
 
             $formularioIds = $dataPrincipal->pluck('minv_formulario_id');
