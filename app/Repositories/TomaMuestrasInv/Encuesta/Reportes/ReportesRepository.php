@@ -335,7 +335,8 @@ class ReportesRepository implements ReportesRepositoryInterface
 
 
         } catch (\Throwable $th) {
-            throw $th;
+            return $this->error($th,500,[]);
+            //throw $th;
         }
     }
 
